@@ -34,7 +34,7 @@ const Navigation = () => {
             variant={item.isPremium ? "outline" : (isActive(item.path) ? "secondary" : "ghost")}
             size="sm"
             className={`flex flex-col items-center justify-center min-w-0 flex-1 max-w-[72px] h-auto py-1.5 px-1 ${
-              item.isPremium ? "rounded-full mx-1 border-primary/30 hover:border-primary/50" : ""
+              item.isPremium ? "rounded-lg mx-1 border-primary/30 hover:border-primary/50 aspect-square min-h-[52px]" : ""
             } ${
               isActive(item.path) && !item.isPremium
                 ? "bg-secondary text-foreground" 
