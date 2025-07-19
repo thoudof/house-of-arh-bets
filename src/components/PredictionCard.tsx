@@ -41,43 +41,43 @@ const PredictionCard = ({ prediction, className = "", style, onClick }: Predicti
       style={style}
       onClick={onClick}
     >
-      <CardContent className="p-4">
-        <div className="space-y-4">
+      <CardContent className="p-3 sm:p-4">
+        <div className="space-y-3 sm:space-y-4">
           {/* Header */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Badge variant="outline" className="text-xs">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center space-x-1.5 sm:space-x-2 flex-wrap">
+              <Badge variant="outline" className="text-[10px] sm:text-xs px-1.5 py-0.5">
                 {prediction.category}
               </Badge>
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant="secondary" className="text-[10px] sm:text-xs px-1.5 py-0.5">
                 {prediction.type}
               </Badge>
             </div>
-            <Badge className={`text-xs ${getStatusStyles(prediction.status)}`}>
+            <Badge className={`text-[10px] sm:text-xs px-1.5 py-0.5 whitespace-nowrap ${getStatusStyles(prediction.status)}`}>
               {getStatusText(prediction.status)}
             </Badge>
           </div>
 
           {/* Event */}
           <div>
-            <h3 className="font-semibold text-foreground mb-1">
+            <h3 className="font-semibold text-foreground mb-1 text-sm sm:text-base leading-tight">
               {prediction.event}
             </h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               от <span className="text-primary font-medium">{prediction.analyst}</span>
             </p>
           </div>
 
           {/* Prediction Details */}
-          <div className="bg-muted/30 rounded-lg p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Прогноз</p>
-                <p className="font-medium text-foreground">{prediction.prediction}</p>
+          <div className="bg-muted/30 rounded-lg p-2.5 sm:p-3">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs text-muted-foreground">Прогноз</p>
+                <p className="font-medium text-foreground text-sm sm:text-base truncate">{prediction.prediction}</p>
               </div>
-              <div className="text-right">
-                <p className="text-sm text-muted-foreground">Коэффициент</p>
-                <p className="font-bold text-lg text-primary">
+              <div className="text-right flex-shrink-0">
+                <p className="text-xs text-muted-foreground">Коэффициент</p>
+                <p className="font-bold text-base sm:text-lg text-primary">
                   {prediction.coefficient}
                 </p>
               </div>
@@ -85,17 +85,17 @@ const PredictionCard = ({ prediction, className = "", style, onClick }: Predicti
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 sm:gap-4 text-[10px] sm:text-xs text-muted-foreground flex-wrap">
               <div className="flex items-center space-x-1">
                 <Clock className="w-3 h-3" />
-                <span>{prediction.timeLeft}</span>
+                <span className="whitespace-nowrap">{prediction.timeLeft}</span>
               </div>
               <div className="flex items-center space-x-1">
                 <Users className="w-3 h-3" />
                 <span>245</span>
               </div>
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center space-x-1 hidden sm:flex">
                 <TrendingUp className="w-3 h-3" />
                 <span>ROI: +15%</span>
               </div>
@@ -103,6 +103,7 @@ const PredictionCard = ({ prediction, className = "", style, onClick }: Predicti
             <Button 
               size="sm" 
               variant={prediction.status === "pending" ? "premium" : "outline"}
+              className="text-xs px-2 sm:px-3 whitespace-nowrap"
             >
               {prediction.status === "pending" ? "Следить" : "Детали"}
             </Button>

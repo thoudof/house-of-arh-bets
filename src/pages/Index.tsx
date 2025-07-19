@@ -96,22 +96,22 @@ const Index = () => {
     <div className="min-h-screen bg-background telegram-safe-area">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
+        <div className="px-3 sm:px-4 py-3 sm:py-4 max-w-screen-lg mx-auto">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary-glow rounded-xl flex items-center justify-center">
-                <Trophy className="w-6 h-6 text-primary-foreground" />
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-primary to-primary-glow rounded-xl flex items-center justify-center">
+                <Trophy className="w-4 h-4 sm:w-6 sm:h-6 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
+                <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
                   House of Arh
                 </h1>
-                <p className="text-xs text-muted-foreground">Спортивные прогнозы</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Спортивные прогнозы</p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
-              <Badge variant="outline" className="border-primary/20 text-primary">
-                <Star className="w-3 h-3 mr-1" />
+              <Badge variant="outline" className="border-primary/20 text-primary text-[10px] sm:text-xs px-1.5 sm:px-2">
+                <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
                 Новичок
               </Badge>
             </div>
@@ -120,20 +120,20 @@ const Index = () => {
       </header>
 
       {/* Stats Overview */}
-      <section className="container mx-auto px-4 py-6">
-        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+      <section className="px-3 sm:px-4 py-4 sm:py-6 max-w-screen-lg mx-auto">
+        <div className="grid grid-cols-2 gap-2 sm:gap-4">
           {statsCards.map((stat, index) => (
             <Card key={index} className="card-gradient card-hover animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
-              <CardContent className="p-3">
+              <CardContent className="p-2.5 sm:p-3">
                 <div className="flex items-center justify-between">
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs text-muted-foreground truncate">{stat.title}</p>
-                    <p className="text-base sm:text-lg font-bold text-foreground">{stat.value}</p>
-                    <p className={`text-xs ${stat.trend === 'up' ? 'text-success' : 'text-destructive'}`}>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{stat.title}</p>
+                    <p className="text-sm sm:text-base lg:text-lg font-bold text-foreground">{stat.value}</p>
+                    <p className={`text-[10px] sm:text-xs ${stat.trend === 'up' ? 'text-success' : 'text-destructive'}`}>
                       {stat.change}
                     </p>
                   </div>
-                  <div className={`p-1.5 rounded-lg ${stat.trend === 'up' ? 'bg-success/20' : 'bg-destructive/20'}`}>
+                  <div className={`p-1 sm:p-1.5 rounded-lg ${stat.trend === 'up' ? 'bg-success/20' : 'bg-destructive/20'}`}>
                     <stat.icon className={`w-3 h-3 sm:w-4 sm:h-4 ${stat.trend === 'up' ? 'text-success' : 'text-destructive'}`} />
                   </div>
                 </div>
@@ -144,21 +144,21 @@ const Index = () => {
       </section>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 pb-20">
-        <div className="grid lg:grid-cols-3 gap-6">
+      <div className="px-3 sm:px-4 pb-20 max-w-screen-lg mx-auto">
+        <div className="grid lg:grid-cols-3 gap-4 lg:gap-6">
           {/* Main Feed */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-4 lg:space-y-6">
             {/* Predictions Section */}
             <Card className="card-gradient">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center justify-between text-sm sm:text-base">
                   <span>Актуальные прогнозы</span>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="text-xs sm:text-sm px-2 sm:px-3">
                     Все прогнозы
                   </Button>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3 sm:space-y-4">
                 {mockPredictions.map((prediction, index) => (
                   <PredictionCard 
                     key={prediction.id} 
@@ -173,20 +173,20 @@ const Index = () => {
 
             {/* Challenge of the Day */}
             <Card className="card-gradient border-primary/20 glow-primary">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Trophy className="w-5 h-5 text-primary" />
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center space-x-2 text-sm sm:text-base">
+                  <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                   <span>Челлендж дня</span>
-                  <Badge className="bg-primary text-primary-foreground">Активен</Badge>
+                  <Badge className="bg-primary text-primary-foreground text-[10px] sm:text-xs">Активен</Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold">Лесенка от ProAnalyst</h3>
-                    <p className="text-sm text-muted-foreground">Шаг 3/10 • Банк: $250</p>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-semibold text-sm sm:text-base truncate">Лесенка от ProAnalyst</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Шаг 3/10 • Банк: $250</p>
                   </div>
-                  <Button variant="premium">
+                  <Button variant="premium" size="sm" className="text-xs whitespace-nowrap">
                     Присоединиться
                   </Button>
                 </div>
@@ -195,25 +195,25 @@ const Index = () => {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-4 lg:space-y-6">
             <TopAnalysts />
             
             {/* Quick Actions */}
             <Card className="card-gradient">
-              <CardHeader>
-                <CardTitle className="text-base">Быстрые действия</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm sm:text-base">Быстрые действия</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <Button variant="premium" className="w-full">
-                  <Target className="w-4 h-4 mr-2" />
+              <CardContent className="space-y-2 sm:space-y-3">
+                <Button variant="premium" className="w-full text-xs sm:text-sm">
+                  <Target className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                   Добавить прогноз
                 </Button>
-                <Button variant="outline" className="w-full">
-                  <Users className="w-4 h-4 mr-2" />
+                <Button variant="outline" className="w-full text-xs sm:text-sm">
+                  <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                   Подписки
                 </Button>
-                <Button variant="outline" className="w-full">
-                  <Trophy className="w-4 h-4 mr-2" />
+                <Button variant="outline" className="w-full text-xs sm:text-sm">
+                  <Trophy className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                   Рейтинги
                 </Button>
               </CardContent>

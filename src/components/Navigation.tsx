@@ -18,15 +18,15 @@ const Navigation = () => {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-card/90 backdrop-blur-md border-t border-border telegram-safe-area z-50">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-around py-3">
+      <div className="max-w-screen-sm mx-auto px-2 sm:px-4">
+        <div className="flex items-center justify-between py-2 sm:py-3 gap-1">
           {navItems.map((item, index) => (
             <Button
               key={index}
               variant={item.isPremium ? "premium" : (isActive(item.path) ? "default" : "ghost")}
               size="sm"
-              className={`flex flex-col items-center space-y-1 h-auto py-2 px-3 ${
-                item.isPremium ? "rounded-full" : ""
+              className={`flex flex-col items-center justify-center min-w-0 flex-1 max-w-[72px] h-auto py-1.5 px-1 ${
+                item.isPremium ? "rounded-full mx-1" : ""
               } ${
                 isActive(item.path) && !item.isPremium
                   ? "text-primary glow-primary" 
@@ -34,8 +34,8 @@ const Navigation = () => {
               }`}
               onClick={() => navigate(item.path)}
             >
-              <item.icon className="w-5 h-5" />
-              <span className="text-xs">{item.label}</span>
+              <item.icon className="w-4 h-4 sm:w-5 sm:h-5 mb-0.5" />
+              <span className="text-[10px] sm:text-xs leading-tight truncate">{item.label}</span>
             </Button>
           ))}
         </div>
