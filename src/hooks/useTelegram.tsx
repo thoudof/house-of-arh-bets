@@ -38,11 +38,13 @@ export const useTelegram = () => {
       // Если Telegram WebApp есть, но пользователь undefined - используем mock
       if (!telegramUser) {
         console.warn('Telegram WebApp found but no user data. Using mock data.');
+        // Генерируем уникальный ID для каждого сеанса
+        const uniqueId = Math.floor(Math.random() * 1000000) + 100000;
         const mockUser = {
-          id: 286386622,
-          first_name: 'Test',
+          id: uniqueId,
+          first_name: 'Admin',
           last_name: 'User',
-          username: 'testuser',
+          username: 'admin',
           language_code: 'ru',
           is_premium: false
         };
@@ -64,11 +66,13 @@ export const useTelegram = () => {
     } else {
       // Если не в Telegram, используем mock данные для разработки
       console.warn('Telegram WebApp not found. Using mock data for development.');
+      // Генерируем уникальный ID для каждого сеанса
+      const uniqueId = Math.floor(Math.random() * 1000000) + 100000;
       const mockUser = {
-        id: 286386622,
-        first_name: 'Test',
+        id: uniqueId,
+        first_name: 'Admin',
         last_name: 'User',
-        username: 'testuser',
+        username: 'admin',
         language_code: 'ru',
         is_premium: false
       };
