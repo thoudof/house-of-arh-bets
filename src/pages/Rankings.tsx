@@ -115,7 +115,7 @@ const Rankings = () => {
                 <span>Топ-3 аналитиков</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-8 pb-6 py-[25px]">
+            <CardContent className="pt-8 pb-6 py-[10px]">
               <div className="flex justify-center items-end space-x-4 mt-4">
                 {rankings?.slice(0, 3).map((analyst, index) => <div key={analyst.id} className={`text-center space-y-3 ${index === 0 ? 'order-2' : index === 1 ? 'order-1' : 'order-3'}`}>
                     {/* Avatar positioned above podium */}
