@@ -31,8 +31,8 @@ export const useAuth = () => {
 
     // Create a unique email based on Telegram ID
     const email = `telegram_${telegramUser.id}@telegram.local`;
-    // Use consistent password based on Telegram ID (not changing)
-    const password = `telegram_${telegramUser.id}_secure`;
+    // Use the original password format that was working before
+    const password = `telegram_${telegramUser.id}`;
     
     console.log('🔑 Using credentials:', { email, passwordLength: password.length });
 

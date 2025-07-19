@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,9 +9,37 @@ import { supabase } from '@/integrations/supabase/client';
 
 export const TelegramDebugInfo = () => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [lastAuthLog, setLastAuthLog] = useState<string>('');
   const { user: telegramUser, isReady, platform, webApp } = useTelegram();
   const { user: authUser, loading: authLoading, profile, isAuthenticated, signOut, signInWithTelegram } = useAuth();
   const queryClient = useQueryClient();
+
+  // Захват console.log для отображения в интерфейсе
+  useEffect(() => {
+    const originalLog = console.log;
+    const originalError = console.error;
+    
+    console.log = (...args) => {
+      const message = args.join(' ');
+      if (message.includes('🔐') || message.includes('✅') || message.includes('❌') || message.includes('🔍')) {
+        setLastAuthLog(message);
+      }
+      originalLog(...args);
+    };
+    
+    console.error = (...args) => {
+      const message = args.join(' ');
+      if (message.includes('❌') || message.includes('Auto-signin failed')) {
+        setLastAuthLog(`ERROR: ${message}`);
+      }
+      originalError(...args);
+    };
+    
+    return () => {
+      console.log = originalLog;
+      console.error = originalError;
+    };
+  }, []);
 
   const clearAllData = async () => {
     try {
@@ -107,6 +135,15 @@ export const TelegramDebugInfo = () => {
               <div>URL: {window.location.href}</div>
             </div>
           </div>
+
+          {lastAuthLog && (
+            <div>
+              <div className="font-medium mb-1">Last Auth Log</div>
+              <div className="text-[10px] bg-muted/50 p-2 rounded max-h-16 overflow-y-auto">
+                {lastAuthLog}
+              </div>
+            </div>
+          )}
 
           <div className="pt-2 border-t space-y-2">
             {!isAuthenticated && telegramUser && (
