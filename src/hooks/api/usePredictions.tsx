@@ -3,6 +3,20 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 
+// Функция для трансформации данных из snake_case в camelCase
+const transformPrediction = (prediction: any) => ({
+  ...prediction,
+  userId: prediction.user_id,
+  startDate: prediction.start_date,
+  isPublic: prediction.is_public,
+  timeLeft: prediction.time_left,
+  createdAt: prediction.created_at,
+  updatedAt: prediction.updated_at,
+  analyst: prediction.profile?.first_name && prediction.profile?.last_name 
+    ? `${prediction.profile.first_name} ${prediction.profile.last_name}`
+    : 'Аналитик'
+});
+
 export interface PredictionData {
   event: string;
   type: 'single' | 'express' | 'system';
@@ -39,10 +53,10 @@ export const usePredictions = () => {
             .eq('user_id', prediction.user_id)
             .single();
           
-          return {
+          return transformPrediction({
             ...prediction,
             profile
-          };
+          });
         })
       );
 
@@ -68,7 +82,7 @@ export const useUserPredictions = (userId?: string) => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data?.map(transformPrediction);
     },
     enabled: !!targetUserId,
   });
@@ -93,10 +107,10 @@ export const usePrediction = (id: string) => {
         .eq('user_id', data.user_id)
         .single();
 
-      return {
+      return transformPrediction({
         ...data,
         profiles: profile
-      };
+      });
     },
     enabled: !!id,
   });
