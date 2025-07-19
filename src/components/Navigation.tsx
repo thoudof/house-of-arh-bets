@@ -1,10 +1,13 @@
+
 import { Home, TrendingUp, Trophy, User, Target, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTelegram } from "@/hooks/useTelegram";
 
 const Navigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { hapticFeedback } = useTelegram();
 
   const isActive = (path: string) => location.pathname === path;
   
@@ -15,6 +18,11 @@ const Navigation = () => {
     { icon: Target, label: "Подписки", path: "/subscriptions" },
     { icon: User, label: "Профиль", path: "/profile" }
   ];
+
+  const handleNavigation = (path: string) => {
+    hapticFeedback('selection');
+    navigate(path);
+  };
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-card/90 backdrop-blur-md border-t border-border telegram-safe-area z-50">
@@ -32,7 +40,7 @@ const Navigation = () => {
                   ? "text-primary glow-primary" 
                   : !item.isPremium ? "text-muted-foreground hover:text-foreground" : ""
               }`}
-              onClick={() => navigate(item.path)}
+              onClick={() => handleNavigation(item.path)}
             >
               <item.icon className="w-4 h-4 sm:w-5 sm:h-5 mb-0.5" />
               <span className="text-[10px] sm:text-xs leading-tight truncate">{item.label}</span>
