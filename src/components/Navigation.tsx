@@ -1,13 +1,19 @@
-import { Home, TrendingUp, Trophy, User, Target } from "lucide-react";
+import { Home, TrendingUp, Trophy, User, Target, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Navigation = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isActive = (path: string) => location.pathname === path;
+  
   const navItems = [
-    { icon: Home, label: "Главная", active: true },
-    { icon: Target, label: "Прогнозы" },
-    { icon: TrendingUp, label: "Рейтинг" },
-    { icon: Trophy, label: "Турниры" },
-    { icon: User, label: "Профиль" }
+    { icon: Home, label: "Главная", path: "/" },
+    { icon: Target, label: "Прогнозы", path: "/predictions" },
+    { icon: Plus, label: "Добавить", path: "/add-prediction", isPremium: true },
+    { icon: TrendingUp, label: "Рейтинг", path: "/rankings" },
+    { icon: User, label: "Профиль", path: "/profile" }
   ];
 
   return (
@@ -17,13 +23,16 @@ const Navigation = () => {
           {navItems.map((item, index) => (
             <Button
               key={index}
-              variant="ghost"
+              variant={item.isPremium ? "premium" : (isActive(item.path) ? "default" : "ghost")}
               size="sm"
               className={`flex flex-col items-center space-y-1 h-auto py-2 px-3 ${
-                item.active 
+                item.isPremium ? "rounded-full" : ""
+              } ${
+                isActive(item.path) && !item.isPremium
                   ? "text-primary glow-primary" 
-                  : "text-muted-foreground hover:text-foreground"
+                  : !item.isPremium ? "text-muted-foreground hover:text-foreground" : ""
               }`}
+              onClick={() => navigate(item.path)}
             >
               <item.icon className="w-5 h-5" />
               <span className="text-xs">{item.label}</span>

@@ -3,23 +3,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
+import type { Prediction } from "@/types";
+
 interface PredictionCardProps {
-  prediction: {
-    id: number;
-    analyst: string;
-    event: string;
-    type: string;
-    coefficient: number;
-    prediction: string;
-    status: "pending" | "win" | "loss";
-    timeLeft: string;
-    category: string;
-  };
+  prediction: Prediction;
   className?: string;
   style?: React.CSSProperties;
+  onClick?: () => void;
 }
 
-const PredictionCard = ({ prediction, className = "", style }: PredictionCardProps) => {
+const PredictionCard = ({ prediction, className = "", style, onClick }: PredictionCardProps) => {
   const getStatusStyles = (status: string) => {
     switch (status) {
       case "win":
@@ -43,7 +36,11 @@ const PredictionCard = ({ prediction, className = "", style }: PredictionCardPro
   };
 
   return (
-    <Card className={`card-gradient card-hover ${className}`} style={style}>
+    <Card 
+      className={`card-gradient card-hover ${onClick ? 'cursor-pointer' : ''} ${className}`} 
+      style={style}
+      onClick={onClick}
+    >
       <CardContent className="p-4">
         <div className="space-y-4">
           {/* Header */}

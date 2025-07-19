@@ -12,37 +12,52 @@ const Index = () => {
 
   const mockPredictions = [
     {
-      id: 1,
+      id: "1",
+      userId: "user1",
       analyst: "ProAnalyst",
       event: "Реал Мадрид vs Барселона",
-      type: "Ординар",
+      type: "single" as const,
       coefficient: 2.45,
       prediction: "П1",
       status: "pending" as const,
       timeLeft: "2ч 30м",
-      category: "Футбол"
+      category: "Футбол",
+      startDate: "2024-01-21T15:00:00Z",
+      isPublic: true,
+      createdAt: "2024-01-19T10:00:00Z",
+      updatedAt: "2024-01-19T10:00:00Z"
     },
     {
-      id: 2,
+      id: "2",
+      userId: "user2",
       analyst: "BetMaster",
       event: "Лейкерс vs Уорриорз",
-      type: "Экспресс",
+      type: "express" as const,
       coefficient: 3.20,
       prediction: "ТБ 220.5 + П2",
       status: "win" as const,
       timeLeft: "Завершено",
-      category: "Баскетбол"
+      category: "Баскетбол",
+      startDate: "2024-01-18T20:00:00Z",
+      isPublic: true,
+      createdAt: "2024-01-17T14:00:00Z",
+      updatedAt: "2024-01-18T22:00:00Z"
     },
     {
-      id: 3,
+      id: "3",
+      userId: "user3",
       analyst: "SportGuru",
       event: "Челси vs Арсенал",
-      type: "Система",
+      type: "system" as const,
       coefficient: 1.85,
       prediction: "ТБ 2.5",
       status: "loss" as const,
       timeLeft: "Завершено",
-      category: "Футбол"
+      category: "Футбол",
+      startDate: "2024-01-16T18:00:00Z",
+      isPublic: true,
+      createdAt: "2024-01-15T12:00:00Z",
+      updatedAt: "2024-01-16T20:00:00Z"
     }
   ];
 
@@ -150,6 +165,7 @@ const Index = () => {
                     prediction={prediction} 
                     className="animate-slide-up"
                     style={{ animationDelay: `${index * 150}ms` }}
+                    onClick={() => window.location.href = `/prediction/${prediction.id}`}
                   />
                 ))}
               </CardContent>
