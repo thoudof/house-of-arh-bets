@@ -38,21 +38,29 @@ export const useAuth = () => {
 
     try {
       console.log('🔄 Attempting sign in...');
-      // Try to sign in first
+      
+      // ВСЕГДА сначала пытаемся войти
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       
       console.log('📊 Sign in result:', { 
-        hasData: !!signInData, 
+        hasData: !!signInData?.user, 
         hasError: !!signInError, 
         errorMessage: signInError?.message 
       });
 
-      if (signInError && signInError.message.includes('Invalid login credentials')) {
+      // Если вход успешен - возвращаем результат
+      if (signInData?.user && !signInError) {
+        console.log('✅ Sign in successful:', signInData);
+        return signInData;
+      }
+
+      // Если ошибка "Invalid login credentials" - пользователя нет, создаем
+      if (signInError?.message?.includes('Invalid login credentials')) {
         console.log('🆕 User not found, creating new account...');
-        // User doesn't exist, create new account
+        
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
@@ -69,7 +77,7 @@ export const useAuth = () => {
         });
 
         console.log('📊 Sign up result:', { 
-          hasData: !!signUpData, 
+          hasData: !!signUpData?.user, 
           hasError: !!signUpError, 
           errorMessage: signUpError?.message 
         });
@@ -81,15 +89,19 @@ export const useAuth = () => {
 
         console.log('✅ Sign up successful:', signUpData);
         return signUpData;
-      } else if (signInError) {
+      }
+
+      // Любая другая ошибка - бросаем её
+      if (signInError) {
         console.error('❌ Sign in error:', signInError);
         throw signInError;
       }
 
-      console.log('✅ Sign in successful:', signInData);
-      return signInData;
+      // Не должно сюда попасть
+      throw new Error('Unexpected auth state');
+      
     } catch (error) {
-      console.error('Telegram auth error:', error);
+      console.error('❌ Telegram auth error:', error);
       throw error;
     }
   }, [telegramUser]);
