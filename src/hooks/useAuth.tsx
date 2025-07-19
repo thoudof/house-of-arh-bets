@@ -150,10 +150,12 @@ export const useAuth = () => {
           loading: false
         }));
 
-        // Fetch profile data when user signs in
-        if (session?.user && event === 'SIGNED_IN') {
+        // Fetch profile data when user signs in OR already signed in
+        if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+          console.log('🔄 Loading profile for user:', session.user.id);
           setTimeout(async () => {
             const profile = await fetchProfile(session.user.id);
+            console.log('📊 Profile loaded:', profile);
             setAuthState(prev => ({
               ...prev,
               profile
@@ -178,7 +180,9 @@ export const useAuth = () => {
       }));
 
       if (session?.user) {
+        console.log('🔄 Loading profile for existing session:', session.user.id);
         const profile = await fetchProfile(session.user.id);
+        console.log('📊 Profile loaded for existing session:', profile);
         setAuthState(prev => ({
           ...prev,
           profile
