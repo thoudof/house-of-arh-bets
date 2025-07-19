@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { usePrediction } from "@/hooks/api/usePredictions";
 import type { Prediction } from "@/types";
 
 const PredictionDetails = () => {
@@ -14,26 +15,19 @@ const PredictionDetails = () => {
   const { id } = useParams();
   const { toast } = useToast();
 
-  // Mock prediction data
-  const mockPrediction: Prediction = {
-    id: id || "1",
-    userId: "1",
-    analyst: "ProAnalyst",
-    event: "Реал Мадрид vs Барселона",
-    type: "single",
-    coefficient: 2.45,
-    prediction: "П1 (Победа Реал Мадрид)",
-    status: "pending",
-    stake: 1000,
-    profit: undefined,
-    timeLeft: "2ч 30м",
-    category: "Футбол",
-    description: "Реал Мадрид показывает отличную игру дома против Барселоны в последних встречах. Команда имеет преимущество в составе и мотивации. Барселона испытывает проблемы в обороне, что может сыграть на руку атакующей линии Реала.",
-    startDate: "2024-01-21T15:00:00Z",
-    isPublic: true,
-    createdAt: "2024-01-19T10:00:00Z",
-    updatedAt: "2024-01-19T10:00:00Z"
-  };
+  const { data: prediction, isLoading } = usePrediction(id!);
+
+  if (isLoading) {
+    return <div className="min-h-screen bg-background telegram-safe-area flex items-center justify-center">
+      <div className="text-center">Загрузка прогноза...</div>
+    </div>;
+  }
+
+  if (!prediction) {
+    return <div className="min-h-screen bg-background telegram-safe-area flex items-center justify-center">
+      <div className="text-center">Прогноз не найден</div>
+    </div>;
+  }
 
   const getStatusInfo = (status: string) => {
     switch (status) {
@@ -79,13 +73,13 @@ const PredictionDetails = () => {
     }
   };
 
-  const statusInfo = getStatusInfo(mockPrediction.status);
+  const statusInfo = getStatusInfo(prediction.status);
 
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: `Прогноз: ${mockPrediction.event}`,
-        text: `${mockPrediction.prediction} - коэф. ${mockPrediction.coefficient}`,
+        title: `Прогноз: ${prediction.event}`,
+        text: `${prediction.prediction} - коэф. ${prediction.coefficient}`,
         url: window.location.href
       });
     } else {
@@ -133,14 +127,14 @@ const PredictionDetails = () => {
             <div className="flex items-start justify-between">
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
-                  <Badge variant="outline">{mockPrediction.category}</Badge>
-                  <Badge variant="outline">{getTypeLabel(mockPrediction.type)}</Badge>
+                  <Badge variant="outline">{prediction.category}</Badge>
+                  <Badge variant="outline">{getTypeLabel(prediction.type)}</Badge>
                   <Badge className={statusInfo.color}>
                     <statusInfo.icon className="w-3 h-3 mr-1" />
                     {statusInfo.label}
                   </Badge>
                 </div>
-                <h2 className="text-xl font-bold">{mockPrediction.event}</h2>
+                <h2 className="text-xl font-bold">{prediction.event}</h2>
               </div>
             </div>
           </CardHeader>
@@ -150,33 +144,33 @@ const PredictionDetails = () => {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Прогноз:</span>
-                <span className="font-semibold">{mockPrediction.prediction}</span>
+                <span className="font-semibold">{prediction.prediction}</span>
               </div>
               
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Коэффициент:</span>
-                <span className="font-bold text-lg text-primary">{mockPrediction.coefficient}</span>
+                <span className="font-bold text-lg text-primary">{prediction.coefficient}</span>
               </div>
 
-              {mockPrediction.stake && (
+              {prediction.stake && (
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Размер ставки:</span>
-                  <span className="font-semibold">{mockPrediction.stake} ₽</span>
+                  <span className="font-semibold">{prediction.stake} ₽</span>
                 </div>
               )}
 
-              {mockPrediction.profit !== undefined && (
+              {prediction.profit !== undefined && (
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Результат:</span>
-                  <span className={`font-semibold ${mockPrediction.profit > 0 ? 'text-success' : 'text-destructive'}`}>
-                    {mockPrediction.profit > 0 ? '+' : ''}{mockPrediction.profit} ₽
+                  <span className={`font-semibold ${prediction.profit > 0 ? 'text-success' : 'text-destructive'}`}>
+                    {prediction.profit > 0 ? '+' : ''}{prediction.profit} ₽
                   </span>
                 </div>
               )}
 
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Время до события:</span>
-                <span className="font-semibold">{mockPrediction.timeLeft}</span>
+                <span className="font-semibold">{prediction.time_left || 'Не указано'}</span>
               </div>
             </div>
 
@@ -185,7 +179,7 @@ const PredictionDetails = () => {
             {/* Event Time */}
             <div className="flex items-center space-x-2 text-sm text-muted-foreground">
               <Calendar className="w-4 h-4" />
-              <span>Начало события: {formatDate(mockPrediction.startDate)}</span>
+              <span>Начало события: {formatDate(prediction.start_date)}</span>
             </div>
           </CardContent>
         </Card>
@@ -201,14 +195,14 @@ const PredictionDetails = () => {
           <CardContent>
             <div className="flex items-center space-x-3">
               <Avatar>
-                <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face" />
-                <AvatarFallback>{mockPrediction.analyst[0]}</AvatarFallback>
+                <AvatarImage src={prediction.profiles?.avatar_url || undefined} />
+                <AvatarFallback>{prediction.profiles?.first_name?.[0] || 'A'}</AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <h4 className="font-semibold">{mockPrediction.analyst}</h4>
-                <p className="text-sm text-muted-foreground">Аналитик</p>
+                <h4 className="font-semibold">{prediction.profiles?.first_name} {prediction.profiles?.last_name}</h4>
+                <p className="text-sm text-muted-foreground">{prediction.profiles?.role === 'analyst' ? 'Аналитик' : 'Пользователь'}</p>
               </div>
-              <Button variant="outline" size="sm" onClick={() => navigate('/profile')}>
+              <Button variant="outline" size="sm" onClick={() => navigate(`/profile/${prediction.user_id}`)}>
                 Профиль
               </Button>
             </div>
@@ -216,7 +210,7 @@ const PredictionDetails = () => {
         </Card>
 
         {/* Description */}
-        {mockPrediction.description && (
+        {prediction.description && (
           <Card className="card-gradient">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
@@ -226,7 +220,7 @@ const PredictionDetails = () => {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground leading-relaxed">
-                {mockPrediction.description}
+                {prediction.description}
               </p>
             </CardContent>
           </Card>
@@ -234,7 +228,7 @@ const PredictionDetails = () => {
 
         {/* Action Buttons */}
         <div className="space-y-3">
-          {mockPrediction.status === 'pending' && (
+          {prediction.status === 'pending' && (
             <Button variant="premium" className="w-full" size="lg">
               <Trophy className="w-4 h-4 mr-2" />
               Добавить в портфель
@@ -255,8 +249,8 @@ const PredictionDetails = () => {
         <Card className="card-gradient">
           <CardContent className="p-4">
             <div className="text-xs text-muted-foreground space-y-1">
-              <p>Создан: {formatDate(mockPrediction.createdAt)}</p>
-              <p>ID прогноза: {mockPrediction.id}</p>
+              <p>Создан: {formatDate(prediction.created_at)}</p>
+              <p>ID прогноза: {prediction.id}</p>
             </div>
           </CardContent>
         </Card>

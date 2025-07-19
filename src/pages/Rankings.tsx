@@ -7,57 +7,21 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
+import { useRankings } from "@/hooks/api/useProfiles";
+import { useAuth } from "@/hooks/useAuth";
 
 const Rankings = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [selectedPeriod, setSelectedPeriod] = useState("month");
 
-  const mockAnalysts = [
-    {
-      id: "1",
-      name: "ProAnalyst",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face",
-      rank: 1,
-      winRate: 72.5,
-      roi: 28.4,
-      totalPredictions: 156,
-      profit: 2450,
-      badge: "🏆"
-    },
-    {
-      id: "2", 
-      name: "BetMaster",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face",
-      rank: 2,
-      winRate: 68.8,
-      roi: 24.1,
-      totalPredictions: 203,
-      profit: 1890,
-      badge: "🥈"
-    },
-    {
-      id: "3",
-      name: "SportGuru", 
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b332c8ad?w=50&h=50&fit=crop&crop=face",
-      rank: 3,
-      winRate: 65.2,
-      roi: 21.7,
-      totalPredictions: 178,
-      profit: 1620,
-      badge: "🥉"
-    },
-    {
-      id: "4",
-      name: "FootballKing",
-      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=50&h=50&fit=crop&crop=face",
-      rank: 4,
-      winRate: 63.5,
-      roi: 19.8,
-      totalPredictions: 142,
-      profit: 1340,
-      badge: ""
-    }
-  ];
+  const { data: rankings, isLoading } = useRankings();
+
+  if (isLoading) {
+    return <div className="min-h-screen bg-background telegram-safe-area flex items-center justify-center">
+      <div className="text-center">Загрузка рейтингов...</div>
+    </div>;
+  }
 
   const getRankColor = (rank: number) => {
     if (rank === 1) return "text-yellow-400";
@@ -134,25 +98,35 @@ const Rankings = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-3 gap-2">
-                    {mockAnalysts.slice(0, 3).map((analyst) => (
+                    {rankings?.slice(0, 3).map((analyst, index) => (
                       <div key={analyst.id} className="text-center space-y-2">
                         <div className="relative">
-                          <Avatar className={`w-12 h-12 mx-auto ${analyst.rank === 1 ? 'border-2 border-yellow-400' : ''}`}>
-                            <AvatarImage src={analyst.avatar} alt={analyst.name} />
-                            <AvatarFallback>{analyst.name[0]}</AvatarFallback>
+                          <Avatar className={`w-12 h-12 mx-auto ${index === 0 ? 'border-2 border-yellow-400' : ''}`}>
+                            <AvatarImage src={analyst.avatar_url || undefined} alt={analyst.first_name} />
+                            <AvatarFallback>{analyst.first_name[0]}</AvatarFallback>
                           </Avatar>
-                          {analyst.badge && (
+                          {index === 0 && (
                             <div className="absolute -top-1 -right-1 text-lg">
-                              {analyst.badge}
+                              🏆
+                            </div>
+                          )}
+                          {index === 1 && (
+                            <div className="absolute -top-1 -right-1 text-lg">
+                              🥈
+                            </div>
+                          )}
+                          {index === 2 && (
+                            <div className="absolute -top-1 -right-1 text-lg">
+                              🥉
                             </div>
                           )}
                         </div>
                         <div>
-                          <p className={`font-bold text-sm ${getRankColor(analyst.rank)}`}>
-                            #{analyst.rank}
+                          <p className={`font-bold text-sm ${getRankColor(index + 1)}`}>
+                            #{index + 1}
                           </p>
-                          <p className="text-xs font-medium truncate">{analyst.name}</p>
-                          <p className="text-xs text-success">+{analyst.roi}%</p>
+                          <p className="text-xs font-medium truncate">{analyst.first_name} {analyst.last_name}</p>
+                          <p className="text-xs text-success">+{analyst.user_stats?.[0]?.roi || 0}%</p>
                         </div>
                       </div>
                     ))}
@@ -166,27 +140,27 @@ const Rankings = () => {
                   <CardTitle>Полный рейтинг</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {mockAnalysts.map((analyst) => (
+                  {rankings?.map((analyst, index) => (
                     <div key={analyst.id} className="flex items-center space-x-3 p-3 rounded-lg bg-card-hover hover:bg-card-hover/80 transition-colors">
-                      <div className={`flex items-center justify-center w-8 h-8 rounded-full bg-muted ${getRankColor(analyst.rank)}`}>
-                        <span className="font-bold text-sm">#{analyst.rank}</span>
+                      <div className={`flex items-center justify-center w-8 h-8 rounded-full bg-muted ${getRankColor(index + 1)}`}>
+                        <span className="font-bold text-sm">#{index + 1}</span>
                       </div>
                       
                       <Avatar className="w-10 h-10">
-                        <AvatarImage src={analyst.avatar} alt={analyst.name} />
-                        <AvatarFallback>{analyst.name[0]}</AvatarFallback>
+                        <AvatarImage src={analyst.avatar_url || undefined} alt={analyst.first_name} />
+                        <AvatarFallback>{analyst.first_name[0]}</AvatarFallback>
                       </Avatar>
                       
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold truncate">{analyst.name}</p>
+                        <p className="font-semibold truncate">{analyst.first_name} {analyst.last_name}</p>
                         <div className="flex items-center space-x-3 text-xs text-muted-foreground">
-                          <span>{analyst.totalPredictions} ставок</span>
-                          <span>{analyst.winRate}% побед</span>
+                          <span>{analyst.user_stats?.[0]?.total_predictions || 0} ставок</span>
+                          <span>{analyst.user_stats?.[0]?.win_rate || 0}% побед</span>
                         </div>
                       </div>
                       
                       <div className="text-right">
-                        <p className="font-bold text-success">+{analyst.roi}%</p>
+                        <p className="font-bold text-success">+{analyst.user_stats?.[0]?.roi || 0}%</p>
                         <p className="text-xs text-muted-foreground">ROI</p>
                       </div>
                     </div>
@@ -206,29 +180,31 @@ const Rankings = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center space-x-3 p-3 rounded-lg bg-primary/5">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground">
-                <span className="font-bold text-sm">#12</span>
-              </div>
-              
-              <Avatar className="w-10 h-10">
-                <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face" />
-                <AvatarFallback>AP</AvatarFallback>
-              </Avatar>
-              
-              <div className="flex-1">
-                <p className="font-semibold">Алексей Петров</p>
-                <div className="flex items-center space-x-3 text-xs text-muted-foreground">
-                  <span>45 ставок</span>
-                  <span>67% побед</span>
+            {user && (
+              <div className="flex items-center space-x-3 p-3 rounded-lg bg-primary/5">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground">
+                  <span className="font-bold text-sm">#{rankings?.findIndex(r => r.user_id === user.id) + 1 || '?'}</span>
+                </div>
+                
+                <Avatar className="w-10 h-10">
+                  <AvatarImage src={user.user_metadata?.avatar_url} />
+                  <AvatarFallback>{user.user_metadata?.first_name?.[0] || 'U'}</AvatarFallback>
+                </Avatar>
+                
+                <div className="flex-1">
+                  <p className="font-semibold">{user.user_metadata?.first_name} {user.user_metadata?.last_name}</p>
+                  <div className="flex items-center space-x-3 text-xs text-muted-foreground">
+                    <span>0 ставок</span>
+                    <span>0% побед</span>
+                  </div>
+                </div>
+                
+                <div className="text-right">
+                  <p className="font-bold text-success">+0%</p>
+                  <p className="text-xs text-muted-foreground">ROI</p>
                 </div>
               </div>
-              
-              <div className="text-right">
-                <p className="font-bold text-success">+23%</p>
-                <p className="text-xs text-muted-foreground">ROI</p>
-              </div>
-            </div>
+            )}
           </CardContent>
         </Card>
 

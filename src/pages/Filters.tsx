@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import PredictionCard from "@/components/PredictionCard";
 import FilterPanel from "@/components/FilterPanel";
+import { usePredictions } from "@/hooks/api/usePredictions";
 import type { Prediction } from "@/types";
 
 const Filters = () => {
@@ -12,61 +13,12 @@ const Filters = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({});
 
-  const mockPredictions: Prediction[] = [
-    {
-      id: "1",
-      userId: "1",
-      analyst: "ProAnalyst",
-      event: "Реал Мадрид vs Барселона",
-      type: "single",
-      coefficient: 2.45,
-      prediction: "П1",
-      status: "pending",
-      timeLeft: "2ч 30м",
-      category: "Футбол",
-      startDate: "2024-01-21T15:00:00Z",
-      isPublic: true,
-      createdAt: "2024-01-19T10:00:00Z",
-      updatedAt: "2024-01-19T10:00:00Z"
-    },
-    {
-      id: "2",
-      userId: "2",
-      analyst: "BetMaster",
-      event: "Лейкерс vs Уорриорз",
-      type: "express",
-      coefficient: 3.20,
-      prediction: "ТБ 220.5 + П2",
-      status: "win",
-      timeLeft: "Завершено",
-      category: "Баскетбол",
-      startDate: "2024-01-18T20:00:00Z",
-      isPublic: true,
-      createdAt: "2024-01-17T14:00:00Z",
-      updatedAt: "2024-01-18T22:00:00Z"
-    },
-    {
-      id: "3",
-      userId: "3",
-      analyst: "SportGuru",
-      event: "Челси vs Арсенал",
-      type: "system",
-      coefficient: 1.85,
-      prediction: "ТБ 2.5",
-      status: "loss",
-      timeLeft: "Завершено",
-      category: "Футбол",
-      startDate: "2024-01-16T18:00:00Z",
-      isPublic: true,
-      createdAt: "2024-01-15T12:00:00Z",
-      updatedAt: "2024-01-16T20:00:00Z"
-    }
-  ];
+  const { data: predictions, isLoading } = usePredictions();
 
-  const filteredPredictions = mockPredictions.filter(prediction => {
+  const filteredPredictions = (predictions || []).filter(prediction => {
     // Apply search filter
     if (searchQuery && !prediction.event.toLowerCase().includes(searchQuery.toLowerCase()) && 
-        !prediction.analyst.toLowerCase().includes(searchQuery.toLowerCase())) {
+        !prediction.profile?.first_name.toLowerCase().includes(searchQuery.toLowerCase())) {
       return false;
     }
     
@@ -112,7 +64,9 @@ const Filters = () => {
             </h2>
           </div>
 
-          {filteredPredictions.length > 0 ? (
+          {isLoading ? (
+            <div className="text-center py-12">Загрузка прогнозов...</div>
+          ) : filteredPredictions.length > 0 ? (
             <div className="space-y-4">
               {filteredPredictions.map((prediction) => (
                 <PredictionCard

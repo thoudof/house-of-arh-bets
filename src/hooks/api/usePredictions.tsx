@@ -78,23 +78,25 @@ export const usePrediction = (id: string) => {
   return useQuery({
     queryKey: ['prediction', id],
     queryFn: async () => {
-      const { data, error } = await supabase
+  const { data, error } = await supabase
         .from('predictions')
-        .select(`
-          *,
-          profiles!predictions_user_id_fkey(
-            first_name,
-            last_name,
-            username,
-            avatar_url,
-            role
-          )
-        `)
+        .select('*')
         .eq('id', id)
         .single();
 
       if (error) throw error;
-      return data;
+      
+      // Fetch profile separately
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('first_name, last_name, username, avatar_url, role')
+        .eq('user_id', data.user_id)
+        .single();
+
+      return {
+        ...data,
+        profiles: profile
+      };
     },
     enabled: !!id,
   });

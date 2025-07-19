@@ -12,17 +12,25 @@ export const useProfile = (userId?: string) => {
     queryFn: async () => {
       if (!targetUserId) throw new Error('User ID required');
 
-      const { data, error } = await supabase
+      const { data: profile, error } = await supabase
         .from('profiles')
-        .select(`
-          *,
-          user_stats(*)
-        `)
+        .select('*')
         .eq('user_id', targetUserId)
         .single();
 
       if (error) throw error;
-      return data;
+
+      // Fetch user stats separately
+      const { data: userStats } = await supabase
+        .from('user_stats')
+        .select('*')
+        .eq('user_id', targetUserId)
+        .single();
+
+      return {
+        ...profile,
+        user_stats: userStats ? [userStats] : []
+      };
     },
     enabled: !!targetUserId,
   });
@@ -67,17 +75,37 @@ export const useRankings = () => {
   return useQuery({
     queryKey: ['rankings'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: profiles, error } = await supabase
         .from('profiles')
-        .select(`
-          *,
-          user_stats(*)
-        `)
-        .order('user_stats(profit)', { ascending: false })
+        .select('*')
         .limit(50);
 
       if (error) throw error;
-      return data;
+
+      // Fetch user stats for each profile and sort by profit
+      const profilesWithStats = await Promise.all(
+        (profiles || []).map(async (profile) => {
+          const { data: userStats } = await supabase
+            .from('user_stats')
+            .select('*')
+            .eq('user_id', profile.user_id)
+            .single();
+
+          return {
+            ...profile,
+            user_stats: userStats ? [userStats] : []
+          };
+        })
+      );
+
+      // Sort by profit
+      profilesWithStats.sort((a, b) => {
+        const aProfit = a.user_stats[0]?.profit || 0;
+        const bProfit = b.user_stats[0]?.profit || 0;
+        return bProfit - aProfit;
+      });
+
+      return profilesWithStats;
     },
   });
 };

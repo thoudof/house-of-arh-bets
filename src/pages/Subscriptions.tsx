@@ -8,59 +8,17 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useTopAnalysts } from "@/hooks/api/useProfiles";
 
 const Subscriptions = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [notifications, setNotifications] = useState(true);
 
-  const mockSubscriptions = [
-    {
-      id: "1",
-      name: "ProAnalyst",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face",
-      winRate: 72.5,
-      roi: 28.4,
-      recentPredictions: 12,
-      subscribedAt: "2024-01-15",
-      isNotificationsEnabled: true,
-      tier: "premium"
-    },
-    {
-      id: "2",
-      name: "BetMaster",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face",
-      winRate: 68.8,
-      roi: 24.1,
-      recentPredictions: 8,
-      subscribedAt: "2024-01-10",
-      isNotificationsEnabled: false,
-      tier: "standard"
-    }
-  ];
+  const { data: topAnalysts, isLoading } = useTopAnalysts();
 
-  const mockRecommendations = [
-    {
-      id: "3",
-      name: "SportGuru",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b332c8ad?w=50&h=50&fit=crop&crop=face",
-      winRate: 65.2,
-      roi: 21.7,
-      recentPredictions: 15,
-      followers: 1250,
-      tier: "premium"
-    },
-    {
-      id: "4",
-      name: "FootballKing",
-      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=50&h=50&fit=crop&crop=face",
-      winRate: 63.5,
-      roi: 19.8,
-      recentPredictions: 10,
-      followers: 890,
-      tier: "standard"
-    }
-  ];
+  // Моковые подписки - в реальном приложении это будет отдельная таблица
+  const mockSubscriptions: any[] = [];
 
   const handleSubscribe = (analystId: string, analystName: string) => {
     toast({
@@ -197,31 +155,33 @@ const Subscriptions = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {mockRecommendations.map((analyst) => (
+                {isLoading ? (
+                  <div>Загрузка аналитиков...</div>
+                ) : topAnalysts?.map((analyst) => (
                   <div key={analyst.id} className="flex items-center space-x-3 p-3 rounded-lg bg-card-hover">
                     <Avatar className="w-12 h-12">
-                      <AvatarImage src={analyst.avatar} alt={analyst.name} />
-                      <AvatarFallback>{analyst.name[0]}</AvatarFallback>
+                      <AvatarImage src={analyst.avatar_url || undefined} alt={analyst.first_name} />
+                      <AvatarFallback>{analyst.first_name[0]}</AvatarFallback>
                     </Avatar>
                     
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center space-x-2">
-                        <p className="font-semibold truncate">{analyst.name}</p>
-                        {getTierBadge(analyst.tier)}
+                        <p className="font-semibold truncate">{analyst.first_name} {analyst.last_name}</p>
+                        {getTierBadge(analyst.role === 'analyst' ? 'premium' : 'standard')}
                       </div>
                       <div className="flex items-center space-x-3 text-sm text-muted-foreground">
-                        <span>{analyst.winRate}% побед</span>
-                        <span>+{analyst.roi}% ROI</span>
+                        <span>{analyst.user_stats?.win_rate || 0}% побед</span>
+                        <span>+{analyst.user_stats?.roi || 0}% ROI</span>
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        {analyst.followers} подписчиков
+                        {analyst.user_stats?.total_predictions || 0} прогнозов
                       </p>
                     </div>
                     
                     <Button 
                       variant="premium" 
                       size="sm"
-                      onClick={() => handleSubscribe(analyst.id, analyst.name)}
+                      onClick={() => handleSubscribe(analyst.id, `${analyst.first_name} ${analyst.last_name}`)}
                     >
                       <UserPlus className="w-4 h-4 mr-1" />
                       Подписаться
@@ -244,14 +204,14 @@ const Subscriptions = () => {
                   Аналитики, которые показывают рост результатов в последнее время
                 </p>
                 <div className="space-y-3">
-                  {mockRecommendations.slice(0, 2).map((analyst) => (
+                  {topAnalysts?.slice(0, 2).map((analyst) => (
                     <div key={analyst.id} className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
                         <Avatar className="w-8 h-8">
-                          <AvatarImage src={analyst.avatar} alt={analyst.name} />
-                          <AvatarFallback>{analyst.name[0]}</AvatarFallback>
+                          <AvatarImage src={analyst.avatar_url || undefined} alt={analyst.first_name} />
+                          <AvatarFallback>{analyst.first_name[0]}</AvatarFallback>
                         </Avatar>
-                        <span className="font-medium">{analyst.name}</span>
+                        <span className="font-medium">{analyst.first_name} {analyst.last_name}</span>
                       </div>
                       <Button variant="outline" size="sm">
                         Подписаться
