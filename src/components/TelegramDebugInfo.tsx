@@ -10,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 export const TelegramDebugInfo = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const { user: telegramUser, isReady, platform, webApp } = useTelegram();
-  const { user: authUser, loading: authLoading, profile, isAuthenticated, signOut } = useAuth();
+  const { user: authUser, loading: authLoading, profile, isAuthenticated, signOut, signInWithTelegram } = useAuth();
   const queryClient = useQueryClient();
 
   const clearAllData = async () => {
@@ -29,6 +29,15 @@ export const TelegramDebugInfo = () => {
       window.location.reload();
     } catch (error) {
       console.error('Error clearing data:', error);
+    }
+  };
+
+  const forceSignIn = async () => {
+    try {
+      console.log('🔄 Force sign in triggered...');
+      await signInWithTelegram();
+    } catch (error) {
+      console.error('Force sign in failed:', error);
     }
   };
 
@@ -99,7 +108,18 @@ export const TelegramDebugInfo = () => {
             </div>
           </div>
 
-          <div className="pt-2 border-t">
+          <div className="pt-2 border-t space-y-2">
+            {!isAuthenticated && telegramUser && (
+              <Button
+                size="sm"
+                variant="default"
+                onClick={forceSignIn}
+                className="w-full text-xs"
+              >
+                🔐 Принудительный вход
+              </Button>
+            )}
+            
             <Button
               size="sm"
               variant="destructive"

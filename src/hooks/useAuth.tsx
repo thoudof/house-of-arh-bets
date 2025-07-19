@@ -21,26 +21,37 @@ export const useAuth = () => {
   const { user: telegramUser, isReady } = useTelegram();
 
   const signInWithTelegram = useCallback(async () => {
-    console.log('signInWithTelegram called with user:', telegramUser);
+    console.log('🔐 signInWithTelegram called with user:', telegramUser);
     
     if (!telegramUser) {
-      console.error('Telegram user data not available');
-      throw new Error('Telegram user data not available');
+      const error = 'Telegram user data not available';
+      console.error('❌', error);
+      throw new Error(error);
     }
 
     // Create a unique email based on Telegram ID
     const email = `telegram_${telegramUser.id}@telegram.local`;
     // Use consistent password based on Telegram ID (not changing)
     const password = `telegram_${telegramUser.id}_secure`;
+    
+    console.log('🔑 Using credentials:', { email, passwordLength: password.length });
 
     try {
+      console.log('🔄 Attempting sign in...');
       // Try to sign in first
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
+      
+      console.log('📊 Sign in result:', { 
+        hasData: !!signInData, 
+        hasError: !!signInError, 
+        errorMessage: signInError?.message 
+      });
 
       if (signInError && signInError.message.includes('Invalid login credentials')) {
+        console.log('🆕 User not found, creating new account...');
         // User doesn't exist, create new account
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email,
@@ -57,15 +68,25 @@ export const useAuth = () => {
           }
         });
 
+        console.log('📊 Sign up result:', { 
+          hasData: !!signUpData, 
+          hasError: !!signUpError, 
+          errorMessage: signUpError?.message 
+        });
+
         if (signUpError) {
+          console.error('❌ Sign up error:', signUpError);
           throw signUpError;
         }
 
+        console.log('✅ Sign up successful:', signUpData);
         return signUpData;
       } else if (signInError) {
+        console.error('❌ Sign in error:', signInError);
         throw signInError;
       }
 
+      console.log('✅ Sign in successful:', signInData);
       return signInData;
     } catch (error) {
       console.error('Telegram auth error:', error);
@@ -158,18 +179,30 @@ export const useAuth = () => {
 
   // Auto-signin with Telegram if user is not authenticated
   useEffect(() => {
-    console.log('Auto-signin check:', {
+    console.log('🔍 Auto-signin check:', {
       authLoading: authState.loading,
       hasUser: !!authState.user,
       hasTelegramUser: !!telegramUser,
-      isReady: isReady
+      telegramUserId: telegramUser?.id,
+      isReady: isReady,
+      shouldAttemptSignin: !authState.loading && !authState.user && telegramUser && isReady
     });
     
     if (!authState.loading && !authState.user && telegramUser && isReady) {
-      console.log('Attempting auto-signin with Telegram...');
-      signInWithTelegram().catch((error) => {
-        console.error('Auto-signin failed:', error);
-      });
+      console.log('🚀 Attempting auto-signin with Telegram user:', telegramUser);
+      signInWithTelegram()
+        .then((result) => {
+          console.log('✅ Auto-signin successful:', result);
+        })
+        .catch((error) => {
+          console.error('❌ Auto-signin failed:', error);
+          // Показать ошибку пользователю через debug панель
+          console.error('Auth error details:', {
+            message: error.message,
+            code: error.code,
+            status: error.status
+          });
+        });
     }
   }, [authState.loading, authState.user, telegramUser, isReady, signInWithTelegram]);
 
