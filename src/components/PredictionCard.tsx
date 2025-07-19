@@ -1,7 +1,10 @@
-import { Clock, Users, TrendingUp } from "lucide-react";
+import { useState } from "react";
+import { Clock, Users, TrendingUp, Settings } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PredictionStatusDialog } from "@/components/PredictionStatusDialog";
+import { useAuth } from "@/hooks/useAuth";
 
 import type { Prediction } from "@/types";
 
@@ -10,9 +13,12 @@ interface PredictionCardProps {
   className?: string;
   style?: React.CSSProperties;
   onClick?: () => void;
+  showAdminActions?: boolean;
 }
 
-const PredictionCard = ({ prediction, className = "", style, onClick }: PredictionCardProps) => {
+const PredictionCard = ({ prediction, className = "", style, onClick, showAdminActions = false }: PredictionCardProps) => {
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const { user } = useAuth();
   const getStatusStyles = (status: string) => {
     switch (status) {
       case "win":
@@ -100,16 +106,38 @@ const PredictionCard = ({ prediction, className = "", style, onClick }: Predicti
                 <span>ROI: +15%</span>
               </div>
             </div>
-            <Button 
-              size="sm" 
-              variant={prediction.status === "pending" ? "premium" : "outline"}
-              className="text-xs px-2 sm:px-3 whitespace-nowrap"
-            >
-              {prediction.status === "pending" ? "Следить" : "Детали"}
-            </Button>
+            <div className="flex gap-2">
+              {showAdminActions && prediction.status === "pending" && (
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  className="text-xs px-2 sm:px-3 whitespace-nowrap"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setStatusDialogOpen(true);
+                  }}
+                >
+                  <Settings className="w-3 h-3 mr-1" />
+                  Результат
+                </Button>
+              )}
+              <Button 
+                size="sm" 
+                variant={prediction.status === "pending" ? "premium" : "outline"}
+                className="text-xs px-2 sm:px-3 whitespace-nowrap"
+              >
+                {prediction.status === "pending" ? "Следить" : "Детали"}
+              </Button>
+            </div>
           </div>
         </div>
       </CardContent>
+      
+      <PredictionStatusDialog
+        prediction={prediction}
+        open={statusDialogOpen}
+        onOpenChange={setStatusDialogOpen}
+      />
     </Card>
   );
 };

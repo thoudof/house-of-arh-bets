@@ -93,7 +93,9 @@ const Profile = () => {
                     <span>С {new Date(profile.created_at).toLocaleDateString('ru-RU')}</span>
                   </div>
                   <Badge className="bg-primary text-primary-foreground">
-                    {profile.role === 'analyst' ? 'Аналитик' : 'Пользователь'}
+                    {profile.role === 'admin' ? 'Администратор' : 
+                     profile.role === 'analyst' ? 'Аналитик' : 
+                     profile.role === 'moderator' ? 'Модератор' : 'Пользователь'}
                   </Badge>
                 </div>
 
@@ -200,6 +202,7 @@ const Profile = () => {
                     key={prediction.id} 
                     prediction={prediction}
                     onClick={() => navigate(`/prediction/${prediction.id}`)}
+                    showAdminActions={user?.id === prediction.userId || profile.role === 'admin' || profile.role === 'moderator'}
                   />
                 ))
               ) : (
