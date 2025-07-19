@@ -87,11 +87,11 @@ const Rankings = () => {
         <div className="grid grid-cols-4 gap-3">
           {categories.map((category, index) => (
             <Card key={category.id} className="card-gradient card-hover cursor-pointer transition-all duration-200 hover:scale-105">
-              <CardContent className="p-4 text-center space-y-2">
+              <CardContent className="p-4 text-center space-y-2 flex flex-col items-center justify-center min-h-[80px]">
                 <div className="w-10 h-10 bg-primary/10 rounded-xl mx-auto flex items-center justify-center">
                   <category.icon className="w-5 h-5 text-primary" />
                 </div>
-                <p className="text-xs font-medium text-foreground">{category.name}</p>
+                <p className="text-xs font-medium text-foreground text-center">{category.name}</p>
               </CardContent>
             </Card>
           ))}
@@ -108,32 +108,31 @@ const Rankings = () => {
                 <span>Топ-3 аналитиков</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="pb-6">
-              <div className="flex justify-center items-end space-x-4">
+            <CardContent className="pt-8 pb-6">
+              <div className="flex justify-center items-end space-x-4 mt-4">
                 {rankings?.slice(0, 3).map((analyst, index) => (
                   <div key={analyst.id} className={`text-center space-y-3 ${index === 0 ? 'order-2' : index === 1 ? 'order-1' : 'order-3'}`}>
-                    {/* Podium */}
-                    <div className={`relative ${index === 0 ? 'h-24' : index === 1 ? 'h-20' : 'h-16'} w-16 mx-auto`}>
-                      <div className={`absolute bottom-0 w-full rounded-t-lg ${
-                        index === 0 ? 'bg-gradient-to-t from-yellow-400 to-yellow-300 h-full' :
-                        index === 1 ? 'bg-gradient-to-t from-gray-400 to-gray-300 h-5/6' :
-                        'bg-gradient-to-t from-orange-400 to-orange-300 h-2/3'
-                      }`}>
-                        <div className="absolute -top-12 left-1/2 transform -translate-x-1/2">
-                          <Avatar className={`${index === 0 ? 'w-16 h-16 border-4 border-yellow-400' : 'w-14 h-14 border-2 border-gray-400'} ${index === 2 ? 'border-orange-400' : ''}`}>
-                            <AvatarImage src={analyst.avatar_url || undefined} alt={analyst.first_name} />
-                            <AvatarFallback className="text-lg font-bold">{analyst.first_name[0]}</AvatarFallback>
-                          </Avatar>
-                          <div className="absolute -top-2 -right-1 text-2xl">
-                            {index === 0 ? '🏆' : index === 1 ? '🥈' : '🥉'}
-                          </div>
-                        </div>
-                        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 text-center">
-                          <p className="text-white font-bold text-lg">#{index + 1}</p>
-                        </div>
+                    {/* Avatar positioned above podium */}
+                    <div className="mb-2">
+                      <Avatar className={`${index === 0 ? 'w-16 h-16 border-4 border-yellow-400' : 'w-14 h-14 border-2 border-gray-400'} ${index === 2 ? 'border-orange-400' : ''} mx-auto`}>
+                        <AvatarImage src={analyst.avatar_url || undefined} alt={analyst.first_name} />
+                        <AvatarFallback className="text-lg font-bold">{analyst.first_name[0]}</AvatarFallback>
+                      </Avatar>
+                      <div className="absolute ml-12 -mt-6 text-2xl">
+                        {index === 0 ? '🏆' : index === 1 ? '🥈' : '🥉'}
                       </div>
                     </div>
-                    <div className="mt-8">
+                    {/* Podium */}
+                    <div className={`relative ${index === 0 ? 'h-20' : index === 1 ? 'h-16' : 'h-12'} w-16 mx-auto`}>
+                      <div className={`w-full rounded-t-lg ${
+                        index === 0 ? 'bg-gradient-to-t from-yellow-400 to-yellow-300 h-full' :
+                        index === 1 ? 'bg-gradient-to-t from-gray-400 to-gray-300 h-full' :
+                        'bg-gradient-to-t from-orange-400 to-orange-300 h-full'
+                      } flex items-center justify-center`}>
+                        <p className="text-white font-bold text-lg">#{index + 1}</p>
+                      </div>
+                    </div>
+                    <div className="mt-4">
                       <p className="font-bold text-sm">{analyst.first_name} {analyst.last_name}</p>
                       <p className="text-success font-semibold">+{analyst.user_stats?.[0]?.roi || 0}%</p>
                     </div>
