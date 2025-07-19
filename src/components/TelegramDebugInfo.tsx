@@ -69,6 +69,19 @@ export const TelegramDebugInfo = () => {
     }
   };
 
+  const refreshProfile = async () => {
+    try {
+      console.log('🔄 Refreshing profile...');
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      // Принудительно обновляем профиль в useAuth
+      if (authUser?.id) {
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error('Profile refresh failed:', error);
+    }
+  };
+
   if (!isExpanded) {
     return (
       <div className="fixed top-4 right-4 z-50">
@@ -154,6 +167,17 @@ export const TelegramDebugInfo = () => {
                 className="w-full text-xs"
               >
                 🔐 Принудительный вход
+              </Button>
+            )}
+            
+            {isAuthenticated && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={refreshProfile}
+                className="w-full text-xs"
+              >
+                🔄 Обновить профиль
               </Button>
             )}
             
