@@ -13,12 +13,29 @@ interface PredictionCardProps {
   className?: string;
   style?: React.CSSProperties;
   onClick?: () => void;
-  showAdminActions?: boolean;
 }
 
-const PredictionCard = ({ prediction, className = "", style, onClick, showAdminActions = false }: PredictionCardProps) => {
+const PredictionCard = ({ prediction, className = "", style, onClick }: PredictionCardProps) => {
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  
+  // Check if user can edit this prediction
+  const canEditPrediction = () => {
+    if (!user || !profile) return false;
+    
+    // Debug logging
+    console.log('PredictionCard Debug:', {
+      userId: user.id,
+      profile: profile,
+      predictionUserId: prediction.userId
+    });
+    
+    // User is admin or moderator
+    if (profile.role === 'admin' || profile.role === 'moderator') return true;
+    // User owns this prediction
+    if (user.id === prediction.userId) return true;
+    return false;
+  };
   const getStatusStyles = (status: string) => {
     switch (status) {
       case "win":
@@ -107,7 +124,7 @@ const PredictionCard = ({ prediction, className = "", style, onClick, showAdminA
               </div>
             </div>
             <div className="flex gap-2">
-              {showAdminActions && prediction.status === "pending" && (
+              {canEditPrediction() && prediction.status === "pending" && (
                 <Button 
                   size="sm" 
                   variant="outline"

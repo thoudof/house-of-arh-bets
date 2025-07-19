@@ -202,7 +202,6 @@ const Profile = () => {
                     key={prediction.id} 
                     prediction={prediction}
                     onClick={() => navigate(`/prediction/${prediction.id}`)}
-                    showAdminActions={user?.id === prediction.userId || profile.role === 'admin' || profile.role === 'moderator'}
                   />
                 ))
               ) : (
