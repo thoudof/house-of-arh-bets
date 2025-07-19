@@ -9,11 +9,16 @@ import PredictionCard from "@/components/PredictionCard";
 import TopAnalysts from "@/components/TopAnalysts";
 import { usePredictions } from "@/hooks/api/usePredictions";
 import { useAuth } from "@/hooks/useAuth";
+import { useChallenges } from "@/hooks/api/useChallenges";
 
 const Index = () => {
   const navigate = useNavigate();
   const { profile } = useAuth();
   const { data: predictions, isLoading: predictionsLoading } = usePredictions();
+  const { data: challenges, isLoading: challengesLoading } = useChallenges();
+
+  // Get the first active challenge for "Challenge of the Day"
+  const todayChallenge = challenges?.[0];
 
   // Calculate stats from user profile
   const statsCards = [
@@ -171,19 +176,52 @@ const Index = () => {
                 <CardTitle className="flex items-center space-x-2 text-sm sm:text-base">
                   <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                   <span>Челлендж дня</span>
-                  <Badge className="bg-primary text-primary-foreground text-[9px] sm:text-[10px]">Активен</Badge>
+                  {todayChallenge && (
+                    <Badge className="bg-primary text-primary-foreground text-[9px] sm:text-[10px]">
+                      {todayChallenge.status === 'active' ? 'Активен' : 'Завершен'}
+                    </Badge>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-between gap-3">
-                  <div className="min-w-0 flex-1">
-                    <h3 className="font-semibold text-sm truncate">Лесенка от ProAnalyst</h3>
-                    <p className="text-[10px] sm:text-xs text-muted-foreground">Шаг 3/10 • Банк: $250</p>
+                {challengesLoading ? (
+                  <div className="h-16 bg-muted/20 rounded-lg animate-pulse" />
+                ) : todayChallenge ? (
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-semibold text-sm truncate">{todayChallenge.title}</h3>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">
+                        {todayChallenge.type === 'ladder' ? 'Лесенка' : 'Марафон'} • 
+                        {todayChallenge.current_step && todayChallenge.total_steps ? ` Шаг ${todayChallenge.current_step}/${todayChallenge.total_steps} • ` : ' '}
+                        Банк: ${Number(todayChallenge.current_bank || 0).toFixed(0)}
+                      </p>
+                      <p className="text-[9px] text-muted-foreground mt-1">
+                        Создатель: {todayChallenge.creator_name}
+                      </p>
+                    </div>
+                    <Button 
+                      variant="premium" 
+                      size="sm" 
+                      className="text-[10px] sm:text-xs whitespace-nowrap" 
+                      onClick={() => navigate(`/challenge/${todayChallenge.id}`)}
+                    >
+                      Подробнее
+                    </Button>
                   </div>
-                  <Button variant="premium" size="sm" className="text-[10px] sm:text-xs whitespace-nowrap" onClick={() => navigate('/challenges')}>
-                    Присоединиться
-                  </Button>
-                </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <Trophy className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-xs text-muted-foreground mb-3">Пока нет активных челленджей</p>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-[10px] sm:text-xs" 
+                      onClick={() => navigate('/challenges')}
+                    >
+                      Все челленджи
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
