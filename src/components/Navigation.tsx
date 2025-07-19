@@ -29,21 +29,21 @@ const Navigation = () => {
       <div className="max-w-screen-sm mx-auto px-2 sm:px-4">
         <div className="flex items-center justify-between py-2 sm:py-3 gap-1">
           {navItems.map((item, index) => (
-            <Button
-              key={index}
-              variant={item.isPremium ? "premium" : (isActive(item.path) ? "default" : "ghost")}
-              size="sm"
-              className={`flex flex-col items-center justify-center min-w-0 flex-1 max-w-[72px] h-auto py-1.5 px-1 ${
-                item.isPremium ? "rounded-full mx-1" : ""
-              } ${
-                isActive(item.path) && !item.isPremium
-                  ? "text-primary glow-primary" 
-                  : !item.isPremium ? "text-muted-foreground hover:text-foreground" : ""
-              }`}
-              onClick={() => handleNavigation(item.path)}
-            >
+          <Button
+            key={index}
+            variant={item.isPremium ? "outline" : (isActive(item.path) ? "secondary" : "ghost")}
+            size="sm"
+            className={`flex flex-col items-center justify-center min-w-0 flex-1 max-w-[72px] h-auto py-1.5 px-1 ${
+              item.isPremium ? "rounded-full mx-1 border-primary/30 hover:border-primary/50" : ""
+            } ${
+              isActive(item.path) && !item.isPremium
+                ? "bg-secondary text-foreground" 
+                : !item.isPremium ? "text-muted-foreground hover:text-foreground" : ""
+            }`}
+            onClick={() => handleNavigation(item.path)}
+          >
               <item.icon className="w-4 h-4 sm:w-5 sm:h-5 mb-0.5" />
-              <span className="text-[10px] sm:text-xs leading-tight truncate">{item.label}</span>
+              <span className="text-[9px] sm:text-[10px] leading-tight truncate">{item.label}</span>
             </Button>
           ))}
         </div>
