@@ -23,13 +23,6 @@ const PredictionCard = ({ prediction, className = "", style, onClick }: Predicti
   const canEditPrediction = () => {
     if (!user || !profile) return false;
     
-    // Debug logging
-    console.log('PredictionCard Debug:', {
-      userId: user.id,
-      profile: profile,
-      predictionUserId: prediction.userId
-    });
-    
     // User is admin or moderator
     if (profile.role === 'admin' || profile.role === 'moderator') return true;
     // User owns this prediction

@@ -4,11 +4,33 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useTelegram } from '@/hooks/useTelegram';
 import { useAuth } from '@/hooks/useAuth';
+import { useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 export const TelegramDebugInfo = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const { user: telegramUser, isReady, platform, webApp } = useTelegram();
-  const { user: authUser, loading: authLoading, profile, isAuthenticated } = useAuth();
+  const { user: authUser, loading: authLoading, profile, isAuthenticated, signOut } = useAuth();
+  const queryClient = useQueryClient();
+
+  const clearAllData = async () => {
+    try {
+      // Очистка React Query кэша
+      queryClient.clear();
+      
+      // Выход из Supabase
+      await signOut();
+      
+      // Очистка всех данных из sessionStorage и localStorage
+      sessionStorage.clear();
+      localStorage.clear();
+      
+      // Перезагрузка страницы
+      window.location.reload();
+    } catch (error) {
+      console.error('Error clearing data:', error);
+    }
+  };
 
   if (!isExpanded) {
     return (
@@ -74,6 +96,20 @@ export const TelegramDebugInfo = () => {
             <div className="space-y-1">
               <div>User Agent: {navigator.userAgent.slice(0, 50)}...</div>
               <div>URL: {window.location.href}</div>
+            </div>
+          </div>
+
+          <div className="pt-2 border-t">
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={clearAllData}
+              className="w-full text-xs"
+            >
+              🗑️ Очистить все данные
+            </Button>
+            <div className="text-[10px] text-muted-foreground mt-1 text-center">
+              Удалит кэш и перезагрузит приложение
             </div>
           </div>
         </CardContent>

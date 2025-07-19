@@ -30,7 +30,8 @@ const queryClient = new QueryClient({
     queries: {
       retry: 1,
       refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 30 * 1000, // Сокращено до 30 секунд для более частого обновления
+      gcTime: 2 * 60 * 1000, // Данные удаляются из кэша через 2 минуты
     },
   },
 });
