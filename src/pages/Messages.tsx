@@ -6,80 +6,18 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
+import { useMessages } from "@/hooks/api/useMessages";
 
 const Messages = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+  const { data: messages } = useMessages();
 
-  const conversations = [
-    {
-      id: "1",
-      user: {
-        id: "user1",
-        name: "ProAnalyst",
-        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face",
-        status: "online"
-      },
-      lastMessage: {
-        text: "Кстати, у меня есть новый прогноз на завтра. Хочешь обсудить?",
-        timestamp: "14:40",
-        isRead: false,
-        senderId: "user1"
-      },
-      unreadCount: 2
-    },
-    {
-      id: "2",
-      user: {
-        id: "user2", 
-        name: "BetMaster",
-        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face",
-        status: "offline"
-      },
-      lastMessage: {
-        text: "Спасибо за совет по ставке!",
-        timestamp: "вчера",
-        isRead: true,
-        senderId: "current"
-      },
-      unreadCount: 0
-    },
-    {
-      id: "3",
-      user: {
-        id: "user3",
-        name: "SportGuru",
-        avatar: "https://images.unsplash.com/photo-1494790108755-2616b332c8ad?w=50&h=50&fit=crop&crop=face",
-        status: "online"
-      },
-      lastMessage: {
-        text: "Увидел твой анализ матча, очень интересно",
-        timestamp: "13:25",
-        isRead: true,
-        senderId: "user3"
-      },
-      unreadCount: 0
-    },
-    {
-      id: "4",
-      user: {
-        id: "user4",
-        name: "FootballKing",
-        avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=50&h=50&fit=crop&crop=face",
-        status: "offline"
-      },
-      lastMessage: {
-        text: "Можем создать общий экспресс?",
-        timestamp: "2 дня назад",
-        isRead: false,
-        senderId: "user4"
-      },
-      unreadCount: 1
-    }
-  ];
+  // Пока используем статичные данные, так как функциональность сообщений будет реализована позже
+  const conversations: any[] = [];
 
   const filteredConversations = conversations.filter(conv =>
-    conv.user.name.toLowerCase().includes(searchQuery.toLowerCase())
+    conv.user?.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const formatTime = (timestamp: string) => {

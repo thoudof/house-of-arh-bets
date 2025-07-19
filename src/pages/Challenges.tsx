@@ -7,70 +7,43 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
+import { useChallenges } from "@/hooks/api/useChallenges";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Challenges = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("active");
+  const { data: challenges, isLoading } = useChallenges();
 
-  const activeChallenges = [
-    {
-      id: "1",
-      title: "Лесенка дня",
-      description: "Увеличивай банк поэтапно с коэффициентом от 1.5",
-      prize: "$1000",
-      participants: 245,
-      timeLeft: "6ч 45м",
-      currentStep: 3,
-      totalSteps: 10,
-      currentBank: 250,
-      initialBank: 100,
-      difficulty: "Средний",
-      category: "Футбол",
-      isJoined: true
-    },
-    {
-      id: "2", 
-      title: "Экспресс марафон",
-      description: "5 экспрессов подряд с коэффициентом от 3.0",
-      prize: "$500",
-      participants: 156,
-      timeLeft: "2д 12ч",
-      currentStep: 1,
-      totalSteps: 5,
-      currentBank: 0,
-      initialBank: 50,
-      difficulty: "Сложный",
-      category: "Микс",
-      isJoined: false
-    }
-  ];
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background telegram-safe-area">
+        <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+          <div className="px-3 sm:px-4 py-3 sm:py-4 max-w-screen-lg mx-auto">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2 sm:space-x-3">
+                <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
+                  <ArrowLeft className="w-4 h-4" />
+                </Button>
+                <h1 className="text-lg sm:text-xl font-bold">Челленджи</h1>
+              </div>
+            </div>
+          </div>
+        </header>
+        <div className="px-3 sm:px-4 py-4 sm:py-6 max-w-screen-lg mx-auto space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-3 gap-2 sm:gap-4">
+            {[...Array(3)].map((_, i) => (
+              <Skeleton key={i} className="h-20" />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  const upcomingChallenges = [
-    {
-      id: "3",
-      title: "Теннисная неделя",
-      description: "Специальный турнир по теннисным прогнозам",
-      prize: "$2000",
-      participants: 0,
-      startsIn: "1д 5ч",
-      difficulty: "Легкий",
-      category: "Теннис",
-      entryFee: "$25"
-    }
-  ];
-
-  const completedChallenges = [
-    {
-      id: "4",
-      title: "Футбольный викенд",
-      description: "Прогнозы на матчи выходных",
-      prize: "$300",
-      yourResult: 2,
-      totalParticipants: 89,
-      earnings: "+$45",
-      category: "Футбол"
-    }
-  ];
+  const activeChallenges = challenges?.filter(c => c.status === 'active') || [];
+  const upcomingChallenges: any[] = []; // Пока нет предстоящих челленджей
+  const completedChallenges = challenges?.filter(c => c.status === 'completed') || [];
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -137,27 +110,24 @@ const Challenges = () => {
 
           {/* Active Challenges */}
           <TabsContent value="active" className="space-y-3 sm:space-y-4 mt-4">
-            {activeChallenges.map((challenge) => (
+            {activeChallenges.length > 0 ? activeChallenges.map((challenge) => (
               <Card key={challenge.id} className="card-gradient border-primary/20">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <CardTitle className="text-sm sm:text-base mb-1">{challenge.title}</CardTitle>
                       <p className="text-xs sm:text-sm text-muted-foreground mb-2">
-                        {challenge.description}
+                        Челлендж {challenge.type === 'ladder' ? 'лесенка' : 'марафон'}
                       </p>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <Badge variant="outline" className={`text-[10px] sm:text-xs ${getDifficultyColor(challenge.difficulty)}`}>
-                          {challenge.difficulty}
-                        </Badge>
                         <Badge variant="secondary" className="text-[10px] sm:text-xs">
-                          {challenge.category}
+                          {challenge.type === 'ladder' ? 'Лесенка' : 'Марафон'}
                         </Badge>
                       </div>
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <div className="text-lg sm:text-xl font-bold text-primary">{challenge.prize}</div>
-                      <div className="text-xs text-muted-foreground">{challenge.participants} участников</div>
+                      <div className="text-lg sm:text-xl font-bold text-primary">${challenge.current_bank}</div>
+                      <div className="text-xs text-muted-foreground">Банк</div>
                     </div>
                   </div>
                 </CardHeader>
@@ -167,104 +137,59 @@ const Challenges = () => {
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-xs sm:text-sm font-medium">
-                        Шаг {challenge.currentStep}/{challenge.totalSteps}
+                        Шаг {challenge.current_step || 1}/{challenge.total_steps || '∞'}
                       </span>
                       <span className="text-xs sm:text-sm text-muted-foreground">
-                        Банк: ${challenge.currentBank}
+                        Создатель: {challenge.creator_name}
                       </span>
                     </div>
-                    <Progress 
-                      value={(challenge.currentStep / challenge.totalSteps) * 100} 
-                      className="h-2"
-                    />
+                    {challenge.total_steps && (
+                      <Progress 
+                        value={((challenge.current_step || 1) / challenge.total_steps) * 100} 
+                        className="h-2"
+                      />
+                    )}
                   </div>
 
                   {/* Time and Action */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-1 text-xs sm:text-sm text-muted-foreground">
-                      <Clock className="w-3 h-3" />
-                      <span>{challenge.timeLeft}</span>
+                      <Calendar className="w-3 h-3" />
+                      <span>{new Date(challenge.created_at).toLocaleDateString('ru-RU')}</span>
                     </div>
                     <Button 
                       size="sm" 
-                      variant={challenge.isJoined ? "outline" : "premium"}
+                      variant="premium"
                       className="text-xs"
-                      onClick={() => navigate(challenge.isJoined ? `/challenge-progress/${challenge.id}` : `/challenge/${challenge.id}`)}
+                      onClick={() => navigate(`/challenge/${challenge.id}`)}
                     >
-                      {challenge.isJoined ? "Продолжить" : "Присоединиться"}
+                      Подробнее
                     </Button>
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            )) : (
+              <div className="text-center py-8">
+                <Trophy className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
+                <p className="text-muted-foreground">Нет активных челленджей</p>
+              </div>
+            )}
           </TabsContent>
 
           {/* Upcoming Challenges */}
           <TabsContent value="upcoming" className="space-y-3 sm:space-y-4 mt-4">
-            {upcomingChallenges.map((challenge) => (
-              <Card key={challenge.id} className="card-gradient">
-                <CardContent className="p-3 sm:p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0 flex-1">
-                      <h3 className="font-semibold text-sm sm:text-base mb-1">{challenge.title}</h3>
-                      <p className="text-xs sm:text-sm text-muted-foreground mb-2">
-                        {challenge.description}
-                      </p>
-                      <div className="flex items-center gap-2 flex-wrap mb-2">
-                        <Badge variant="outline" className={`text-[10px] sm:text-xs ${getDifficultyColor(challenge.difficulty)}`}>
-                          {challenge.difficulty}
-                        </Badge>
-                        <Badge variant="secondary" className="text-[10px] sm:text-xs">
-                          {challenge.category}
-                        </Badge>
-                        <Badge variant="outline" className="text-[10px] sm:text-xs text-warning">
-                          Взнос: {challenge.entryFee}
-                        </Badge>
-                      </div>
-                      <div className="text-xs sm:text-sm text-muted-foreground">
-                        Начинается через: {challenge.startsIn}
-                      </div>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <div className="text-lg sm:text-xl font-bold text-primary">{challenge.prize}</div>
-                      <Button size="sm" variant="premium" className="text-xs mt-2" onClick={() => navigate(`/challenge/${challenge.id}`)}>
-                        Записаться
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            <div className="text-center py-8">
+              <Clock className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
+              <p className="text-muted-foreground">Предстоящие челленджи появятся скоро</p>
+            </div>
           </TabsContent>
 
           {/* Completed Challenges */}
           <TabsContent value="completed" className="space-y-3 sm:space-y-4 mt-4">
-            {completedChallenges.map((challenge) => (
-              <Card key={challenge.id} className="card-gradient">
-                <CardContent className="p-3 sm:p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0 flex-1">
-                      <h3 className="font-semibold text-sm sm:text-base mb-1">{challenge.title}</h3>
-                      <p className="text-xs sm:text-sm text-muted-foreground mb-2">
-                        {challenge.description}
-                      </p>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <Badge variant="secondary" className="text-[10px] sm:text-xs">
-                          {challenge.category}
-                        </Badge>
-                        <Badge variant="outline" className="text-[10px] sm:text-xs text-muted-foreground">
-                          Место: {challenge.yourResult}/{challenge.totalParticipants}
-                        </Badge>
-                      </div>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <div className="text-sm sm:text-base font-bold text-success">{challenge.earnings}</div>
-                      <div className="text-xs text-muted-foreground">Заработок</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            <div className="text-center py-8">
+              <Trophy className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
+              <p className="text-muted-foreground">Завершенные челленджи появятся здесь</p>
+            </div>
           </TabsContent>
         </Tabs>
 

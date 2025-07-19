@@ -6,12 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate, useParams } from "react-router-dom";
+import { useConversation } from "@/hooks/api/useMessages";
 
 const Chat = () => {
   const navigate = useNavigate();
   const { userId } = useParams();
   const [message, setMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { data: conversation } = useConversation(userId || '');
 
   const currentUser = {
     id: "current",
@@ -20,57 +22,15 @@ const Chat = () => {
   };
 
   const chatUser = {
-    id: "user1",
-    name: "ProAnalyst",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face",
-    status: "online",
-    lastSeen: "сейчас в сети"
+    id: userId || "user1",
+    name: "Аналитик",
+    avatar: "",
+    status: "offline",
+    lastSeen: "был недавно"
   };
 
-  const [messages, setMessages] = useState([
-    {
-      id: "1",
-      senderId: "user1",
-      text: "Привет! Видел твой прогноз на матч Реал - Барса. Интересное решение!",
-      timestamp: "14:30",
-      isRead: true
-    },
-    {
-      id: "2", 
-      senderId: "current",
-      text: "Спасибо! Я считаю, что коэффициент на победу Реала завышен",
-      timestamp: "14:32",
-      isRead: true
-    },
-    {
-      id: "3",
-      senderId: "user1", 
-      text: "Согласен, но стоит учесть травмы ключевых игроков. У меня есть инсайдерская информация о составе",
-      timestamp: "14:35",
-      isRead: true
-    },
-    {
-      id: "4",
-      senderId: "current",
-      text: "Это было бы очень полезно! Можешь поделиться?",
-      timestamp: "14:36",
-      isRead: true
-    },
-    {
-      id: "5",
-      senderId: "user1",
-      text: "Конечно! Бензема точно не сыграет, а Модрич под вопросом. Это существенно влияет на атаку команды",
-      timestamp: "14:38",
-      isRead: false
-    },
-    {
-      id: "6",
-      senderId: "user1",
-      text: "Кстати, у меня есть новый прогноз на завтра. Хочешь обсудить?",
-      timestamp: "14:40",
-      isRead: false
-    }
-  ]);
+  // Пока используем пустой массив, так как функциональность сообщений будет реализована позже
+  const [messages, setMessages] = useState<any[]>([]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
