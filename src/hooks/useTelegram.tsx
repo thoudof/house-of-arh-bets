@@ -33,11 +33,26 @@ export const useTelegram = () => {
     if (tg) {
       tg.ready();
       setWebApp(tg);
-      const telegramUser = tg.initDataUnsafe.user;
-      setUser(telegramUser || null);
-      setIsReady(true);
+      const telegramUser = tg.initDataUnsafe?.user;
       
-      console.log('Telegram User Set:', telegramUser);
+      // Если Telegram WebApp есть, но пользователь undefined - используем mock
+      if (!telegramUser) {
+        console.warn('Telegram WebApp found but no user data. Using mock data.');
+        const mockUser = {
+          id: 286386622,
+          first_name: 'Test',
+          last_name: 'User',
+          username: 'testuser',
+          language_code: 'ru',
+          is_premium: false
+        };
+        setUser(mockUser);
+      } else {
+        setUser(telegramUser);
+        console.log('Telegram User Set:', telegramUser);
+      }
+      
+      setIsReady(true);
       
       // Применяем тему Telegram
       if (tg.colorScheme === 'dark') {
@@ -50,7 +65,7 @@ export const useTelegram = () => {
       // Если не в Telegram, используем mock данные для разработки
       console.warn('Telegram WebApp not found. Using mock data for development.');
       const mockUser = {
-        id: 123456789,
+        id: 286386622,
         first_name: 'Test',
         last_name: 'User',
         username: 'testuser',
