@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useTelegram } from "@/hooks/useTelegram";
+import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
@@ -36,6 +37,7 @@ const queryClient = new QueryClient({
 
 const AppContent = () => {
   const { isReady, webApp } = useTelegram();
+  const { loading } = useAuth();
 
   useEffect(() => {
     // Устанавливаем цвета темы из Telegram
@@ -58,12 +60,14 @@ const AppContent = () => {
     }
   }, [webApp]);
 
-  if (!isReady) {
+  if (!isReady || loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Загрузка...</p>
+          <p className="text-muted-foreground">
+            {!isReady ? 'Инициализация Telegram...' : 'Авторизация...'}
+          </p>
         </div>
       </div>
     );
