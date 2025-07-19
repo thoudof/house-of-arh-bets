@@ -3,11 +3,13 @@ import { TrendingUp, Trophy, Target, Users, Star, Activity } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import PredictionCard from "@/components/PredictionCard";
 import TopAnalysts from "@/components/TopAnalysts";
 
 const Index = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("predictions");
 
   const mockPredictions = [
@@ -186,7 +188,7 @@ const Index = () => {
                     <h3 className="font-semibold text-sm sm:text-base truncate">Лесенка от ProAnalyst</h3>
                     <p className="text-xs sm:text-sm text-muted-foreground">Шаг 3/10 • Банк: $250</p>
                   </div>
-                  <Button variant="premium" size="sm" className="text-xs whitespace-nowrap">
+                  <Button variant="premium" size="sm" className="text-xs whitespace-nowrap" onClick={() => navigate('/challenges')}>
                     Присоединиться
                   </Button>
                 </div>
@@ -204,17 +206,21 @@ const Index = () => {
                 <CardTitle className="text-sm sm:text-base">Быстрые действия</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 sm:space-y-3">
-                <Button variant="premium" className="w-full text-xs sm:text-sm">
+                <Button variant="premium" className="w-full text-xs sm:text-sm" onClick={() => navigate('/add-prediction')}>
                   <Target className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                   Добавить прогноз
                 </Button>
-                <Button variant="outline" className="w-full text-xs sm:text-sm">
-                  <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-                  Подписки
-                </Button>
-                <Button variant="outline" className="w-full text-xs sm:text-sm">
+                <Button variant="outline" className="w-full text-xs sm:text-sm" onClick={() => navigate('/challenges')}>
                   <Trophy className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-                  Рейтинги
+                  Челленджи
+                </Button>
+                <Button variant="outline" className="w-full text-xs sm:text-sm" onClick={() => navigate('/analytics')}>
+                  <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+                  Аналитика
+                </Button>
+                <Button variant="outline" className="w-full text-xs sm:text-sm" onClick={() => navigate('/messages')}>
+                  <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+                  Сообщения
                 </Button>
               </CardContent>
             </Card>
