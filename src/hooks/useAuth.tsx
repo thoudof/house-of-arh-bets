@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useTelegram } from './useTelegram';
@@ -8,6 +8,7 @@ interface AuthState {
   session: Session | null;
   loading: boolean;
   profile: any | null;
+  isAuthenticated: boolean;
 }
 
 export const useAuth = () => {
@@ -15,165 +16,165 @@ export const useAuth = () => {
     user: null,
     session: null,
     loading: true,
-    profile: null
+    profile: null,
+    isAuthenticated: false
   });
-  
+
   const { user: telegramUser, isReady } = useTelegram();
 
-  // ПРОСТАЯ ФУНКЦИЯ ВХОДА БЕЗ ВСЯКОЙ ХУЙНИ
-  const signInWithTelegram = useCallback(async () => {
+  const signInWithTelegram = async () => {
     if (!telegramUser) {
-      throw new Error('No Telegram user');
+      console.error('No Telegram user data');
+      return { user: null, error: 'No Telegram user data' };
     }
 
-    const email = `tg_${telegramUser.id}@local.app`;
-    const password = `pass_${telegramUser.id}`;
-
-    console.log('🔐 Signing in:', email);
-
     try {
-      // ПРОБУЕМ ВОЙТИ
+      const email = `tg_${telegramUser.id}@local.app`;
+      const password = `pass_${telegramUser.id}`;
+
+      console.log('Trying to sign in user:', email);
+
+      // Сначала пробуем войти
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
-        password,
+        password
       });
 
-      if (signInData?.user && !signInError) {
-        console.log('✅ Sign in OK');
-        return signInData;
-      }
+      if (signInError) {
+        if (signInError.message.includes('Invalid login credentials')) {
+          console.log('User not found, creating new account');
+          
+          // Создаем нового пользователя
+          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              data: {
+                telegram_id: telegramUser.id.toString(),
+                first_name: telegramUser.first_name,
+                last_name: telegramUser.last_name,
+                username: telegramUser.username,
+                photo_url: telegramUser.photo_url
+              }
+            }
+          });
 
-      // ЕСЛИ НЕ УДАЛОСЬ - СОЗДАЕМ
-      console.log('🆕 Creating user...');
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            telegram_id: telegramUser.id.toString(),
-            username: telegramUser.username,
-            first_name: telegramUser.first_name,
-            last_name: telegramUser.last_name,
-            photo_url: telegramUser.photo_url,
+          if (signUpError) {
+            console.error('Sign up failed:', signUpError);
+            return { user: null, error: signUpError.message };
           }
-        }
-      });
 
-      if (signUpError) {
-        throw signUpError;
+          console.log('New user created successfully');
+          return { user: signUpData.user, error: null };
+        } else {
+          console.error('Sign in failed:', signInError);
+          return { user: null, error: signInError.message };
+        }
       }
 
-      console.log('✅ Sign up OK');
-      return signUpData;
-
+      console.log('User signed in successfully');
+      return { user: signInData.user, error: null };
     } catch (error) {
-      console.error('❌ Auth failed:', error);
-      throw error;
+      console.error('Authentication error:', error);
+      return { user: null, error: 'Authentication failed' };
     }
-  }, [telegramUser]);
+  };
 
-  const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
-  }, []);
-
-  // ЗАГРУЗКА ПРОФИЛЯ
-  const loadProfile = useCallback(async (userId: string) => {
+  const signOut = async () => {
     try {
-      const { data } = await supabase
-        .from('profiles')
-        .select('*, user_stats(*)')
-        .eq('user_id', userId)
-        .maybeSingle();
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Sign out error:', error);
+      }
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
+  };
 
-      console.log('📊 Profile loaded:', data);
+  const loadProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (error) {
+        console.error('Failed to load profile:', error);
+        return null;
+      }
+
+      console.log('Profile loaded:', data);
       return data;
     } catch (error) {
-      console.error('❌ Profile load failed:', error);
+      console.error('Profile load error:', error);
       return null;
     }
-  }, []);
+  };
 
-  // ОСНОВНАЯ ЛОГИКА
   useEffect(() => {
-    if (!isReady) return;
-
     let mounted = true;
 
-    const setupAuth = async () => {
-      // ПРОВЕРЯЕМ ТЕКУЩУЮ СЕССИЮ
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!mounted) return;
-
-      if (session?.user) {
-        console.log('🔍 Found existing session');
-        const profile = await loadProfile(session.user.id);
-        
-        if (!mounted) return;
-        
-        setAuthState({
-          user: session.user,
-          session,
-          loading: false,
-          profile
-        });
-      } else {
-        console.log('🔍 No session, trying auto-login');
-        
-        if (telegramUser) {
-          try {
-            await signInWithTelegram();
-          } catch (error) {
-            console.error('Auto-login failed:', error);
-            setAuthState(prev => ({ ...prev, loading: false }));
-          }
-        } else {
-          setAuthState(prev => ({ ...prev, loading: false }));
-        }
-      }
-    };
-
-    // СЛУШАЕМ ИЗМЕНЕНИЯ
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('🔄 Auth event:', event);
-        
-        if (!mounted) return;
-
-        if (session?.user) {
-          const profile = await loadProfile(session.user.id);
+    const initAuth = async () => {
+      // Слушаем изменения авторизации
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          console.log('Auth state change:', event, session?.user?.email);
           
           if (!mounted) return;
-          
+
+          let profile = null;
+          if (session?.user) {
+            profile = await loadProfile(session.user.id);
+          }
+
+          setAuthState({
+            user: session?.user || null,
+            session,
+            loading: false,
+            profile,
+            isAuthenticated: !!session?.user
+          });
+        }
+      );
+
+      // Проверяем текущую сессию
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (mounted) {
+        if (session?.user) {
+          const profile = await loadProfile(session.user.id);
           setAuthState({
             user: session.user,
             session,
             loading: false,
-            profile
+            profile,
+            isAuthenticated: true
           });
+        } else if (isReady && telegramUser) {
+          // Автоматический вход через Telegram
+          console.log('No active session, trying Telegram auth');
+          await signInWithTelegram();
         } else {
-          setAuthState({
-            user: null,
-            session: null,
-            loading: false,
-            profile: null
-          });
+          setAuthState(prev => ({ ...prev, loading: false }));
         }
       }
-    );
 
-    setupAuth();
+      return () => subscription.unsubscribe();
+    };
+
+    if (isReady) {
+      initAuth();
+    }
 
     return () => {
       mounted = false;
-      subscription.unsubscribe();
     };
-  }, [isReady, telegramUser, signInWithTelegram, loadProfile]);
+  }, [isReady, telegramUser]);
 
   return {
     ...authState,
     signInWithTelegram,
-    signOut,
-    isAuthenticated: !!authState.user,
+    signOut
   };
 };
