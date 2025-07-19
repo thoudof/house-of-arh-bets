@@ -101,12 +101,14 @@ const Challenges = () => {
         </div>
 
         {/* Challenges Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3 text-xs sm:text-sm">
-            <TabsTrigger value="active">Активные</TabsTrigger>
-            <TabsTrigger value="upcoming">Предстоящие</TabsTrigger>
-            <TabsTrigger value="completed">Завершенные</TabsTrigger>
-          </TabsList>
+        <Card className="card-gradient">
+          <CardContent className="p-4">
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="grid w-full grid-cols-3 text-xs sm:text-sm bg-muted/50 rounded-lg p-1">
+                <TabsTrigger value="active" className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">Активные</TabsTrigger>
+                <TabsTrigger value="upcoming" className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">Предстоящие</TabsTrigger>
+                <TabsTrigger value="completed" className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">Завершенные</TabsTrigger>
+              </TabsList>
 
           {/* Active Challenges */}
           <TabsContent value="active" className="space-y-3 sm:space-y-4 mt-4">
@@ -191,7 +193,9 @@ const Challenges = () => {
               <p className="text-muted-foreground">Завершенные челленджи появятся здесь</p>
             </div>
           </TabsContent>
-        </Tabs>
+            </Tabs>
+          </CardContent>
+        </Card>
 
         {/* Create Challenge CTA */}
         <Card className="card-gradient border-primary/20 glow-primary">

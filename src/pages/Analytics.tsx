@@ -135,12 +135,14 @@ const Analytics = () => {
         </Card>
 
         {/* Analytics Tabs */}
-        <Tabs defaultValue="categories">
-          <TabsList className="grid w-full grid-cols-3 text-xs sm:text-sm">
-            <TabsTrigger value="categories">По видам спорта</TabsTrigger>
-            <TabsTrigger value="types">Типы ставок</TabsTrigger>
-            <TabsTrigger value="following">Подписки</TabsTrigger>
-          </TabsList>
+        <Card className="card-gradient">
+          <CardContent className="p-4">
+            <Tabs defaultValue="categories">
+              <TabsList className="grid w-full grid-cols-3 text-xs sm:text-sm bg-muted/50 rounded-lg p-1">
+                <TabsTrigger value="categories" className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">По видам спорта</TabsTrigger>
+                <TabsTrigger value="types" className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">Типы ставок</TabsTrigger>
+                <TabsTrigger value="following" className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">Подписки</TabsTrigger>
+              </TabsList>
 
           {/* Categories Analysis */}
           <TabsContent value="categories" className="space-y-3 sm:space-y-4 mt-4">
@@ -222,7 +224,9 @@ const Analytics = () => {
               </CardContent>
             </Card>
           </TabsContent>
-        </Tabs>
+            </Tabs>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

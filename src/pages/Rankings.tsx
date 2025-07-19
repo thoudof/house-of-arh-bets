@@ -76,100 +76,108 @@ const Rankings = () => {
         </Card>
 
         {/* Category Tabs */}
-        <Tabs defaultValue="overall">
-          <TabsList className="grid w-full grid-cols-4 text-xs">
-            {categories.map((category) => (
-              <TabsTrigger key={category.id} value={category.id} className="flex flex-col items-center space-y-1 p-3">
-                <category.icon className="w-4 h-4" />
-                <span className="hidden sm:inline">{category.name}</span>
-              </TabsTrigger>
-            ))}
-          </TabsList>
+        <Card className="card-gradient">
+          <CardContent className="p-4">
+            <Tabs defaultValue="overall">
+              <TabsList className="grid w-full grid-cols-4 text-xs bg-muted/50 rounded-lg p-1">
+                {categories.map((category) => (
+                  <TabsTrigger 
+                    key={category.id} 
+                    value={category.id} 
+                    className="flex flex-col items-center space-y-1 p-2 min-h-[48px] data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+                  >
+                    <category.icon className="w-4 h-4" />
+                    <span className="text-[10px] leading-none">{category.name}</span>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
 
-          {categories.map((category) => (
-            <TabsContent key={category.id} value={category.id} className="space-y-4 mt-6">
-              {/* Top 3 Podium */}
-              <Card className="card-gradient border-primary/20 glow-primary">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Trophy className="w-5 h-5 text-primary" />
-                    <span>Топ-3 аналитиков</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-3 gap-2">
-                    {rankings?.slice(0, 3).map((analyst, index) => (
-                      <div key={analyst.id} className="text-center space-y-2">
-                        <div className="relative">
-                          <Avatar className={`w-12 h-12 mx-auto ${index === 0 ? 'border-2 border-yellow-400' : ''}`}>
+              {categories.map((category) => (
+                <TabsContent key={category.id} value={category.id} className="space-y-4 mt-6">
+                  {/* Top 3 Podium */}
+                  <Card className="card-gradient border-primary/20 glow-primary">
+                    <CardHeader>
+                      <CardTitle className="flex items-center space-x-2">
+                        <Trophy className="w-5 h-5 text-primary" />
+                        <span>Топ-3 аналитиков</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-3 gap-2">
+                        {rankings?.slice(0, 3).map((analyst, index) => (
+                          <div key={analyst.id} className="text-center space-y-2">
+                            <div className="relative">
+                              <Avatar className={`w-12 h-12 mx-auto ${index === 0 ? 'border-2 border-yellow-400' : ''}`}>
+                                <AvatarImage src={analyst.avatar_url || undefined} alt={analyst.first_name} />
+                                <AvatarFallback>{analyst.first_name[0]}</AvatarFallback>
+                              </Avatar>
+                              {index === 0 && (
+                                <div className="absolute -top-1 -right-1 text-lg">
+                                  🏆
+                                </div>
+                              )}
+                              {index === 1 && (
+                                <div className="absolute -top-1 -right-1 text-lg">
+                                  🥈
+                                </div>
+                              )}
+                              {index === 2 && (
+                                <div className="absolute -top-1 -right-1 text-lg">
+                                  🥉
+                                </div>
+                              )}
+                            </div>
+                            <div>
+                              <p className={`font-bold text-sm ${getRankColor(index + 1)}`}>
+                                #{index + 1}
+                              </p>
+                              <p className="text-xs font-medium truncate">{analyst.first_name} {analyst.last_name}</p>
+                              <p className="text-xs text-success">+{analyst.user_stats?.[0]?.roi || 0}%</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Full Rankings List */}
+                  <Card className="card-gradient">
+                    <CardHeader>
+                      <CardTitle>Полный рейтинг</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {rankings?.map((analyst, index) => (
+                        <div key={analyst.id} className="flex items-center space-x-3 p-3 rounded-lg bg-card-hover hover:bg-card-hover/80 transition-colors">
+                          <div className={`flex items-center justify-center w-8 h-8 rounded-full bg-muted ${getRankColor(index + 1)}`}>
+                            <span className="font-bold text-sm">#{index + 1}</span>
+                          </div>
+                          
+                          <Avatar className="w-10 h-10">
                             <AvatarImage src={analyst.avatar_url || undefined} alt={analyst.first_name} />
                             <AvatarFallback>{analyst.first_name[0]}</AvatarFallback>
                           </Avatar>
-                          {index === 0 && (
-                            <div className="absolute -top-1 -right-1 text-lg">
-                              🏆
+                          
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold truncate">{analyst.first_name} {analyst.last_name}</p>
+                            <div className="flex items-center space-x-3 text-xs text-muted-foreground">
+                              <span>{analyst.user_stats?.[0]?.total_predictions || 0} ставок</span>
+                              <span>{analyst.user_stats?.[0]?.win_rate || 0}% побед</span>
                             </div>
-                          )}
-                          {index === 1 && (
-                            <div className="absolute -top-1 -right-1 text-lg">
-                              🥈
-                            </div>
-                          )}
-                          {index === 2 && (
-                            <div className="absolute -top-1 -right-1 text-lg">
-                              🥉
-                            </div>
-                          )}
+                          </div>
+                          
+                          <div className="text-right">
+                            <p className="font-bold text-success">+{analyst.user_stats?.[0]?.roi || 0}%</p>
+                            <p className="text-xs text-muted-foreground">ROI</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className={`font-bold text-sm ${getRankColor(index + 1)}`}>
-                            #{index + 1}
-                          </p>
-                          <p className="text-xs font-medium truncate">{analyst.first_name} {analyst.last_name}</p>
-                          <p className="text-xs text-success">+{analyst.user_stats?.[0]?.roi || 0}%</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Full Rankings List */}
-              <Card className="card-gradient">
-                <CardHeader>
-                  <CardTitle>Полный рейтинг</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {rankings?.map((analyst, index) => (
-                    <div key={analyst.id} className="flex items-center space-x-3 p-3 rounded-lg bg-card-hover hover:bg-card-hover/80 transition-colors">
-                      <div className={`flex items-center justify-center w-8 h-8 rounded-full bg-muted ${getRankColor(index + 1)}`}>
-                        <span className="font-bold text-sm">#{index + 1}</span>
-                      </div>
-                      
-                      <Avatar className="w-10 h-10">
-                        <AvatarImage src={analyst.avatar_url || undefined} alt={analyst.first_name} />
-                        <AvatarFallback>{analyst.first_name[0]}</AvatarFallback>
-                      </Avatar>
-                      
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold truncate">{analyst.first_name} {analyst.last_name}</p>
-                        <div className="flex items-center space-x-3 text-xs text-muted-foreground">
-                          <span>{analyst.user_stats?.[0]?.total_predictions || 0} ставок</span>
-                          <span>{analyst.user_stats?.[0]?.win_rate || 0}% побед</span>
-                        </div>
-                      </div>
-                      
-                      <div className="text-right">
-                        <p className="font-bold text-success">+{analyst.user_stats?.[0]?.roi || 0}%</p>
-                        <p className="text-xs text-muted-foreground">ROI</p>
-                      </div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          ))}
-        </Tabs>
+                      ))}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              ))}
+            </Tabs>
+          </CardContent>
+        </Card>
 
         {/* Your Position */}
         <Card className="card-gradient border-primary/20">

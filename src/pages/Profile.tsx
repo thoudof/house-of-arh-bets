@@ -146,12 +146,14 @@ const Profile = () => {
         </div>
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3 text-sm">
-            <TabsTrigger value="overview" className="text-xs">Обзор</TabsTrigger>
-            <TabsTrigger value="predictions" className="text-xs">Ставки</TabsTrigger>
-            <TabsTrigger value="achievements" className="text-xs">Награды</TabsTrigger>
-          </TabsList>
+        <Card className="card-gradient">
+          <CardContent className="p-4">
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="grid w-full grid-cols-3 text-sm bg-muted/50 rounded-lg p-1">
+                <TabsTrigger value="overview" className="text-xs data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">Обзор</TabsTrigger>
+                <TabsTrigger value="predictions" className="text-xs data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">Ставки</TabsTrigger>
+                <TabsTrigger value="achievements" className="text-xs data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">Награды</TabsTrigger>
+              </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
             <Card className="card-gradient">
@@ -241,7 +243,9 @@ const Profile = () => {
               )}
             </div>
           </TabsContent>
-        </Tabs>
+            </Tabs>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
