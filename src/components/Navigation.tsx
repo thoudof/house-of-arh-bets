@@ -10,9 +10,9 @@ const Navigation = () => {
   
   const navItems = [
     { icon: Home, label: "Главная", path: "/" },
-    { icon: Target, label: "Прогнозы", path: "/predictions" },
-    { icon: Plus, label: "Добавить", path: "/add-prediction", isPremium: true },
     { icon: TrendingUp, label: "Рейтинг", path: "/rankings" },
+    { icon: Plus, label: "Добавить", path: "/add-prediction", isPremium: true },
+    { icon: Target, label: "Подписки", path: "/subscriptions" },
     { icon: User, label: "Профиль", path: "/profile" }
   ];
 

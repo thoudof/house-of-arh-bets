@@ -176,35 +176,35 @@ const Profile = () => {
         </Card>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
           <Card className="card-gradient">
-            <CardContent className="p-4 text-center">
-              <Activity className="w-6 h-6 mx-auto mb-2 text-primary" />
-              <p className="text-2xl font-bold">{mockUser.stats.totalPredictions}</p>
+            <CardContent className="p-3 text-center">
+              <Activity className="w-5 h-5 mx-auto mb-1 text-primary" />
+              <p className="text-lg font-bold">{mockUser.stats.totalPredictions}</p>
               <p className="text-xs text-muted-foreground">Всего ставок</p>
             </CardContent>
           </Card>
           
           <Card className="card-gradient">
-            <CardContent className="p-4 text-center">
-              <Target className="w-6 h-6 mx-auto mb-2 text-success" />
-              <p className="text-2xl font-bold">{mockUser.stats.winRate}%</p>
+            <CardContent className="p-3 text-center">
+              <Target className="w-5 h-5 mx-auto mb-1 text-success" />
+              <p className="text-lg font-bold">{mockUser.stats.winRate}%</p>
               <p className="text-xs text-muted-foreground">Процент побед</p>
             </CardContent>
           </Card>
           
           <Card className="card-gradient">
-            <CardContent className="p-4 text-center">
-              <TrendingUp className="w-6 h-6 mx-auto mb-2 text-primary" />
-              <p className="text-2xl font-bold">+{mockUser.stats.roi}%</p>
+            <CardContent className="p-3 text-center">
+              <TrendingUp className="w-5 h-5 mx-auto mb-1 text-primary" />
+              <p className="text-lg font-bold">+{mockUser.stats.roi}%</p>
               <p className="text-xs text-muted-foreground">ROI</p>
             </CardContent>
           </Card>
           
           <Card className="card-gradient">
-            <CardContent className="p-4 text-center">
-              <Trophy className="w-6 h-6 mx-auto mb-2 text-primary-glow" />
-              <p className="text-2xl font-bold">{mockUser.stats.currentStreak}</p>
+            <CardContent className="p-3 text-center">
+              <Trophy className="w-5 h-5 mx-auto mb-1 text-primary-glow" />
+              <p className="text-lg font-bold">{mockUser.stats.currentStreak}</p>
               <p className="text-xs text-muted-foreground">Текущая серия</p>
             </CardContent>
           </Card>
@@ -212,10 +212,10 @@ const Profile = () => {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="overview">Обзор</TabsTrigger>
-            <TabsTrigger value="predictions">Ставки</TabsTrigger>
-            <TabsTrigger value="achievements">Достижения</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 text-sm">
+            <TabsTrigger value="overview" className="text-xs">Обзор</TabsTrigger>
+            <TabsTrigger value="predictions" className="text-xs">Ставки</TabsTrigger>
+            <TabsTrigger value="achievements" className="text-xs">Награды</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
@@ -267,7 +267,7 @@ const Profile = () => {
 
           <TabsContent value="achievements" className="space-y-4">
             <h3 className="text-lg font-semibold">Достижения</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-3">
               {mockAchievements.map((achievement) => (
                 <Card 
                   key={achievement.id} 

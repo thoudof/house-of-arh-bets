@@ -121,20 +121,20 @@ const Index = () => {
 
       {/* Stats Overview */}
       <section className="container mx-auto px-4 py-6">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
           {statsCards.map((stat, index) => (
             <Card key={index} className="card-gradient card-hover animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
-              <CardContent className="p-4">
+              <CardContent className="p-3">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-muted-foreground">{stat.title}</p>
-                    <p className="text-lg font-bold text-foreground">{stat.value}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-muted-foreground truncate">{stat.title}</p>
+                    <p className="text-base sm:text-lg font-bold text-foreground">{stat.value}</p>
                     <p className={`text-xs ${stat.trend === 'up' ? 'text-success' : 'text-destructive'}`}>
                       {stat.change}
                     </p>
                   </div>
-                  <div className={`p-2 rounded-lg ${stat.trend === 'up' ? 'bg-success/20' : 'bg-destructive/20'}`}>
-                    <stat.icon className={`w-4 h-4 ${stat.trend === 'up' ? 'text-success' : 'text-destructive'}`} />
+                  <div className={`p-1.5 rounded-lg ${stat.trend === 'up' ? 'bg-success/20' : 'bg-destructive/20'}`}>
+                    <stat.icon className={`w-3 h-3 sm:w-4 sm:h-4 ${stat.trend === 'up' ? 'text-success' : 'text-destructive'}`} />
                   </div>
                 </div>
               </CardContent>

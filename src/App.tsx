@@ -7,6 +7,9 @@ import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import AddPrediction from "./pages/AddPrediction";
 import PredictionDetails from "./pages/PredictionDetails";
+import Rankings from "./pages/Rankings";
+import Subscriptions from "./pages/Subscriptions";
+import Filters from "./pages/Filters";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,7 +25,9 @@ const App = () => (
           <Route path="/profile" element={<Profile />} />
           <Route path="/add-prediction" element={<AddPrediction />} />
           <Route path="/prediction/:id" element={<PredictionDetails />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="/rankings" element={<Rankings />} />
+          <Route path="/subscriptions" element={<Subscriptions />} />
+          <Route path="/filters" element={<Filters />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
