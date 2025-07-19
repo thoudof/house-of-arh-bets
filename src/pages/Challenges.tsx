@@ -93,7 +93,7 @@ const Challenges = () => {
               </Button>
               <h1 className="text-lg sm:text-xl font-bold">Челленджи</h1>
             </div>
-            <Button variant="premium" size="sm">
+            <Button variant="premium" size="sm" onClick={() => navigate('/create-challenge')}>
               <Plus className="w-4 h-4 mr-1" />
               Создать
             </Button>
@@ -189,6 +189,7 @@ const Challenges = () => {
                       size="sm" 
                       variant={challenge.isJoined ? "outline" : "premium"}
                       className="text-xs"
+                      onClick={() => navigate(challenge.isJoined ? `/challenge-progress/${challenge.id}` : `/challenge/${challenge.id}`)}
                     >
                       {challenge.isJoined ? "Продолжить" : "Присоединиться"}
                     </Button>
@@ -226,7 +227,7 @@ const Challenges = () => {
                     </div>
                     <div className="text-right flex-shrink-0">
                       <div className="text-lg sm:text-xl font-bold text-primary">{challenge.prize}</div>
-                      <Button size="sm" variant="premium" className="text-xs mt-2">
+                      <Button size="sm" variant="premium" className="text-xs mt-2" onClick={() => navigate(`/challenge/${challenge.id}`)}>
                         Записаться
                       </Button>
                     </div>
@@ -275,7 +276,7 @@ const Challenges = () => {
             <p className="text-sm text-muted-foreground mb-4">
               Создавайте собственные турниры и зарабатывайте на комиссии
             </p>
-            <Button variant="premium">
+            <Button variant="premium" onClick={() => navigate('/create-challenge')}>
               Начать создание
             </Button>
           </CardContent>

@@ -15,6 +15,11 @@ import Analytics from "./pages/Analytics";
 import Messages from "./pages/Messages";
 import Chat from "./pages/Chat";
 import NotFound from "./pages/NotFound";
+import CreateChallenge from "./pages/CreateChallenge";
+import ChallengeDetails from "./pages/ChallengeDetails";
+import ChallengeProgress from "./pages/ChallengeProgress";
+import Settings from "./pages/Settings";
+import ManageSubscriptions from "./pages/ManageSubscriptions";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -44,6 +49,11 @@ const App = () => (
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/chat/:userId" element={<Chat />} />
+            <Route path="/create-challenge" element={<CreateChallenge />} />
+            <Route path="/challenge/:id" element={<ChallengeDetails />} />
+            <Route path="/challenge-progress/:id" element={<ChallengeProgress />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/manage-subscriptions" element={<ManageSubscriptions />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
       </BrowserRouter>
