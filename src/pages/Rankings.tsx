@@ -9,36 +9,45 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useNavigate } from "react-router-dom";
 import { useRankings } from "@/hooks/api/useProfiles";
 import { useAuth } from "@/hooks/useAuth";
-
 const Rankings = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const {
+    user
+  } = useAuth();
   const [selectedPeriod, setSelectedPeriod] = useState("month");
-
-  const { data: rankings, isLoading } = useRankings();
-
+  const {
+    data: rankings,
+    isLoading
+  } = useRankings();
   if (isLoading) {
     return <div className="min-h-screen bg-background telegram-safe-area flex items-center justify-center">
       <div className="text-center">Загрузка рейтингов...</div>
     </div>;
   }
-
   const getRankColor = (rank: number) => {
     if (rank === 1) return "text-yellow-400";
     if (rank === 2) return "text-gray-400";
     if (rank === 3) return "text-orange-400";
     return "text-muted-foreground";
   };
-
-  const categories = [
-    { id: "overall", name: "Общий", icon: Trophy },
-    { id: "football", name: "Футбол", icon: Target },
-    { id: "basketball", name: "Баскетбол", icon: Award },
-    { id: "tennis", name: "Теннис", icon: Star }
-  ];
-
-  return (
-    <div className="min-h-screen bg-background telegram-safe-area">
+  const categories = [{
+    id: "overall",
+    name: "Общий",
+    icon: Trophy
+  }, {
+    id: "football",
+    name: "Футбол",
+    icon: Target
+  }, {
+    id: "basketball",
+    name: "Баскетбол",
+    icon: Award
+  }, {
+    id: "tennis",
+    name: "Теннис",
+    icon: Star
+  }];
+  return <div className="min-h-screen bg-background telegram-safe-area">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
@@ -85,16 +94,14 @@ const Rankings = () => {
 
         {/* Category Filter */}
         <div className="grid grid-cols-4 gap-3">
-          {categories.map((category, index) => (
-            <Card key={category.id} className="card-gradient card-hover cursor-pointer transition-all duration-200 hover:scale-105">
+          {categories.map((category, index) => <Card key={category.id} className="card-gradient card-hover cursor-pointer transition-all duration-200 hover:scale-105">
               <CardContent className="p-4 text-center space-y-2 flex flex-col items-center justify-center min-h-[80px]">
                 <div className="w-10 h-10 bg-primary/10 rounded-xl mx-auto flex items-center justify-center">
                   <category.icon className="w-5 h-5 text-primary" />
                 </div>
                 <p className="text-xs font-medium text-foreground text-center">{category.name}</p>
               </CardContent>
-            </Card>
-          ))}
+            </Card>)}
         </div>
 
         {/* Top 3 Podium */}
@@ -108,10 +115,9 @@ const Rankings = () => {
                 <span>Топ-3 аналитиков</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-8 pb-6">
+            <CardContent className="pt-8 pb-6 py-[25px]">
               <div className="flex justify-center items-end space-x-4 mt-4">
-                {rankings?.slice(0, 3).map((analyst, index) => (
-                  <div key={analyst.id} className={`text-center space-y-3 ${index === 0 ? 'order-2' : index === 1 ? 'order-1' : 'order-3'}`}>
+                {rankings?.slice(0, 3).map((analyst, index) => <div key={analyst.id} className={`text-center space-y-3 ${index === 0 ? 'order-2' : index === 1 ? 'order-1' : 'order-3'}`}>
                     {/* Avatar positioned above podium */}
                     <div className="mb-2">
                       <Avatar className={`${index === 0 ? 'w-16 h-16 border-4 border-yellow-400' : 'w-14 h-14 border-2 border-gray-400'} ${index === 2 ? 'border-orange-400' : ''} mx-auto`}>
@@ -124,11 +130,7 @@ const Rankings = () => {
                     </div>
                     {/* Podium */}
                     <div className={`relative ${index === 0 ? 'h-20' : index === 1 ? 'h-16' : 'h-12'} w-16 mx-auto`}>
-                      <div className={`w-full rounded-t-lg ${
-                        index === 0 ? 'bg-gradient-to-t from-yellow-400 to-yellow-300 h-full' :
-                        index === 1 ? 'bg-gradient-to-t from-gray-400 to-gray-300 h-full' :
-                        'bg-gradient-to-t from-orange-400 to-orange-300 h-full'
-                      } flex items-center justify-center`}>
+                      <div className={`w-full rounded-t-lg ${index === 0 ? 'bg-gradient-to-t from-yellow-400 to-yellow-300 h-full' : index === 1 ? 'bg-gradient-to-t from-gray-400 to-gray-300 h-full' : 'bg-gradient-to-t from-orange-400 to-orange-300 h-full'} flex items-center justify-center`}>
                         <p className="text-white font-bold text-lg">#{index + 1}</p>
                       </div>
                     </div>
@@ -136,8 +138,7 @@ const Rankings = () => {
                       <p className="font-bold text-sm">{analyst.first_name} {analyst.last_name}</p>
                       <p className="text-success font-semibold">+{analyst.user_stats?.[0]?.roi || 0}%</p>
                     </div>
-                  </div>
-                ))}
+                  </div>)}
               </div>
             </CardContent>
           </div>
@@ -154,11 +155,8 @@ const Rankings = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {rankings?.map((analyst, index) => (
-              <div key={analyst.id} className="flex items-center space-x-4 p-4 rounded-xl bg-gradient-to-r from-card-hover/50 to-transparent hover:from-card-hover hover:to-card-hover/50 transition-all duration-200 border border-border/50 hover:border-primary/20">
-                <div className={`flex items-center justify-center w-10 h-10 rounded-full font-bold text-sm ${
-                  index < 3 ? 'bg-gradient-to-br from-primary to-primary-glow text-primary-foreground' : 'bg-muted text-muted-foreground'
-                }`}>
+            {rankings?.map((analyst, index) => <div key={analyst.id} className="flex items-center space-x-4 p-4 rounded-xl bg-gradient-to-r from-card-hover/50 to-transparent hover:from-card-hover hover:to-card-hover/50 transition-all duration-200 border border-border/50 hover:border-primary/20">
+                <div className={`flex items-center justify-center w-10 h-10 rounded-full font-bold text-sm ${index < 3 ? 'bg-gradient-to-br from-primary to-primary-glow text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
                   #{index + 1}
                 </div>
                 
@@ -185,14 +183,12 @@ const Rankings = () => {
                   <p className="font-bold text-lg text-success">+{analyst.user_stats?.[0]?.roi || 0}%</p>
                   <p className="text-xs text-muted-foreground">ROI</p>
                 </div>
-              </div>
-            ))}
+              </div>)}
           </CardContent>
         </Card>
 
         {/* Your Position */}
-        {user && (
-          <Card className="card-gradient border-primary/20 glow-primary">
+        {user && <Card className="card-gradient border-primary/20 glow-primary">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary-glow rounded-lg flex items-center justify-center">
@@ -226,8 +222,7 @@ const Rankings = () => {
                 </div>
               </div>
             </CardContent>
-          </Card>
-        )}
+          </Card>}
 
         {/* Quick Actions */}
         <div className="grid grid-cols-2 gap-4">
@@ -241,8 +236,6 @@ const Rankings = () => {
           </Button>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Rankings;
