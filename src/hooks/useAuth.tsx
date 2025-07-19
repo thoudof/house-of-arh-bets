@@ -30,7 +30,8 @@ export const useAuth = () => {
 
     // Create a unique email based on Telegram ID
     const email = `telegram_${telegramUser.id}@telegram.local`;
-    const password = `telegram_${telegramUser.id}_${Date.now()}`;
+    // Use consistent password based on Telegram ID (not changing)
+    const password = `telegram_${telegramUser.id}_secure`;
 
     try {
       // Try to sign in first
