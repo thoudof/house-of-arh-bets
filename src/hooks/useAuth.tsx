@@ -21,7 +21,10 @@ export const useAuth = () => {
   const { user: telegramUser, isReady } = useTelegram();
 
   const signInWithTelegram = useCallback(async () => {
+    console.log('signInWithTelegram called with user:', telegramUser);
+    
     if (!telegramUser) {
+      console.error('Telegram user data not available');
       throw new Error('Telegram user data not available');
     }
 
@@ -154,8 +157,18 @@ export const useAuth = () => {
 
   // Auto-signin with Telegram if user is not authenticated
   useEffect(() => {
+    console.log('Auto-signin check:', {
+      authLoading: authState.loading,
+      hasUser: !!authState.user,
+      hasTelegramUser: !!telegramUser,
+      isReady: isReady
+    });
+    
     if (!authState.loading && !authState.user && telegramUser && isReady) {
-      signInWithTelegram().catch(console.error);
+      console.log('Attempting auto-signin with Telegram...');
+      signInWithTelegram().catch((error) => {
+        console.error('Auto-signin failed:', error);
+      });
     }
   }, [authState.loading, authState.user, telegramUser, isReady, signInWithTelegram]);
 

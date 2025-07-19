@@ -17,24 +17,66 @@ import type { User as UserType, Prediction, Achievement } from "@/types";
 const Profile = () => {
   const navigate = useNavigate();
   const { userId } = useParams();
-  const { user } = useAuth();
+  const { user, loading: authLoading, profile: authProfile } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
 
   const targetUserId = userId || user?.id;
   
-  const { data: profile, isLoading: profileLoading } = useProfile(targetUserId);
+  // Debug logging for mobile issues
+  console.log('Profile Debug:', {
+    userId: userId,
+    userFromAuth: user?.id,
+    targetUserId: targetUserId,
+    authLoading: authLoading,
+    authProfile: authProfile
+  });
+  
+  const { data: profile, isLoading: profileLoading, error: profileError } = useProfile(targetUserId);
   const { data: predictions, isLoading: predictionsLoading } = useUserPredictions(targetUserId);
   const { data: userAchievements, isLoading: achievementsLoading } = useUserAchievements(targetUserId);
 
-  if (profileLoading) {
+  // Show loading while auth is still loading
+  if (authLoading || profileLoading) {
     return <div className="min-h-screen bg-background telegram-safe-area flex items-center justify-center">
-      <div className="text-center">Загрузка профиля...</div>
+      <div className="text-center">
+        <div>Загрузка профиля...</div>
+        {authLoading && <div className="text-xs text-muted-foreground mt-2">Аутентификация...</div>}
+        {profileLoading && <div className="text-xs text-muted-foreground mt-2">Загрузка данных...</div>}
+      </div>
+    </div>;
+  }
+
+  // Show error information for debugging
+  if (!targetUserId) {
+    return <div className="min-h-screen bg-background telegram-safe-area flex items-center justify-center">
+      <div className="text-center">
+        <div className="text-lg mb-2">Не удалось определить пользователя</div>
+        <div className="text-sm text-muted-foreground">
+          Debug: user={user?.id}, userId={userId}
+        </div>
+      </div>
+    </div>;
+  }
+
+  if (profileError) {
+    return <div className="min-h-screen bg-background telegram-safe-area flex items-center justify-center">
+      <div className="text-center">
+        <div className="text-lg mb-2">Ошибка загрузки профиля</div>
+        <div className="text-sm text-muted-foreground">
+          {profileError.message || 'Неизвестная ошибка'}
+        </div>
+      </div>
     </div>;
   }
 
   if (!profile) {
     return <div className="min-h-screen bg-background telegram-safe-area flex items-center justify-center">
-      <div className="text-center">Профиль не найден</div>
+      <div className="text-center">
+        <div className="text-lg mb-2">Профиль не найден</div>
+        <div className="text-sm text-muted-foreground">
+          Пользователь ID: {targetUserId}
+        </div>
+      </div>
     </div>;
   }
 

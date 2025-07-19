@@ -19,11 +19,25 @@ export const useTelegram = () => {
 
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
+    
+    // Debug logging for mobile issues
+    console.log('Telegram WebApp Debug:', {
+      hasTelegram: !!window.Telegram,
+      hasWebApp: !!tg,
+      platform: tg?.platform,
+      version: tg?.version,
+      initDataUnsafe: tg?.initDataUnsafe,
+      user: tg?.initDataUnsafe?.user
+    });
+    
     if (tg) {
       tg.ready();
       setWebApp(tg);
-      setUser(tg.initDataUnsafe.user || null);
+      const telegramUser = tg.initDataUnsafe.user;
+      setUser(telegramUser || null);
       setIsReady(true);
+      
+      console.log('Telegram User Set:', telegramUser);
       
       // Применяем тему Telegram
       if (tg.colorScheme === 'dark') {
@@ -35,15 +49,17 @@ export const useTelegram = () => {
     } else {
       // Если не в Telegram, используем mock данные для разработки
       console.warn('Telegram WebApp not found. Using mock data for development.');
-      setUser({
+      const mockUser = {
         id: 123456789,
         first_name: 'Test',
         last_name: 'User',
         username: 'testuser',
         language_code: 'ru',
         is_premium: false
-      });
+      };
+      setUser(mockUser);
       setIsReady(true);
+      console.log('Mock User Set:', mockUser);
     }
   }, []);
 

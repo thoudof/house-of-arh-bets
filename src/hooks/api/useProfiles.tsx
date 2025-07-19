@@ -10,29 +10,56 @@ export const useProfile = (userId?: string) => {
   return useQuery({
     queryKey: ['profile', targetUserId],
     queryFn: async () => {
-      if (!targetUserId) throw new Error('User ID required');
+      if (!targetUserId) {
+        console.error('useProfile: User ID required but not provided');
+        throw new Error('User ID required');
+      }
+
+      console.log('useProfile: Fetching profile for user ID:', targetUserId);
 
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', targetUserId)
-        .single();
+        .maybeSingle(); // Use maybeSingle instead of single to avoid error when no data
 
-      if (error) throw error;
+      if (error) {
+        console.error('useProfile: Error fetching profile:', error);
+        throw error;
+      }
+
+      if (!profile) {
+        console.warn('useProfile: No profile found for user ID:', targetUserId);
+        return null;
+      }
 
       // Fetch user stats separately
-      const { data: userStats } = await supabase
+      const { data: userStats, error: statsError } = await supabase
         .from('user_stats')
         .select('*')
         .eq('user_id', targetUserId)
-        .single();
+        .maybeSingle();
 
-      return {
+      if (statsError) {
+        console.error('useProfile: Error fetching user stats:', statsError);
+      }
+
+      const result = {
         ...profile,
         user_stats: userStats ? [userStats] : []
       };
+
+      console.log('useProfile: Successfully fetched profile:', result);
+      return result;
     },
     enabled: !!targetUserId,
+    retry: (failureCount, error) => {
+      // Retry up to 3 times, but not for "not found" errors
+      if (error?.message?.includes('not found') || (error as any)?.code === 'PGRST116') {
+        return false;
+      }
+      return failureCount < 3;
+    },
   });
 };
 

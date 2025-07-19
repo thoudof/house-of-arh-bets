@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import PredictionCard from "@/components/PredictionCard";
 import TopAnalysts from "@/components/TopAnalysts";
+import { TelegramDebugInfo } from "@/components/TelegramDebugInfo";
 import { usePredictions } from "@/hooks/api/usePredictions";
 import { useAuth } from "@/hooks/useAuth";
 import { useChallenges } from "@/hooks/api/useChallenges";
@@ -260,6 +261,9 @@ const Index = () => {
 
       {/* Bottom Navigation */}
       <Navigation />
+      
+      {/* Debug Info (only shows in development/debug mode) */}
+      <TelegramDebugInfo />
     </div>
   );
 };
