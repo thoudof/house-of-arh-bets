@@ -7,87 +7,40 @@ import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import PredictionCard from "@/components/PredictionCard";
 import TopAnalysts from "@/components/TopAnalysts";
+import { usePredictions } from "@/hooks/api/usePredictions";
+import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("predictions");
+  const { profile } = useAuth();
+  const { data: predictions, isLoading: predictionsLoading } = usePredictions();
 
-  const mockPredictions = [
-    {
-      id: "1",
-      userId: "user1",
-      analyst: "ProAnalyst",
-      event: "Реал Мадрид vs Барселона",
-      type: "single" as const,
-      coefficient: 2.45,
-      prediction: "П1",
-      status: "pending" as const,
-      timeLeft: "2ч 30м",
-      category: "Футбол",
-      startDate: "2024-01-21T15:00:00Z",
-      isPublic: true,
-      createdAt: "2024-01-19T10:00:00Z",
-      updatedAt: "2024-01-19T10:00:00Z"
-    },
-    {
-      id: "2",
-      userId: "user2",
-      analyst: "BetMaster",
-      event: "Лейкерс vs Уорриорз",
-      type: "express" as const,
-      coefficient: 3.20,
-      prediction: "ТБ 220.5 + П2",
-      status: "win" as const,
-      timeLeft: "Завершено",
-      category: "Баскетбол",
-      startDate: "2024-01-18T20:00:00Z",
-      isPublic: true,
-      createdAt: "2024-01-17T14:00:00Z",
-      updatedAt: "2024-01-18T22:00:00Z"
-    },
-    {
-      id: "3",
-      userId: "user3",
-      analyst: "SportGuru",
-      event: "Челси vs Арсенал",
-      type: "system" as const,
-      coefficient: 1.85,
-      prediction: "ТБ 2.5",
-      status: "loss" as const,
-      timeLeft: "Завершено",
-      category: "Футбол",
-      startDate: "2024-01-16T18:00:00Z",
-      isPublic: true,
-      createdAt: "2024-01-15T12:00:00Z",
-      updatedAt: "2024-01-16T20:00:00Z"
-    }
-  ];
-
+  // Calculate stats from user profile
   const statsCards = [
     {
       title: "Активные прогнозы",
-      value: "24",
+      value: profile?.user_stats?.total_predictions?.toString() || "0",
       change: "+12%",
       icon: Activity,
       trend: "up" as const
     },
     {
       title: "Процент побед",
-      value: "67%",
+      value: `${Math.round(profile?.user_stats?.win_rate || 0)}%`,
       change: "+5%",
       icon: Target,
       trend: "up" as const
     },
     {
       title: "Средний коэф.",
-      value: "2.1",
+      value: profile?.user_stats?.average_coefficient?.toFixed(1) || "0",
       change: "-0.2",
       icon: TrendingUp,
       trend: "down" as const
     },
     {
       title: "ROI",
-      value: "+23%",
+      value: `${profile?.user_stats?.roi > 0 ? '+' : ''}${Math.round(profile?.user_stats?.roi || 0)}%`,
       change: "+8%",
       icon: Trophy,
       trend: "up" as const
@@ -114,7 +67,7 @@ const Index = () => {
             <div className="flex items-center space-x-2">
               <Badge variant="outline" className="border-primary/20 text-primary text-[10px] sm:text-xs px-1.5 sm:px-2">
                 <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
-                Новичок
+                {profile?.rank || 'Новичок'}
               </Badge>
             </div>
           </div>
@@ -161,15 +114,54 @@ const Index = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 sm:space-y-4">
-                {mockPredictions.map((prediction, index) => (
-                  <PredictionCard 
-                    key={prediction.id} 
-                    prediction={prediction} 
-                    className="animate-slide-up"
-                    style={{ animationDelay: `${index * 150}ms` }}
-                    onClick={() => window.location.href = `/prediction/${prediction.id}`}
-                  />
-                ))}
+                {predictionsLoading ? (
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="h-32 bg-muted/20 rounded-lg animate-pulse" />
+                    ))}
+                  </div>
+                ) : predictions && predictions.length > 0 ? (
+                  predictions.slice(0, 3).map((prediction, index) => (
+                    <PredictionCard 
+                      key={prediction.id} 
+                      prediction={{
+                        id: prediction.id,
+                        userId: prediction.user_id,
+                        analyst: prediction.profile?.first_name || 'Аноним',
+                        event: prediction.event,
+                        type: prediction.type,
+                        coefficient: Number(prediction.coefficient),
+                        prediction: prediction.prediction,
+                        status: prediction.status,
+                        timeLeft: prediction.end_date ? new Date(prediction.end_date).toLocaleString() : 'TBD',
+                        category: prediction.category,
+                        startDate: prediction.start_date,
+                        isPublic: prediction.is_public,
+                        createdAt: prediction.created_at,
+                        updatedAt: prediction.updated_at,
+                        stake: prediction.stake ? Number(prediction.stake) : undefined,
+                        profit: prediction.profit ? Number(prediction.profit) : undefined,
+                        description: prediction.description,
+                        endDate: prediction.end_date
+                      }} 
+                      className="animate-slide-up"
+                      style={{ animationDelay: `${index * 150}ms` }}
+                      onClick={() => navigate(`/prediction/${prediction.id}`)}
+                    />
+                  ))
+                ) : (
+                  <div className="text-center py-8">
+                    <Target className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">Пока нет активных прогнозов</p>
+                    <Button 
+                      variant="outline" 
+                      className="mt-4" 
+                      onClick={() => navigate('/add-prediction')}
+                    >
+                      Создать первый прогноз
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
 

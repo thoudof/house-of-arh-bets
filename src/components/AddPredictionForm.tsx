@@ -9,11 +9,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import type { Prediction } from "@/types";
+import { useCreatePrediction } from "@/hooks/api/usePredictions";
+import { useTelegram } from "@/hooks/useTelegram";
 
 const AddPredictionForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const createPrediction = useCreatePrediction();
+  const { hapticFeedback } = useTelegram();
   
   const [formData, setFormData] = useState({
     event: "",
@@ -59,33 +62,26 @@ const AddPredictionForm = () => {
         return;
       }
 
-      // Создание прогноза
-      const newPrediction: Omit<Prediction, 'id' | 'userId' | 'createdAt' | 'updatedAt'> = {
-        analyst: "Текущий пользователь", // Будет заменено на реальные данные
+      // Создание прогноза через API
+      await createPrediction.mutateAsync({
         event: formData.event,
         type: formData.type,
         coefficient: coef,
         prediction: formData.prediction,
-        status: 'pending',
         stake: formData.stake ? parseFloat(formData.stake) : undefined,
-        timeLeft: "Ожидание",
         category: formData.category || "Прочее",
         description: formData.description || undefined,
-        startDate: formData.startDate && formData.startTime 
+        start_date: formData.startDate && formData.startTime 
           ? `${formData.startDate}T${formData.startTime}:00Z` 
           : new Date().toISOString(),
-        isPublic: formData.isPublic
-      };
-
-      // Здесь будет интеграция с API
-      console.log("Новый прогноз:", newPrediction);
-
-      toast({
-        title: "Успешно!",
-        description: "Прогноз добавлен",
+        end_date: formData.startDate && formData.startTime 
+          ? `${formData.startDate}T${formData.startTime}:00Z` 
+          : undefined,
+        is_public: formData.isPublic
       });
 
-      navigate('/profile');
+      hapticFeedback('success');
+      navigate('/');
     } catch (error) {
       toast({
         title: "Ошибка",
