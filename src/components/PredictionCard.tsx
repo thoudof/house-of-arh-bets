@@ -77,7 +77,9 @@ const PredictionCard = ({ prediction, className = "", style, onClick }: Predicti
               {prediction.event_name}
             </h3>
             <p className="text-xs sm:text-sm text-muted-foreground">
-              от <span className="text-primary font-medium">Аналитик</span>
+              от <span className="text-primary font-medium">
+                {prediction.profiles?.first_name || 'Пользователь'}
+              </span>
             </p>
           </div>
 

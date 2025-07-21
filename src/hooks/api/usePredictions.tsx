@@ -56,8 +56,11 @@ export const usePredictions = () => {
           profiles!predictions_user_id_fkey (
             first_name,
             last_name,
+            display_name,
             telegram_username,
-            avatar_url
+            avatar_url,
+            role,
+            tier
           )
         `)
         .eq('is_public', true)
@@ -114,7 +117,12 @@ export const usePrediction = (id: string) => {
       const { data: profile } = await supabase
         .from('profiles')
         .select(`
-          *,
+          first_name,
+          last_name,
+          display_name,
+          avatar_url,
+          role,
+          tier,
           user_stats!user_stats_user_id_fkey(*)
         `)
         .eq('user_id', data.user_id)

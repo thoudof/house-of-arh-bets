@@ -13,12 +13,14 @@ import TelegramLogin from '@/components/TelegramLogin';
 import { usePredictions } from "@/hooks/api/usePredictions";
 import { useAuth } from "@/hooks/useAuth";
 import { useChallenges } from "@/hooks/api/useChallenges";
+import { useUserStats } from "@/hooks/api/useUserStats";
 
 const Index = () => {
   const navigate = useNavigate();
   const { user, isLoading, isAuthenticated } = useAuth();
   const { data: predictions, isLoading: predictionsLoading } = usePredictions();
   const { data: challenges, isLoading: challengesLoading } = useChallenges();
+  const { data: userStats, isLoading: statsLoading } = useUserStats();
 
   // Show loading screen while auth is being checked
   if (isLoading) {
@@ -37,28 +39,29 @@ const Index = () => {
   const statsCards = [
     {
       title: "Активные прогнозы",
-      value: "0",
+      value: statsLoading ? "..." : (userStats?.pending_predictions?.toString() || "0"),
       change: "+12%",
       icon: Activity,
       trend: "up" as const
     },
     {
-      title: "Процент побед",
-      value: "0%",
+      title: "Процент побед", 
+      value: statsLoading ? "..." : (userStats?.total_predictions > 0 ? 
+        `${Math.round((userStats.successful_predictions / userStats.total_predictions) * 100)}%` : "0%"),
       change: "+5%",
       icon: Target,
       trend: "up" as const
     },
     {
       title: "Средний коэф.",
-      value: "0",
+      value: statsLoading ? "..." : (userStats?.average_coefficient?.toFixed(2) || "0.00"),
       change: "-0.2",
       icon: TrendingUp,
       trend: "down" as const
     },
     {
       title: "ROI",
-      value: "0%",
+      value: statsLoading ? "..." : `${userStats?.roi?.toFixed(1) || "0.0"}%`,
       change: "+8%",
       icon: Trophy,
       trend: "up" as const
@@ -164,8 +167,9 @@ const Index = () => {
                         views_count: prediction.views_count || 0,
                         likes_count: prediction.likes_count || 0,
                         comments_count: prediction.comments_count || 0,
-                        shares_count: prediction.shares_count || 0
-                      }} 
+                        shares_count: prediction.shares_count || 0,
+                        profiles: prediction.profiles
+                      }}
                       className="animate-slide-up"
                       style={{ animationDelay: `${index * 150}ms` }}
                       onClick={() => navigate(`/prediction/${prediction.id}`)}

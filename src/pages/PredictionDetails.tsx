@@ -78,8 +78,8 @@ const PredictionDetails = () => {
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: `Прогноз: ${prediction.event}`,
-        text: `${prediction.prediction} - коэф. ${prediction.coefficient}`,
+        title: `Прогноз: ${prediction.event_name}`,
+        text: `${prediction.title} - коэф. ${prediction.coefficient}`,
         url: window.location.href
       });
     } else {
@@ -134,7 +134,7 @@ const PredictionDetails = () => {
                     {statusInfo.label}
                   </Badge>
                 </div>
-                <h2 className="text-xl font-bold">{prediction.event}</h2>
+                <h2 className="text-xl font-bold">{prediction.event_name}</h2>
               </div>
             </div>
           </CardHeader>
@@ -144,7 +144,7 @@ const PredictionDetails = () => {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Прогноз:</span>
-                <span className="font-semibold">{prediction.prediction}</span>
+                <span className="font-semibold">{prediction.title}</span>
               </div>
               
               <div className="flex items-center justify-between">
@@ -170,7 +170,12 @@ const PredictionDetails = () => {
 
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Время до события:</span>
-                <span className="font-semibold">{prediction.time_left || 'Не указано'}</span>
+                <span className="font-semibold">
+                  {prediction.event_start_time ? 
+                    new Date(prediction.event_start_time).toLocaleString('ru-RU') : 
+                    'Не указано'
+                  }
+                </span>
               </div>
             </div>
 
@@ -179,7 +184,7 @@ const PredictionDetails = () => {
             {/* Event Time */}
             <div className="flex items-center space-x-2 text-sm text-muted-foreground">
               <Calendar className="w-4 h-4" />
-              <span>Начало события: {formatDate(prediction.start_date)}</span>
+              <span>Начало события: {formatDate(prediction.event_start_time)}</span>
             </div>
           </CardContent>
         </Card>
