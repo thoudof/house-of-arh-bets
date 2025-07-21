@@ -16,19 +16,18 @@ import { useUserAchievements } from "@/hooks/api/useAchievements";
 const Profile = () => {
   const navigate = useNavigate();
   const { userId } = useParams();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { data: profile, isLoading: profileLoading, error: profileError } = useProfile();
   const { data: predictions, isLoading: predictionsLoading } = useUserPredictions();
   const { data: userAchievements, isLoading: achievementsLoading } = useUserAchievements();
 
   const [activeTab, setActiveTab] = useState("overview");
-
-  // Перенаправление для неавторизованных пользователей
+  
   useEffect(() => {
-    if (!isAuthenticated && !profileLoading) {
+    if (!authLoading && !isAuthenticated && !profileLoading) {
       navigate('/');
     }
-  }, [isAuthenticated, profileLoading, navigate]);
+  }, [isAuthenticated, profileLoading, authLoading, navigate]);
 
   if (profileError) {
     return (
