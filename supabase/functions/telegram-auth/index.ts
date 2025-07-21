@@ -73,7 +73,7 @@ Deno.serve(async (req) => {
     // Check if user exists in database
     let { data: existingUser, error: fetchError } = await supabase
       .from('profiles')
-      .select('user_id, telegram_id, first_name, last_name, username, role, rank')
+      .select('user_id, telegram_id, first_name, last_name, username')
       .eq('telegram_id', telegramUser.id.toString())
       .single();
 
