@@ -10,13 +10,13 @@ import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useCreatePrediction } from "@/hooks/api/usePredictions";
-import { useTelegramAuth } from "@/hooks/useTelegramAuth";
+import { useAuth } from "@/hooks/useAuth";
 
 const AddPredictionForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const createPrediction = useCreatePrediction();
-  const { user } = useTelegramAuth();
+  const { user } = useAuth();
   
   const [formData, setFormData] = useState({
     event: "",

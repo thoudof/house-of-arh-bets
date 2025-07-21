@@ -2,12 +2,12 @@
 import { Home, TrendingUp, Trophy, User, Target, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useTelegramAuth } from "@/hooks/useTelegramAuth";
+import { useAuth } from "@/hooks/useAuth";
 
 const Navigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useTelegramAuth();
+  const { user } = useAuth();
 
   const isActive = (path: string) => location.pathname === path;
   

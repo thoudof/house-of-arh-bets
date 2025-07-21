@@ -9,7 +9,7 @@ import PredictionCard from "@/components/PredictionCard";
 import TopAnalysts from "@/components/TopAnalysts";
 import { TelegramDebugInfo } from "@/components/TelegramDebugInfo";
 import { usePredictions } from "@/hooks/api/usePredictions";
-import { useTelegramAuth } from "@/hooks/useTelegramAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { useChallenges } from "@/hooks/api/useChallenges";
 
 const Index = () => {

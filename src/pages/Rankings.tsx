@@ -8,10 +8,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 import { useRankings } from "@/hooks/api/useProfiles";
-import { useTelegramAuth } from "@/hooks/useTelegramAuth";
+import { useAuth } from "@/hooks/useAuth";
 const Rankings = () => {
   const navigate = useNavigate();
-  const { user } = useTelegramAuth();
+  const { user } = useAuth();
   const [selectedPeriod, setSelectedPeriod] = useState("month");
   const {
     data: rankings,

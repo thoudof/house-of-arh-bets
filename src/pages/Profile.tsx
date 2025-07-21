@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { useNavigate, useParams } from "react-router-dom";
 import PredictionCard from "@/components/PredictionCard";
-import { useTelegramAuth } from "@/hooks/useTelegramAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/api/useProfiles";
 import { useUserPredictions } from "@/hooks/api/usePredictions";
 import { useUserAchievements } from "@/hooks/api/useAchievements";
