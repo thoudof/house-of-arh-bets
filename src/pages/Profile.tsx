@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { User, ArrowLeft, Trophy, Target, TrendingUp, Activity, Calendar, Star, Award } from "lucide-react";
+import { ArrowLeft, Trophy, Target, TrendingUp, Activity, Calendar, Star, Award, Settings, Share2, Users, Flame } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -44,7 +44,7 @@ const Profile = () => {
     return (
       <div className="min-h-screen bg-background telegram-safe-area flex items-center justify-center">
         <div className="text-center">
-          <div>Загрузка данных профиля...</div>
+          <div className="animate-pulse">Загрузка данных профиля...</div>
         </div>
       </div>
     );
@@ -65,12 +65,48 @@ const Profile = () => {
 
   const getRankInfo = (rank: string) => {
     const ranks = {
-      newbie: { name: "Новичок", color: "text-muted-foreground", progress: 20 },
-      bronze: { name: "Бронза", color: "text-orange-600", progress: 40 },
-      silver: { name: "Серебро", color: "text-gray-400", progress: 60 },
-      gold: { name: "Золото", color: "text-yellow-500", progress: 80 },
-      platinum: { name: "Платина", color: "text-blue-400", progress: 90 },
-      diamond: { name: "Алмаз", color: "text-purple-400", progress: 100 }
+      newbie: { 
+        name: "Новичок", 
+        color: "text-muted-foreground bg-muted/30", 
+        progress: 20, 
+        icon: Star,
+        nextLevel: "Бронза"
+      },
+      bronze: { 
+        name: "Бронза", 
+        color: "text-amber-600 bg-amber-100 dark:bg-amber-900/30", 
+        progress: 40, 
+        icon: Star,
+        nextLevel: "Серебро"
+      },
+      silver: { 
+        name: "Серебро", 
+        color: "text-slate-500 bg-slate-100 dark:bg-slate-800/30", 
+        progress: 60, 
+        icon: Star,
+        nextLevel: "Золото"
+      },
+      gold: { 
+        name: "Золото", 
+        color: "text-yellow-500 bg-yellow-100 dark:bg-yellow-900/30", 
+        progress: 80, 
+        icon: Trophy,
+        nextLevel: "Платина"
+      },
+      platinum: { 
+        name: "Платина", 
+        color: "text-blue-400 bg-blue-100 dark:bg-blue-900/30", 
+        progress: 90, 
+        icon: Trophy,
+        nextLevel: "Алмаз"
+      },
+      diamond: { 
+        name: "Алмаз", 
+        color: "text-purple-400 bg-purple-100 dark:bg-purple-900/30", 
+        progress: 100, 
+        icon: Award,
+        nextLevel: "Максимум"
+      }
     };
     return ranks[rank as keyof typeof ranks] || ranks.newbie;
   };
@@ -78,193 +114,326 @@ const Profile = () => {
   const rankInfo = getRankInfo('newbie');
   const stats = Array.isArray(profile.user_stats) ? profile.user_stats[0] : profile.user_stats;
 
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('ru-RU', { 
+      month: 'long', 
+      year: 'numeric' 
+    });
+  };
+
+  const getWinRate = () => {
+    if (!stats?.total_predictions || stats.total_predictions === 0) return 0;
+    return Math.round((stats.successful_predictions / stats.total_predictions) * 100);
+  };
+
   return (
     <div className="min-h-screen bg-background telegram-safe-area">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center space-x-3">
-            <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-            <h1 className="text-xl font-bold">Профиль</h1>
+        <div className="px-3 sm:px-4 py-3 sm:py-4 max-w-screen-lg mx-auto">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="p-2">
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+              <h1 className="text-lg sm:text-xl font-bold">Профиль</h1>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button variant="ghost" size="sm" className="p-2">
+                <Share2 className="w-4 h-4" />
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/settings')} className="p-2">
+                <Settings className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-6 space-y-6">
-        {/* Profile Header */}
-        <Card className="card-gradient">
-          <CardContent className="p-6">
-            <div className="flex items-start space-x-4">
-              <Avatar className="w-20 h-20">
-                <AvatarImage src={profile.avatar_url || undefined} alt={profile.first_name} />
-                <AvatarFallback>{profile.first_name[0]}{profile.last_name?.[0]}</AvatarFallback>
-              </Avatar>
-              
-              <div className="flex-1 space-y-2">
-                <div className="flex items-center space-x-2">
-                  <h2 className="text-2xl font-bold">{profile.first_name} {profile.last_name}</h2>
-                  <Badge variant="outline" className={rankInfo.color}>
+      <div className="px-3 sm:px-4 py-4 sm:py-6 max-w-screen-lg mx-auto space-y-4 sm:space-y-6">
+        {/* Profile Header - Mobile Optimized */}
+        <Card className="card-gradient glow-primary animate-fade-in">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6">
+              {/* Avatar and Basic Info */}
+              <div className="flex flex-col items-center sm:items-start space-y-3">
+                <Avatar className="w-20 h-20 sm:w-24 sm:h-24 border-2 border-primary/20">
+                  <AvatarImage src={profile.avatar_url || undefined} alt={profile.first_name} />
+                  <AvatarFallback className="text-lg font-semibold bg-gradient-to-br from-primary to-primary-glow text-primary-foreground">
+                    {profile.first_name[0]}{profile.last_name?.[0]}
+                  </AvatarFallback>
+                </Avatar>
+                
+                <div className="text-center sm:text-left">
+                  <h2 className="text-xl sm:text-2xl font-bold mb-1">
+                    {profile.first_name} {profile.last_name}
+                  </h2>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    @{profile.telegram_username || 'Пользователь'}
+                  </p>
+                  
+                  {/* Rank Badge */}
+                  <Badge className={`${rankInfo.color} border-0 font-medium px-3 py-1`}>
+                    <rankInfo.icon className="w-3 h-3 mr-1" />
                     {rankInfo.name}
                   </Badge>
                 </div>
-                
-                <p className="text-muted-foreground">@{profile.telegram_username || 'Пользователь'}</p>
-                
-                <div className="flex items-center space-x-4 text-sm">
-                  <div className="flex items-center space-x-1">
-                    <Calendar className="w-4 h-4" />
-                    <span>С {new Date(profile.created_at).toLocaleDateString('ru-RU')}</span>
+              </div>
+
+              {/* Stats Grid */}
+              <div className="flex-1 w-full">
+                <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-4">
+                  <div className="text-center">
+                    <p className="text-lg sm:text-xl font-bold text-primary">
+                      {stats?.total_predictions || 0}
+                    </p>
+                    <p className="text-xs text-muted-foreground">Прогнозов</p>
                   </div>
-                  <UserRoleDisplay userId={profile.user_id} showTier={true} size="sm" />
+                  <div className="text-center border-x border-border/50 px-2">
+                    <p className="text-lg sm:text-xl font-bold text-success">
+                      {getWinRate()}%
+                    </p>
+                    <p className="text-xs text-muted-foreground">Побед</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-lg sm:text-xl font-bold text-primary-glow">
+                      {stats?.current_win_streak || 0}
+                    </p>
+                    <p className="text-xs text-muted-foreground">Серия</p>
+                  </div>
                 </div>
 
-                {/* Rank Progress */}
-                <div className="space-y-1">
-                  <div className="flex justify-between text-xs">
-                    <span>Прогресс ранга</span>
-                    <span>{rankInfo.progress}%</span>
+                {/* Progress to Next Rank */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-muted-foreground">До {rankInfo.nextLevel}</span>
+                    <span className="font-medium">{rankInfo.progress}%</span>
                   </div>
                   <Progress value={rankInfo.progress} className="h-2" />
+                </div>
+
+                {/* Member Since */}
+                <div className="flex items-center justify-center sm:justify-start mt-3 text-xs text-muted-foreground">
+                  <Calendar className="w-3 h-3 mr-1" />
+                  <span>Участник с {formatDate(profile.created_at)}</span>
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Stats Overview */}
-        <div className="grid grid-cols-2 gap-3 sm:gap-4">
-          <Card className="card-gradient">
+        {/* Quick Stats - Mobile First */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+          <Card className="card-gradient card-hover animate-fade-in" style={{ animationDelay: '100ms' }}>
             <CardContent className="p-3 text-center">
-              <Activity className="w-5 h-5 mx-auto mb-1 text-primary" />
-              <p className="text-lg font-bold">{stats?.total_predictions || 0}</p>
-              <p className="text-xs text-muted-foreground">Всего ставок</p>
-            </CardContent>
-          </Card>
-          
-          <Card className="card-gradient">
-            <CardContent className="p-3 text-center">
-              <Target className="w-5 h-5 mx-auto mb-1 text-success" />
-              <p className="text-lg font-bold">
-                {stats?.total_predictions > 0 ? 
-                  Math.round((stats.successful_predictions / stats.total_predictions) * 100) : 0}%
-              </p>
-              <p className="text-xs text-muted-foreground">Процент побед</p>
-            </CardContent>
-          </Card>
-          
-          <Card className="card-gradient">
-            <CardContent className="p-3 text-center">
-              <TrendingUp className="w-5 h-5 mx-auto mb-1 text-primary" />
-              <p className="text-lg font-bold">+{stats?.roi || 0}%</p>
+              <div className="w-8 h-8 mx-auto mb-2 bg-success/20 rounded-lg flex items-center justify-center">
+                <TrendingUp className="w-4 h-4 text-success" />
+              </div>
+              <p className="text-sm sm:text-base font-bold">+{stats?.roi?.toFixed(1) || 0}%</p>
               <p className="text-xs text-muted-foreground">ROI</p>
             </CardContent>
           </Card>
           
-          <Card className="card-gradient">
+          <Card className="card-gradient card-hover animate-fade-in" style={{ animationDelay: '200ms' }}>
             <CardContent className="p-3 text-center">
-              <Trophy className="w-5 h-5 mx-auto mb-1 text-primary-glow" />
-              <p className="text-lg font-bold">{stats?.current_win_streak || 0}</p>
-              <p className="text-xs text-muted-foreground">Текущая серия</p>
+              <div className="w-8 h-8 mx-auto mb-2 bg-primary/20 rounded-lg flex items-center justify-center">
+                <Target className="w-4 h-4 text-primary" />
+              </div>
+              <p className="text-sm sm:text-base font-bold">{stats?.average_coefficient?.toFixed(2) || '0.00'}</p>
+              <p className="text-xs text-muted-foreground">Ср. коэф.</p>
+            </CardContent>
+          </Card>
+          
+          <Card className="card-gradient card-hover animate-fade-in" style={{ animationDelay: '300ms' }}>
+            <CardContent className="p-3 text-center">
+              <div className="w-8 h-8 mx-auto mb-2 bg-destructive/20 rounded-lg flex items-center justify-center">
+                <Flame className="w-4 h-4 text-destructive" />
+              </div>
+              <p className="text-sm sm:text-base font-bold">{stats?.best_win_streak || 0}</p>
+              <p className="text-xs text-muted-foreground">Лучшая серия</p>
+            </CardContent>
+          </Card>
+          
+          <Card className="card-gradient card-hover animate-fade-in" style={{ animationDelay: '400ms' }}>
+            <CardContent className="p-3 text-center">
+              <div className="w-8 h-8 mx-auto mb-2 bg-primary-glow/20 rounded-lg flex items-center justify-center">
+                <Trophy className="w-4 h-4 text-primary-glow" />
+              </div>
+              <p className="text-sm sm:text-base font-bold">{stats?.rating || 1000}</p>
+              <p className="text-xs text-muted-foreground">Рейтинг</p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Tabs */}
-        <Card className="card-gradient">
-          <CardContent className="p-4">
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-3 text-sm bg-muted/50 rounded-lg p-1">
-                <TabsTrigger value="overview" className="text-xs data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">Обзор</TabsTrigger>
-                <TabsTrigger value="predictions" className="text-xs data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">Ставки</TabsTrigger>
-                <TabsTrigger value="achievements" className="text-xs data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">Награды</TabsTrigger>
+        {/* Content Tabs - Mobile Optimized */}
+        <Card className="card-gradient animate-fade-in" style={{ animationDelay: '500ms' }}>
+          <CardContent className="p-3 sm:p-4">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-3 bg-muted/30 rounded-lg p-1 mb-4">
+                <TabsTrigger value="overview" className="text-xs sm:text-sm">
+                  Обзор
+                </TabsTrigger>
+                <TabsTrigger value="predictions" className="text-xs sm:text-sm">
+                  Ставки
+                </TabsTrigger>
+                <TabsTrigger value="achievements" className="text-xs sm:text-sm">
+                  Награды
+                </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="overview" className="space-y-4">
-                <Card className="card-gradient">
-                  <CardHeader>
-                    <CardTitle className="text-base">Детальная статистика</CardTitle>
+              <TabsContent value="overview" className="space-y-4 mt-4">
+                {/* Financial Stats */}
+                <Card className="card-gradient border-success/20">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm sm:text-base flex items-center">
+                      <TrendingUp className="w-4 h-4 mr-2 text-success" />
+                      Финансы
+                    </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Прибыль</p>
-                        <p className="text-lg font-semibold text-success">+{stats?.total_profit || 0} ₽</p>
+                  <CardContent className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="text-center p-2 bg-success/10 rounded-lg">
+                        <p className="text-xs text-muted-foreground">Прибыль</p>
+                        <p className="text-lg font-bold text-success">
+                          +{stats?.total_profit?.toFixed(0) || 0} ₽
+                        </p>
                       </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Средний коэф.</p>
-                        <p className="text-lg font-semibold">{stats?.average_coefficient || 0}</p>
+                      <div className="text-center p-2 bg-muted/30 rounded-lg">
+                        <p className="text-xs text-muted-foreground">Поставлено</p>
+                        <p className="text-lg font-bold">
+                          {stats?.total_stake?.toFixed(0) || 0} ₽
+                        </p>
                       </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Лучшая серия</p>
-                        <p className="text-lg font-semibold">{stats?.best_win_streak || 0}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Activity Stats */}
+                <Card className="card-gradient border-primary/20">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm sm:text-base flex items-center">
+                      <Activity className="w-4 h-4 mr-2 text-primary" />
+                      Активность
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 gap-3 text-center">
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted-foreground">Выиграно</p>
+                        <p className="text-base font-semibold text-success">
+                          {stats?.successful_predictions || 0}
+                        </p>
                       </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Всего поставлено</p>
-                        <p className="text-lg font-semibold">{stats?.total_stake || 0} ₽</p>
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted-foreground">Проиграно</p>
+                        <p className="text-base font-semibold text-destructive">
+                          {stats?.failed_predictions || 0}
+                        </p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
               </TabsContent>
 
-              <TabsContent value="predictions" className="space-y-4">
+              <TabsContent value="predictions" className="space-y-4 mt-4">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold">Мои ставки</h3>
-                  <Button variant="default" size="sm" onClick={() => navigate('/add-prediction')}>
-                    Добавить ставку
+                  <h3 className="text-sm sm:text-base font-semibold">Мои прогнозы</h3>
+                  <Button 
+                    variant="premium" 
+                    size="sm" 
+                    onClick={() => navigate('/add-prediction')}
+                    className="text-xs"
+                  >
+                    Добавить
                   </Button>
                 </div>
                 
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {predictionsLoading ? (
-                    <div>Загрузка прогнозов...</div>
+                    <div className="space-y-3">
+                      {[1, 2, 3].map((i) => (
+                        <div key={i} className="h-24 bg-muted/20 rounded-lg animate-pulse" />
+                      ))}
+                    </div>
                   ) : predictions?.length ? (
-                    predictions.map((prediction) => (
+                    predictions.slice(0, 5).map((prediction, index) => (
                       <PredictionCard 
                         key={prediction.id} 
                         prediction={prediction}
                         onClick={() => navigate(`/prediction/${prediction.id}`)}
+                        className="animate-slide-up"
+                        style={{ animationDelay: `${index * 100}ms` }}
                       />
                     ))
                   ) : (
-                    <div className="text-center text-muted-foreground py-8">
-                      Прогнозов пока нет
+                    <div className="text-center py-8">
+                      <Target className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
+                      <p className="text-muted-foreground text-sm">Прогнозов пока нет</p>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="mt-3 text-xs"
+                        onClick={() => navigate('/add-prediction')}
+                      >
+                        Создать первый прогноз
+                      </Button>
                     </div>
                   )}
                 </div>
               </TabsContent>
 
-              <TabsContent value="achievements" className="space-y-4">
-                <h3 className="text-lg font-semibold">Достижения</h3>
-                <div className="grid grid-cols-1 gap-3">
+              <TabsContent value="achievements" className="space-y-4 mt-4">
+                <h3 className="text-sm sm:text-base font-semibold flex items-center">
+                  <Award className="w-4 h-4 mr-2 text-primary" />
+                  Достижения
+                </h3>
+                
+                <div className="space-y-3">
                   {achievementsLoading ? (
-                    <div>Загрузка достижений...</div>
+                    <div className="space-y-3">
+                      {[1, 2].map((i) => (
+                        <div key={i} className="h-16 bg-muted/20 rounded-lg animate-pulse" />
+                      ))}
+                    </div>
                   ) : userAchievements?.length ? (
-                    userAchievements.map((userAchievement) => (
+                    userAchievements.map((userAchievement, index) => (
                       <Card 
                         key={userAchievement.id} 
-                        className="card-gradient border-primary/50"
+                        className="card-gradient border-primary/30 animate-slide-up"
+                        style={{ animationDelay: `${index * 100}ms` }}
                       >
-                        <CardContent className="p-4">
+                        <CardContent className="p-3">
                           <div className="flex items-center space-x-3">
-                            <div className="text-2xl">{userAchievement.achievement.icon_emoji}</div>
-                            <div className="flex-1">
-                              <h4 className="font-semibold">{userAchievement.achievement.title}</h4>
-                              <p className="text-sm text-muted-foreground">{userAchievement.achievement.description}</p>
-                              <p className="text-xs text-primary">
-                                Получено: {new Date(userAchievement.completed_at).toLocaleDateString('ru-RU')}
+                            <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center text-lg">
+                              {userAchievement.achievement.icon_emoji}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-semibold text-sm truncate">
+                                {userAchievement.achievement.title}
+                              </h4>
+                              <p className="text-xs text-muted-foreground line-clamp-2">
+                                {userAchievement.achievement.description}
+                              </p>
+                              <p className="text-xs text-primary mt-1">
+                                {userAchievement.completed_at && 
+                                  new Date(userAchievement.completed_at).toLocaleDateString('ru-RU')
+                                }
                               </p>
                             </div>
-                            <Award className="w-5 h-5 text-primary" />
+                            <Badge variant="outline" className="text-xs">
+                              +{userAchievement.achievement.experience_points} XP
+                            </Badge>
                           </div>
                         </CardContent>
                       </Card>
                     ))
                   ) : (
-                    <div className="text-center text-muted-foreground py-8">
-                      Достижений пока нет
+                    <div className="text-center py-8">
+                      <Award className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
+                      <p className="text-muted-foreground text-sm">Достижений пока нет</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Делайте прогнозы, чтобы получить первые награды!
+                      </p>
                     </div>
                   )}
                 </div>
