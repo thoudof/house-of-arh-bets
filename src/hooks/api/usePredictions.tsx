@@ -65,11 +65,60 @@ export const usePredictions = () => {
         `)
         .eq('is_public', true)
         .order('created_at', { ascending: false })
-        .limit(10);
+        .limit(50);
 
       if (error) throw error;
       
       return (data || []).map(prediction => transformPrediction(prediction));
+    },
+    enabled: !!user,
+    staleTime: 30000,
+  });
+};
+
+// Хук для получения горячих прогнозов
+export const useHotPredictions = () => {
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ['hot-predictions'],
+    queryFn: async () => {
+      // @ts-ignore - Temporary fix until types regenerate
+      const { data, error } = await supabase
+        .from('predictions')
+        .select(`
+          *,
+          profiles!predictions_user_id_fkey (
+            first_name,
+            last_name,
+            display_name,
+            telegram_username,
+            avatar_url,
+            role,
+            tier
+          )
+        `)
+        .eq('is_public', true)
+        .gte('event_start_time', new Date().toISOString()) // Только будущие события
+        .order('likes_count', { ascending: false })
+        .order('views_count', { ascending: false })
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+      
+      // Сортируем по "горячести" - лайки + комментарии + просмотры
+      const hotPredictions = (data || []).sort((a, b) => {
+        const scoreA = (a.likes_count || 0) * 3 + (a.comments_count || 0) * 2 + (a.views_count || 0) * 0.1;
+        const scoreB = (b.likes_count || 0) * 3 + (b.comments_count || 0) * 2 + (b.views_count || 0) * 0.1;
+        
+        if (scoreA !== scoreB) return scoreB - scoreA;
+        
+        // Если score одинаковый, сортируем по времени создания
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+      
+      return hotPredictions.map(prediction => transformPrediction(prediction));
     },
     enabled: !!user,
     staleTime: 30000,

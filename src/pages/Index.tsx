@@ -11,7 +11,7 @@ import TopAnalysts from "@/components/TopAnalysts";
 import LoadingScreen from '@/components/LoadingScreen';
 import TelegramLogin from '@/components/TelegramLogin';
 import UserRoleDisplay from '@/components/UserRoleDisplay';
-import { usePredictions } from "@/hooks/api/usePredictions";
+import { usePredictions, useHotPredictions } from "@/hooks/api/usePredictions";
 import { useAuth } from "@/hooks/useAuth";
 import { useChallenges } from "@/hooks/api/useChallenges";
 import { useUserStats } from "@/hooks/api/useUserStats";
@@ -20,6 +20,7 @@ const Index = () => {
   const navigate = useNavigate();
   const { user, isLoading, isAuthenticated } = useAuth();
   const { data: predictions, isLoading: predictionsLoading } = usePredictions();
+  const { data: hotPredictions, isLoading: hotPredictionsLoading } = useHotPredictions();
   const { data: challenges, isLoading: challengesLoading } = useChallenges();
   const { data: userStats, isLoading: statsLoading } = useUserStats();
 
@@ -180,14 +181,14 @@ const Index = () => {
                 </div>
               </CardHeader>
               <CardContent className="space-y-3 sm:space-y-4">
-                {predictionsLoading ? (
+                {hotPredictionsLoading ? (
                   <div className="space-y-3">
                     {[1, 2, 3].map((i) => (
                       <div key={i} className="h-32 bg-muted/20 rounded-lg animate-pulse" />
                     ))}
                   </div>
-                ) : predictions && predictions.length > 0 ? (
-                  predictions.slice(0, 3).map((prediction, index) => (
+                ) : hotPredictions && hotPredictions.length > 0 ? (
+                  hotPredictions.slice(0, 3).map((prediction, index) => (
                     <PredictionCard 
                       key={prediction.id} 
                       prediction={{
