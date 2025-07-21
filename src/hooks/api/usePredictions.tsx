@@ -155,6 +155,7 @@ export const useCreatePrediction = () => {
 
       console.log('Создание прогноза:', predictionData);
       console.log('Пользователь:', user);
+      console.log('User ID для вставки:', user.id);
 
       const insertData = {
         user_id: user.id,
