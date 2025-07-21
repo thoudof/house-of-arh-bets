@@ -64,55 +64,6 @@ const Profile = () => {
     );
   }
 
-  const getRankInfo = (rank: string) => {
-    const ranks = {
-      newbie: { 
-        name: "Новичок", 
-        color: "text-muted-foreground bg-muted/30", 
-        progress: 20, 
-        icon: Star,
-        nextLevel: "Бронза"
-      },
-      bronze: { 
-        name: "Бронза", 
-        color: "text-amber-600 bg-amber-100 dark:bg-amber-900/30", 
-        progress: 40, 
-        icon: Star,
-        nextLevel: "Серебро"
-      },
-      silver: { 
-        name: "Серебро", 
-        color: "text-slate-500 bg-slate-100 dark:bg-slate-800/30", 
-        progress: 60, 
-        icon: Star,
-        nextLevel: "Золото"
-      },
-      gold: { 
-        name: "Золото", 
-        color: "text-yellow-500 bg-yellow-100 dark:bg-yellow-900/30", 
-        progress: 80, 
-        icon: Trophy,
-        nextLevel: "Платина"
-      },
-      platinum: { 
-        name: "Платина", 
-        color: "text-blue-400 bg-blue-100 dark:bg-blue-900/30", 
-        progress: 90, 
-        icon: Trophy,
-        nextLevel: "Алмаз"
-      },
-      diamond: { 
-        name: "Алмаз", 
-        color: "text-purple-400 bg-purple-100 dark:bg-purple-900/30", 
-        progress: 100, 
-        icon: Award,
-        nextLevel: "Максимум"
-      }
-    };
-    return ranks[rank as keyof typeof ranks] || ranks.newbie;
-  };
-
-  const rankInfo = getRankInfo('newbie');
   const stats = Array.isArray(profile.user_stats) ? profile.user_stats[0] : profile.user_stats;
 
   const formatDate = (date: string) => {
@@ -126,6 +77,53 @@ const Profile = () => {
     if (!stats?.total_predictions || stats.total_predictions === 0) return 0;
     return Math.round((stats.successful_predictions / stats.total_predictions) * 100);
   };
+
+  const getTierProgress = () => {
+    if (!stats) return { nextLevel: "Bronze", progress: 0 };
+    
+    const currentTier = profile.tier || 'free';
+    const winRate = getWinRate();
+    const totalPredictions = stats.total_predictions || 0;
+    const rating = stats.rating || 1000;
+    
+    // Определяем прогресс к следующему тиру на основе статистики
+    switch (currentTier) {
+      case 'free':
+        // До Bronze: 10 прогнозов и 50% винрейт
+        const predictionsProgress = Math.min((totalPredictions / 10) * 50, 50);
+        const winRateProgress = Math.min((winRate / 50) * 50, 50);
+        return { 
+          nextLevel: "Bronze", 
+          progress: Math.round(predictionsProgress + winRateProgress)
+        };
+      
+      case 'telegram_premium':
+        // До Bronze: 8 прогнозов и 45% винрейт (льгота за Telegram Premium)
+        const tgPredictionsProgress = Math.min((totalPredictions / 8) * 50, 50);
+        const tgWinRateProgress = Math.min((winRate / 45) * 50, 50);
+        return { 
+          nextLevel: "Bronze", 
+          progress: Math.round(tgPredictionsProgress + tgWinRateProgress)
+        };
+      
+      case 'premium':
+        // До Platinum: 50 прогнозов и 60% винрейт
+        const premiumPredictionsProgress = Math.min((totalPredictions / 50) * 50, 50);
+        const premiumWinRateProgress = Math.min((winRate / 60) * 50, 50);
+        return { 
+          nextLevel: "Platinum", 
+          progress: Math.round(premiumPredictionsProgress + premiumWinRateProgress)
+        };
+      
+      case 'platinum':
+        return { nextLevel: "Максимум", progress: 100 };
+      
+      default:
+        return { nextLevel: "Bronze", progress: 0 };
+    }
+  };
+
+  const tierProgress = getTierProgress();
 
   return (
     <div className="min-h-screen bg-background telegram-safe-area">
@@ -176,16 +174,10 @@ const Profile = () => {
                     @{profile.telegram_username || 'Пользователь'}
                   </p>
                   
-                  {/* Role and Tier Display */}
+                   {/* Role and Tier Display */}
                   <div className="flex justify-center sm:justify-start gap-2 mb-2">
                     <UserRoleDisplay userId={profile.user_id} showTier={true} showRole={true} size="sm" />
                   </div>
-                  
-                  {/* Rank Badge */}
-                  <Badge className={`${rankInfo.color} border-0 font-medium px-3 py-1`}>
-                    <rankInfo.icon className="w-3 h-3 mr-1" />
-                    {rankInfo.name}
-                  </Badge>
                 </div>
               </div>
 
@@ -212,13 +204,13 @@ const Profile = () => {
                   </div>
                 </div>
 
-                {/* Progress to Next Rank */}
+                {/* Progress to Next Tier */}
                 <div className="space-y-2">
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-muted-foreground">До {rankInfo.nextLevel}</span>
-                    <span className="font-medium">{rankInfo.progress}%</span>
+                    <span className="text-muted-foreground">До {tierProgress.nextLevel}</span>
+                    <span className="font-medium">{tierProgress.progress}%</span>
                   </div>
-                  <Progress value={rankInfo.progress} className="h-2" />
+                  <Progress value={tierProgress.progress} className="h-2" />
                 </div>
 
                 {/* Member Since */}
