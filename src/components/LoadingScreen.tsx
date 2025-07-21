@@ -5,13 +5,9 @@ export const LoadingScreen = ({ message = "Загрузка..." }: { message?: s
   return (
     <div className="min-h-screen bg-background telegram-safe-area flex items-center justify-center">
       <div className="text-center space-y-4">
-        <div className="relative">
-          <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto"></div>
-          <div className="absolute inset-0 w-8 h-8 border-2 border-primary-glow/30 border-t-primary-glow rounded-full animate-spin animate-reverse mx-auto mt-2 ml-2"></div>
-        </div>
-        <div className="space-y-2">
+        <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto"></div>
+        <div className="space-y-1">
           <p className="text-foreground font-medium">{message}</p>
-          <p className="text-xs text-muted-foreground">Подготавливаем интерфейс...</p>
         </div>
       </div>
     </div>
