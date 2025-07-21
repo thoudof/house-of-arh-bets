@@ -1,5 +1,5 @@
-import { parse, validate } from '@telegram-apps/init-data-node';
-import { createClient } from '@supabase/supabase-js';
+import { parse, validate } from 'https://esm.sh/@telegram-apps/init-data-node@2.0.10';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.0';
 import { SignJWT } from 'https://deno.land/x/jose@v5.2.0/index.ts';
 
 const corsHeaders = {
