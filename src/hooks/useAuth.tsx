@@ -40,52 +40,124 @@ export const useAuth = () => {
         telegramName: `${telegramUser.first_name} ${telegramUser.last_name || ''}`.trim()
       });
 
-      // Пробуем войти
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
+      // Сначала проверяем, существует ли пользователь в базе profiles
+      const { data: existingProfile, error: profileError } = await supabase
+        .from('profiles')
+        .select('user_id')
+        .eq('telegram_id', telegramUser.id.toString())
+        .maybeSingle();
 
-      if (signInError) {
-        if (signInError.message.includes('Invalid login credentials')) {
-          console.log('🔄 User not found, creating new account');
+      console.log('🔍 Checking existing profile:', { existingProfile, profileError });
+
+      if (existingProfile) {
+        console.log('👤 User profile found, attempting sign in');
+        
+        // Пользователь существует, пробуем войти
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+
+        if (signInError) {
+          console.error('❌ Sign in failed for existing user:', signInError.message);
           
-          // Создаем нового пользователя с правильными данными
-          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-              data: {
-                telegram_id: telegramUser.id.toString(),
-                id: telegramUser.id.toString(),
-                first_name: telegramUser.first_name,
-                last_name: telegramUser.last_name || '',
-                username: telegramUser.username || '',
-                photo_url: telegramUser.photo_url || ''
+          // Если пароль неверный, это может быть старая учетная запись
+          // Попробуем сбросить пароль или обновить данные
+          if (signInError.message.includes('Invalid login credentials')) {
+            console.log('🔄 Attempting to update existing user credentials');
+            
+            // Попробуем обновить пароль через admin API или создать новую сессию
+            const { data: resetData, error: resetError } = await supabase.auth.signUp({
+              email,
+              password,
+              options: {
+                data: {
+                  telegram_id: telegramUser.id.toString(),
+                  id: telegramUser.id.toString(),
+                  first_name: telegramUser.first_name,
+                  last_name: telegramUser.last_name || '',
+                  username: telegramUser.username || '',
+                  photo_url: telegramUser.photo_url || ''
+                }
               }
-            }
-          });
+            });
 
-          if (signUpError) {
-            console.error('❌ Sign up failed:', signUpError.message);
-            console.error('❌ Full error:', signUpError);
-            return { user: null, error: signUpError.message };
+            if (resetError && !resetError.message.includes('already been registered')) {
+              console.error('❌ Reset/update failed:', resetError.message);
+              return { user: null, error: resetError.message };
+            }
+
+            // Если пользователь уже зарегистрирован, пробуем войти еще раз
+            const { data: retrySignIn, error: retryError } = await supabase.auth.signInWithPassword({
+              email,
+              password
+            });
+
+            if (retryError) {
+              console.error('❌ Retry sign in failed:', retryError.message);
+              return { user: null, error: retryError.message };
+            }
+
+            console.log('✅ User signed in after credential update:', retrySignIn.user?.id);
+            return { user: retrySignIn.user, error: null };
           }
 
-          console.log('✅ New user created successfully:', signUpData.user?.id);
-          
-          // Ждем немного для завершения триггера
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
-          return { user: signUpData.user, error: null };
-        } else {
-          console.error('❌ Sign in failed:', signInError.message);
           return { user: null, error: signInError.message };
         }
+
+        console.log('✅ Existing user signed in successfully:', signInData.user?.id);
+        return { user: signInData.user, error: null };
       }
 
-      console.log('✅ User signed in successfully:', signInData.user?.id);
-      return { user: signInData.user, error: null };
+      // Пользователь не существует, создаем нового
+      console.log('🆕 No existing profile found, creating new user');
+      
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            telegram_id: telegramUser.id.toString(),
+            id: telegramUser.id.toString(),
+            first_name: telegramUser.first_name,
+            last_name: telegramUser.last_name || '',
+            username: telegramUser.username || '',
+            photo_url: telegramUser.photo_url || ''
+          }
+        }
+      });
+
+      if (signUpError) {
+        console.error('❌ Sign up failed:', signUpError.message);
+        console.error('❌ Full error:', signUpError);
+        
+        // Если пользователь уже зарегистрирован, пробуем войти
+        if (signUpError.message.includes('already been registered')) {
+          console.log('🔄 User already registered, attempting sign in');
+          
+          const { data: fallbackSignIn, error: fallbackError } = await supabase.auth.signInWithPassword({
+            email,
+            password
+          });
+
+          if (fallbackError) {
+            console.error('❌ Fallback sign in failed:', fallbackError.message);
+            return { user: null, error: fallbackError.message };
+          }
+
+          console.log('✅ Fallback sign in successful:', fallbackSignIn.user?.id);
+          return { user: fallbackSignIn.user, error: null };
+        }
+
+        return { user: null, error: signUpError.message };
+      }
+
+      console.log('✅ New user created successfully:', signUpData.user?.id);
+      
+      // Ждем немного для завершения триггера
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      return { user: signUpData.user, error: null };
     } catch (error) {
       console.error('❌ Authentication error:', error);
       return { user: null, error: 'Authentication failed' };
@@ -113,7 +185,7 @@ export const useAuth = () => {
         .from('profiles')
         .select('*')
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('❌ Failed to load profile:', error);
