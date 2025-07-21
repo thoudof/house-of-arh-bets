@@ -30,8 +30,8 @@ const queryClient = new QueryClient({
     queries: {
       retry: 1,
       refetchOnWindowFocus: false,
-      staleTime: 30 * 1000, // Сокращено до 30 секунд для более частого обновления
-      gcTime: 2 * 60 * 1000, // Данные удаляются из кэша через 2 минуты
+      staleTime: 30 * 1000,
+      gcTime: 2 * 60 * 1000,
     },
   },
 });
@@ -41,7 +41,6 @@ const AppContent = () => {
   const { loading } = useAuth();
 
   useEffect(() => {
-    // Устанавливаем цвета темы из Telegram
     if (webApp?.themeParams) {
       const root = document.documentElement;
       const theme = webApp.themeParams;
@@ -99,14 +98,16 @@ const AppContent = () => {
   );
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <AppContent />
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <AppContent />
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
