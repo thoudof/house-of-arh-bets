@@ -401,6 +401,7 @@ export type Database = {
           display_name: string | null
           first_name: string
           id: string
+          is_verified: boolean | null
           language_code: string | null
           last_active_at: string | null
           last_name: string | null
@@ -413,6 +414,8 @@ export type Database = {
           timezone: string | null
           updated_at: string
           user_id: string
+          verification_date: string | null
+          verification_type: string | null
         }
         Insert: {
           auto_subscribe_enabled?: boolean | null
@@ -422,6 +425,7 @@ export type Database = {
           display_name?: string | null
           first_name: string
           id?: string
+          is_verified?: boolean | null
           language_code?: string | null
           last_active_at?: string | null
           last_name?: string | null
@@ -434,6 +438,8 @@ export type Database = {
           timezone?: string | null
           updated_at?: string
           user_id: string
+          verification_date?: string | null
+          verification_type?: string | null
         }
         Update: {
           auto_subscribe_enabled?: boolean | null
@@ -443,6 +449,7 @@ export type Database = {
           display_name?: string | null
           first_name?: string
           id?: string
+          is_verified?: boolean | null
           language_code?: string | null
           last_active_at?: string | null
           last_name?: string | null
@@ -455,6 +462,8 @@ export type Database = {
           timezone?: string | null
           updated_at?: string
           user_id?: string
+          verification_date?: string | null
+          verification_type?: string | null
         }
         Relationships: []
       }

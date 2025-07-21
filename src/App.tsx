@@ -11,6 +11,8 @@ const Profile = lazy(() => import("./pages/Profile"));
 const AddPrediction = lazy(() => import("./pages/AddPrediction"));
 const PredictionDetails = lazy(() => import("./pages/PredictionDetails"));
 const Predictions = lazy(() => import("./pages/Predictions"));
+const VerificationInfo = lazy(() => import("./pages/VerificationInfo"));
+const AdminVerification = lazy(() => import("./pages/AdminVerification"));
 const Rankings = lazy(() => import("./pages/Rankings"));
 const Subscriptions = lazy(() => import("./pages/Subscriptions"));
 const Filters = lazy(() => import("./pages/Filters"));
@@ -56,6 +58,8 @@ const AppRoutes = () => {
           <Route path="/add-prediction" element={<AddPrediction />} />
           <Route path="/prediction/:id" element={<PredictionDetails />} />
           <Route path="/predictions" element={<Predictions />} />
+          <Route path="/verification-info" element={<VerificationInfo />} />
+          <Route path="/admin-verification" element={<AdminVerification />} />
           <Route path="/rankings" element={<Rankings />} />
           <Route path="/subscriptions" element={<Subscriptions />} />
           <Route path="/filters" element={<Filters />} />

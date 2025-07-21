@@ -1,6 +1,7 @@
 import { Star, TrendingUp, Award } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import VerificationBadge from '@/components/VerificationBadge';
 import { Button } from "@/components/ui/button";
 import { useTopAnalysts } from "@/hooks/api/useProfiles";
 
@@ -53,10 +54,11 @@ const TopAnalysts = () => {
               <div className="flex items-center space-x-2">
                 <span className="text-lg">{getBadge(index)}</span>
                 <div>
-                  <div className="flex items-center space-x-1">
-                    <h4 className="font-medium text-sm text-foreground">
-                      {analyst.first_name} {analyst.last_name}
+                   <div className="flex items-center space-x-1">
+                     <h4 className="font-medium text-sm text-foreground">
+                       {analyst.first_name} {analyst.last_name}
                      </h4>
+                     <VerificationBadge isVerified={analyst.is_verified} size="sm" />
                    </div>
                    <Badge variant="outline" className="text-xs h-4">
                      Новичок

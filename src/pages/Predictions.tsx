@@ -33,7 +33,6 @@ const Predictions = () => {
   // Фильтруем прогнозы
   const publicPredictions = predictions?.filter(p => 
     p.is_public && 
-    p.user_id !== user.id &&
     (!searchQuery || 
       p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.event_name.toLowerCase().includes(searchQuery.toLowerCase())

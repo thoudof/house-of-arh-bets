@@ -60,10 +60,10 @@ export const usePredictions = () => {
             telegram_username,
             avatar_url,
             role,
-            tier
+            tier,
+            is_verified
           )
         `)
-        .eq('is_public', true)
         .order('created_at', { ascending: false })
         .limit(50);
 
@@ -71,7 +71,6 @@ export const usePredictions = () => {
       
       return (data || []).map(prediction => transformPrediction(prediction));
     },
-    enabled: !!user,
     staleTime: 30000,
   });
 };
@@ -95,7 +94,8 @@ export const useHotPredictions = () => {
             telegram_username,
             avatar_url,
             role,
-            tier
+            tier,
+            is_verified
           )
         `)
         .eq('is_public', true)
@@ -120,7 +120,6 @@ export const useHotPredictions = () => {
       
       return hotPredictions.map(prediction => transformPrediction(prediction));
     },
-    enabled: !!user,
     staleTime: 30000,
   });
 };
@@ -172,6 +171,7 @@ export const usePrediction = (id: string) => {
           avatar_url,
           role,
           tier,
+          is_verified,
           user_stats!user_stats_user_id_fkey(*)
         `)
         .eq('user_id', data.user_id)

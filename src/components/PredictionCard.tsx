@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Clock, Users, TrendingUp, Settings } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import VerificationBadge from '@/components/VerificationBadge';
 import { Button } from "@/components/ui/button";
 import { PredictionStatusDialog } from "@/components/PredictionStatusDialog";
 import { useAuth } from "@/hooks/useAuth";
@@ -76,10 +77,11 @@ const PredictionCard = ({ prediction, className = "", style, onClick }: Predicti
             <h3 className="font-semibold text-foreground mb-1 text-sm sm:text-base leading-tight">
               {prediction.event_name}
             </h3>
-            <p className="text-xs sm:text-sm text-muted-foreground">
+            <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
               от <span className="text-primary font-medium">
                 {prediction.profiles?.first_name || 'Пользователь'}
               </span>
+              <VerificationBadge isVerified={prediction.profiles?.is_verified} size="sm" />
             </p>
           </div>
 

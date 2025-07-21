@@ -84,6 +84,7 @@ export interface Prediction {
     avatar_url?: string;
     role: string;
     tier: string;
+    is_verified?: boolean;
   };
 }
 
