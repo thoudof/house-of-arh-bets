@@ -73,7 +73,7 @@ const AddPredictionForm = () => {
         description: formData.description || undefined,
         start_date: formData.startDate && formData.startTime 
           ? `${formData.startDate}T${formData.startTime}:00Z` 
-          : new Date().toISOString(),
+          : new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // Default to tomorrow
         end_date: formData.startDate && formData.startTime 
           ? `${formData.startDate}T${formData.startTime}:00Z` 
           : undefined,
