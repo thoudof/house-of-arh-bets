@@ -94,7 +94,7 @@ const Index = () => {
               </div>
             </div>
             <div className="flex items-center">
-              <UserRoleDisplay userId={user?.id} showTier={true} size="sm" />
+              <UserRoleDisplay userId={user?.id} showTier={true} showRole={false} size="sm" />
             </div>
           </div>
         </div>

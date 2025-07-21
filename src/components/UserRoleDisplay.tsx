@@ -4,10 +4,11 @@ import { useUserRole, getUserRoleDisplay, getUserTierDisplay, UserRole, UserTier
 interface UserRoleDisplayProps {
   userId?: string;
   showTier?: boolean;
+  showRole?: boolean;
   size?: "sm" | "default";
 }
 
-const UserRoleDisplay = ({ userId, showTier = false, size = "default" }: UserRoleDisplayProps) => {
+const UserRoleDisplay = ({ userId, showTier = false, showRole = true, size = "default" }: UserRoleDisplayProps) => {
   const { data: roleData, isLoading } = useUserRole(userId);
 
   if (isLoading) return null;
@@ -18,12 +19,14 @@ const UserRoleDisplay = ({ userId, showTier = false, size = "default" }: UserRol
 
   return (
     <div className="flex gap-1 items-center">
-      <Badge 
-        variant="outline" 
-        className={`${roleInfo.color} border-current ${size === "sm" ? "text-xs" : ""}`}
-      >
-        {roleInfo.name}
-      </Badge>
+      {showRole && (
+        <Badge 
+          variant="outline" 
+          className={`${roleInfo.color} border-current ${size === "sm" ? "text-xs" : ""}`}
+        >
+          {roleInfo.name}
+        </Badge>
+      )}
       {showTier && tierInfo && (
         <Badge 
           variant="secondary" 
