@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PredictionStatusDialog } from "@/components/PredictionStatusDialog";
-import { useAuth } from "@/hooks/useAuth";
+import { useTelegramAuth } from "@/hooks/useTelegramAuth";
 
 import type { Prediction } from "@/types";
 
@@ -17,14 +17,11 @@ interface PredictionCardProps {
 
 const PredictionCard = ({ prediction, className = "", style, onClick }: PredictionCardProps) => {
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
-  const { user, profile } = useAuth();
+  const { user } = useTelegramAuth();
   
   // Check if user can edit this prediction
   const canEditPrediction = () => {
-    if (!user || !profile) return false;
-    
-    // User is admin or moderator
-    if (profile.role === 'admin' || profile.role === 'moderator') return true;
+    if (!user) return false;
     // User owns this prediction
     if (user.id === prediction.userId) return true;
     return false;

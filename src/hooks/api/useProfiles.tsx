@@ -1,10 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
+import { useTelegramAuth } from '@/hooks/useTelegramAuth';
 import { useToast } from '@/hooks/use-toast';
 
 export const useProfile = (userId?: string) => {
-  const { user } = useAuth();
+  const { user } = useTelegramAuth();
   const targetUserId = userId || user?.id;
 
   return useQuery({
@@ -141,7 +141,7 @@ export const useRankings = () => {
 
 export const useUpdateProfile = () => {
   const queryClient = useQueryClient();
-  const { user } = useAuth();
+  const { user } = useTelegramAuth();
   const { toast } = useToast();
 
   return useMutation({

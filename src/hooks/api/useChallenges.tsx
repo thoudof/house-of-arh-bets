@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
+import { useTelegramAuth } from '@/hooks/useTelegramAuth';
 import { useToast } from '@/hooks/use-toast';
 
 export interface ChallengeData {
@@ -73,19 +73,19 @@ export const useChallenge = (id: string) => {
 
 export const useCreateChallenge = () => {
   const queryClient = useQueryClient();
-  const { user, profile } = useAuth();
+  const { user } = useTelegramAuth();
   const { toast } = useToast();
 
   return useMutation({
     mutationFn: async (data: ChallengeData) => {
-      if (!user || !profile) throw new Error('User not authenticated');
+      if (!user) throw new Error('User not authenticated');
 
       const { data: challenge, error } = await supabase
         .from('challenges')
         .insert({
           ...data,
           creator_id: user.id,
-          creator_name: profile.first_name || 'Unknown',
+          creator_name: user.first_name || 'Unknown',
           current_bank: data.start_bank,
         })
         .select()

@@ -9,12 +9,12 @@ import PredictionCard from "@/components/PredictionCard";
 import TopAnalysts from "@/components/TopAnalysts";
 import { TelegramDebugInfo } from "@/components/TelegramDebugInfo";
 import { usePredictions } from "@/hooks/api/usePredictions";
-import { useAuth } from "@/hooks/useAuth";
+import { useTelegramAuth } from "@/hooks/useTelegramAuth";
 import { useChallenges } from "@/hooks/api/useChallenges";
 
 const Index = () => {
   const navigate = useNavigate();
-  const { profile } = useAuth();
+  const { user } = useTelegramAuth();
   const { data: predictions, isLoading: predictionsLoading } = usePredictions();
   const { data: challenges, isLoading: challengesLoading } = useChallenges();
 
@@ -25,28 +25,28 @@ const Index = () => {
   const statsCards = [
     {
       title: "Активные прогнозы",
-      value: profile?.user_stats?.total_predictions?.toString() || "0",
+      value: "0",
       change: "+12%",
       icon: Activity,
       trend: "up" as const
     },
     {
       title: "Процент побед",
-      value: `${Math.round(profile?.user_stats?.win_rate || 0)}%`,
+      value: "0%",
       change: "+5%",
       icon: Target,
       trend: "up" as const
     },
     {
       title: "Средний коэф.",
-      value: profile?.user_stats?.average_coefficient?.toFixed(1) || "0",
+      value: "0",
       change: "-0.2",
       icon: TrendingUp,
       trend: "down" as const
     },
     {
       title: "ROI",
-      value: `${profile?.user_stats?.roi > 0 ? '+' : ''}${Math.round(profile?.user_stats?.roi || 0)}%`,
+      value: "0%",
       change: "+8%",
       icon: Trophy,
       trend: "up" as const
@@ -73,7 +73,7 @@ const Index = () => {
             <div className="flex items-center space-x-2">
               <Badge variant="outline" className="border-primary/20 text-primary text-[9px] sm:text-[10px] px-1.5 sm:px-2">
                 <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
-                {profile?.rank || 'Новичок'}
+                Новичок
               </Badge>
             </div>
           </div>

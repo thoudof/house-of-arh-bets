@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useTelegram } from '@/hooks/useTelegram';
-import { useAuth } from '@/hooks/useAuth';
+import { useTelegramAuth } from '@/hooks/useTelegramAuth';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -11,8 +10,7 @@ export const TelegramDebugInfo = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [lastAuthLog, setLastAuthLog] = useState<string>('');
   const [authLogs, setAuthLogs] = useState<string[]>([]);
-  const { user: telegramUser, isReady, platform, webApp } = useTelegram();
-  const { user: authUser, loading: authLoading, profile, isAuthenticated, signOut, signInWithTelegram } = useAuth();
+  const { user, isAuthenticated, isLoading, error, authenticate, signOut } = useTelegramAuth();
   const queryClient = useQueryClient();
 
   // Захват console.log для отображения в интерфейсе
@@ -60,12 +58,7 @@ export const TelegramDebugInfo = () => {
   const forceSignIn = async () => {
     try {
       console.log('🔄 Force sign in triggered...');
-      const result = await signInWithTelegram();
-      if (result.error) {
-        console.error('❌ Force sign in failed:', result.error);
-      } else {
-        console.log('✅ Force sign in successful');
-      }
+      await authenticate();
     } catch (error) {
       console.error('❌ Force sign in error:', error);
     }
@@ -75,7 +68,7 @@ export const TelegramDebugInfo = () => {
     try {
       console.log('🔄 Refreshing profile...');
       queryClient.invalidateQueries({ queryKey: ['profile'] });
-      if (authUser?.id) {
+      if (user?.id) {
         window.location.reload();
       }
     } catch (error) {
@@ -118,15 +111,15 @@ export const TelegramDebugInfo = () => {
           <div>
             <div className="font-medium mb-1">Telegram Status</div>
             <div className="space-y-1">
-              <Badge variant={isReady ? "default" : "destructive"}>
-                {isReady ? "Ready" : "Not Ready"}
+              <Badge variant={user ? "default" : "destructive"}>
+                {user ? "Ready" : "Not Ready"}
               </Badge>
-              <div>Platform: {platform}</div>
-              <div>WebApp: {webApp ? "Available" : "Not Available"}</div>
-              <div>User ID: {telegramUser?.id || "None"}</div>
-              <div>Username: {telegramUser?.username || "None"}</div>
-              <div>Name: {telegramUser?.first_name} {telegramUser?.last_name || ''}</div>
-              <div>Premium: {telegramUser?.is_premium ? "Yes" : "No"}</div>
+              <div>Platform: Telegram Mini App</div>
+              <div>WebApp: Available</div>
+              <div>User ID: {user?.telegram_id || "None"}</div>
+              <div>Username: {user?.username || "None"}</div>
+              <div>Name: {user?.first_name} {user?.last_name || ''}</div>
+              <div>Premium: {user?.is_premium ? "Yes" : "No"}</div>
             </div>
           </div>
 
@@ -136,11 +129,10 @@ export const TelegramDebugInfo = () => {
               <Badge variant={isAuthenticated ? "default" : "destructive"}>
                 {isAuthenticated ? "Authenticated" : "Not Authenticated"}
               </Badge>
-              <div>Loading: {authLoading ? "Yes" : "No"}</div>
-              <div>Auth User ID: {authUser?.id || "None"}</div>
-              <div>Auth Email: {authUser?.email || "None"}</div>
-              <div>Profile Role: {profile?.role || "None"}</div>
-              <div>Profile Name: {profile?.first_name} {profile?.last_name || ''}</div>
+              <div>Loading: {isLoading ? "Yes" : "No"}</div>
+              <div>Auth User ID: {user?.id || "None"}</div>
+              <div>Error: {error || "None"}</div>
+              <div>Profile Name: {user?.first_name} {user?.last_name || ''}</div>
             </div>
           </div>
 
@@ -167,7 +159,7 @@ export const TelegramDebugInfo = () => {
           )}
 
           <div className="pt-2 border-t space-y-2">
-            {!isAuthenticated && telegramUser && (
+            {!isAuthenticated && (
               <Button
                 size="sm"
                 variant="default"

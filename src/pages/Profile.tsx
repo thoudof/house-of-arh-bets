@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { User, ArrowLeft, Trophy, Target, TrendingUp, Activity, Calendar, Star, Award } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,69 +8,37 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { useNavigate, useParams } from "react-router-dom";
 import PredictionCard from "@/components/PredictionCard";
-import { useAuth } from "@/hooks/useAuth";
+import { useTelegramAuth } from "@/hooks/useTelegramAuth";
 import { useProfile } from "@/hooks/api/useProfiles";
 import { useUserPredictions } from "@/hooks/api/usePredictions";
 import { useUserAchievements } from "@/hooks/api/useAchievements";
-import { ProfileErrorHandler } from "@/components/ProfileErrorHandler";
-import { useTelegram } from "@/hooks/useTelegram";
 
 const Profile = () => {
   const navigate = useNavigate();
   const { userId } = useParams();
-  const { user, loading: authLoading, profile: authProfile, isAuthenticated } = useAuth();
-  const { user: telegramUser } = useTelegram();
+  const { user, isAuthenticated } = useTelegramAuth();
+  const { data: profile, isLoading: profileLoading, error: profileError } = useProfile();
+  const { data: predictions, isLoading: predictionsLoading } = useUserPredictions();
+  const { data: userAchievements, isLoading: achievementsLoading } = useUserAchievements();
+
   const [activeTab, setActiveTab] = useState("overview");
 
-  const targetUserId = userId || user?.id;
-  
-  // Debug logging for mobile issues
-  console.log('Profile Debug:', {
-    userId: userId,
-    userFromAuth: user?.id,
-    targetUserId: targetUserId,
-    authLoading: authLoading,
-    authProfile: authProfile,
-    isAuthenticated: isAuthenticated,
-    telegramUser: telegramUser
-  });
+  // Перенаправление для неавторизованных пользователей
+  useEffect(() => {
+    if (!isAuthenticated && !profileLoading) {
+      navigate('/');
+    }
+  }, [isAuthenticated, profileLoading, navigate]);
 
-  // Show loading while auth is still loading
-  if (authLoading) {
+  if (profileError) {
     return (
       <div className="min-h-screen bg-background telegram-safe-area flex items-center justify-center">
         <div className="text-center">
-          <div>Загрузка профиля...</div>
-          <div className="text-xs text-muted-foreground mt-2">Аутентификация...</div>
+          <p className="text-muted-foreground">Ошибка загрузки профиля</p>
         </div>
       </div>
     );
   }
-
-  // Show error handling component if not authenticated
-  if (!isAuthenticated || !user) {
-    return (
-      <div className="min-h-screen bg-background telegram-safe-area">
-        <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center space-x-3">
-              <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
-                <ArrowLeft className="w-4 h-4" />
-              </Button>
-              <h1 className="text-xl font-bold">Профиль</h1>
-            </div>
-          </div>
-        </header>
-        <div className="container mx-auto px-4 py-6">
-          <ProfileErrorHandler />
-        </div>
-      </div>
-    );
-  }
-
-  const { data: profile, isLoading: profileLoading, error: profileError } = useProfile(targetUserId);
-  const { data: predictions, isLoading: predictionsLoading } = useUserPredictions(targetUserId);
-  const { data: userAchievements, isLoading: achievementsLoading } = useUserAchievements(targetUserId);
 
   if (profileLoading) {
     return (
@@ -83,30 +50,11 @@ const Profile = () => {
     );
   }
 
-  if (profileError) {
-    return (
-      <div className="min-h-screen bg-background telegram-safe-area flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-lg mb-2">Ошибка загрузки профиля</div>
-          <div className="text-sm text-muted-foreground">
-            {profileError.message || 'Неизвестная ошибка'}
-          </div>
-          <Button onClick={() => navigate('/')} className="mt-4">
-            На главную
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   if (!profile) {
     return (
       <div className="min-h-screen bg-background telegram-safe-area flex items-center justify-center">
         <div className="text-center">
           <div className="text-lg mb-2">Профиль не найден</div>
-          <div className="text-sm text-muted-foreground">
-            Пользователь ID: {targetUserId}
-          </div>
           <Button onClick={() => navigate('/')} className="mt-4">
             На главную
           </Button>

@@ -10,13 +10,13 @@ import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useCreatePrediction } from "@/hooks/api/usePredictions";
-import { useTelegram } from "@/hooks/useTelegram";
+import { useTelegramAuth } from "@/hooks/useTelegramAuth";
 
 const AddPredictionForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const createPrediction = useCreatePrediction();
-  const { hapticFeedback } = useTelegram();
+  const { user } = useTelegramAuth();
   
   const [formData, setFormData] = useState({
     event: "",
@@ -80,7 +80,7 @@ const AddPredictionForm = () => {
         is_public: formData.isPublic
       });
 
-      hapticFeedback('success');
+      // Success haptic feedback would go here
       navigate('/');
     } catch (error) {
       toast({

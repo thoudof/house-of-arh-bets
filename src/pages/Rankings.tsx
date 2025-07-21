@@ -8,12 +8,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 import { useRankings } from "@/hooks/api/useProfiles";
-import { useAuth } from "@/hooks/useAuth";
+import { useTelegramAuth } from "@/hooks/useTelegramAuth";
 const Rankings = () => {
   const navigate = useNavigate();
-  const {
-    user
-  } = useAuth();
+  const { user } = useTelegramAuth();
   const [selectedPeriod, setSelectedPeriod] = useState("month");
   const {
     data: rankings,
@@ -204,12 +202,12 @@ const Rankings = () => {
                 </div>
                 
                 <Avatar className="w-12 h-12 border-2 border-primary/30">
-                  <AvatarImage src={user.user_metadata?.avatar_url} />
-                  <AvatarFallback className="font-semibold bg-primary/10">{user.user_metadata?.first_name?.[0] || 'U'}</AvatarFallback>
+                  <AvatarImage src={user.photo_url} />
+                  <AvatarFallback className="font-semibold bg-primary/10">{user.first_name?.[0] || 'U'}</AvatarFallback>
                 </Avatar>
                 
                 <div className="flex-1">
-                  <p className="font-semibold text-base">{user.user_metadata?.first_name} {user.user_metadata?.last_name}</p>
+                  <p className="font-semibold text-base">{user.first_name} {user.last_name}</p>
                   <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                     <span>0 ставок</span>
                     <span>0% побед</span>

@@ -2,12 +2,12 @@
 import { Home, TrendingUp, Trophy, User, Target, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useTelegram } from "@/hooks/useTelegram";
+import { useTelegramAuth } from "@/hooks/useTelegramAuth";
 
 const Navigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { hapticFeedback } = useTelegram();
+  const { user } = useTelegramAuth();
 
   const isActive = (path: string) => location.pathname === path;
   
@@ -20,7 +20,7 @@ const Navigation = () => {
   ];
 
   const handleNavigation = (path: string) => {
-    hapticFeedback('selection');
+    // Haptic feedback would go here
     navigate(path);
   };
 
