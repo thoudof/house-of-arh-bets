@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/api/useProfiles";
 import { useUserPredictions } from "@/hooks/api/usePredictions";
 import { useUserAchievements } from "@/hooks/api/useAchievements";
+import UserRoleDisplay from "@/components/UserRoleDisplay";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -116,9 +117,7 @@ const Profile = () => {
                     <Calendar className="w-4 h-4" />
                     <span>С {new Date(profile.created_at).toLocaleDateString('ru-RU')}</span>
                   </div>
-                  <Badge className="bg-primary text-primary-foreground">
-                    Пользователь
-                  </Badge>
+                  <UserRoleDisplay userId={profile.user_id} showTier={true} size="sm" />
                 </div>
 
                 {/* Rank Progress */}

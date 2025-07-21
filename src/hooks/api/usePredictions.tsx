@@ -134,7 +134,7 @@ export const useCreatePrediction = () => {
           event_name: data.event,
           type: data.type as any,
           coefficient: data.coefficient,
-          title: data.prediction,
+          title: data.prediction, // This is the prediction text, not event name
           stake: data.stake,
           category: data.category as any,
           description: data.description,

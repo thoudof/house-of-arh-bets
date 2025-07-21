@@ -10,10 +10,12 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useCreateChallenge } from "@/hooks/api/useChallenges";
 
 const CreateChallenge = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const createChallenge = useCreateChallenge();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -47,7 +49,7 @@ const CreateChallenge = () => {
     { value: "hard", label: "Сложный", color: "text-red-500" }
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.title || !formData.type || !formData.prize) {
@@ -59,12 +61,27 @@ const CreateChallenge = () => {
       return;
     }
 
-    toast({
-      title: "Челлендж создан!",
-      description: "Ваш челлендж успешно создан и отправлен на модерацию",
-    });
-    
-    navigate("/challenges");
+    try {
+      await createChallenge.mutateAsync({
+        title: formData.title,
+        description: formData.description,
+        type: formData.type as any,
+        category: formData.category,
+        prize_pool: formData.prize ? parseFloat(formData.prize) : 0,
+        entry_fee: formData.entryFee ? parseFloat(formData.entryFee) : 0,
+        max_participants: formData.maxParticipants ? parseInt(formData.maxParticipants) : undefined,
+        duration_hours: formData.duration ? parseInt(formData.duration) : undefined,
+        difficulty: formData.difficulty as any,
+        min_coefficient: formData.minCoeff ? parseFloat(formData.minCoeff) : undefined,
+        steps_count: formData.stepsCount ? parseInt(formData.stepsCount) : undefined,
+        is_private: formData.isPrivate,
+        rules: formData.rules
+      });
+      
+      navigate("/challenges");
+    } catch (error) {
+      console.error('Challenge creation error:', error);
+    }
   };
 
   return (

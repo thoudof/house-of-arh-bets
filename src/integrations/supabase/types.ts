@@ -56,6 +56,116 @@ export type Database = {
         }
         Relationships: []
       }
+      challenge_participants: {
+        Row: {
+          challenge_id: string
+          current_bank: number | null
+          current_step: number | null
+          id: string
+          is_eliminated: boolean | null
+          joined_at: string | null
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          current_bank?: number | null
+          current_step?: number | null
+          id?: string
+          is_eliminated?: boolean | null
+          joined_at?: string | null
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          current_bank?: number | null
+          current_step?: number | null
+          id?: string
+          is_eliminated?: boolean | null
+          joined_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_participants_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenges: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          description: string | null
+          difficulty: string | null
+          duration_hours: number | null
+          end_date: string | null
+          entry_fee: number | null
+          id: string
+          is_private: boolean | null
+          max_participants: number | null
+          min_coefficient: number | null
+          participants_count: number | null
+          prize_pool: number | null
+          rules: string | null
+          start_date: string | null
+          status: string | null
+          steps_count: number | null
+          title: string
+          type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          difficulty?: string | null
+          duration_hours?: number | null
+          end_date?: string | null
+          entry_fee?: number | null
+          id?: string
+          is_private?: boolean | null
+          max_participants?: number | null
+          min_coefficient?: number | null
+          participants_count?: number | null
+          prize_pool?: number | null
+          rules?: string | null
+          start_date?: string | null
+          status?: string | null
+          steps_count?: number | null
+          title: string
+          type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          difficulty?: string | null
+          duration_hours?: number | null
+          end_date?: string | null
+          entry_fee?: number | null
+          id?: string
+          is_private?: boolean | null
+          max_participants?: number | null
+          min_coefficient?: number | null
+          participants_count?: number | null
+          prize_pool?: number | null
+          rules?: string | null
+          start_date?: string | null
+          status?: string | null
+          steps_count?: number | null
+          title?: string
+          type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
