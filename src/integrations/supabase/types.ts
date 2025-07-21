@@ -16,60 +16,92 @@ export type Database = {
     Tables: {
       achievements: {
         Row: {
-          condition: string
+          condition_type: string
+          condition_value: number
           created_at: string
           description: string
-          icon: string
+          experience_points: number | null
+          icon_emoji: string
           id: string
+          is_active: boolean | null
+          sort_order: number | null
+          tier_boost: number | null
           title: string
         }
         Insert: {
-          condition: string
+          condition_type: string
+          condition_value: number
           created_at?: string
           description: string
-          icon: string
+          experience_points?: number | null
+          icon_emoji: string
           id?: string
+          is_active?: boolean | null
+          sort_order?: number | null
+          tier_boost?: number | null
           title: string
         }
         Update: {
-          condition?: string
+          condition_type?: string
+          condition_value?: number
           created_at?: string
           description?: string
-          icon?: string
+          experience_points?: number | null
+          icon_emoji?: string
           id?: string
+          is_active?: boolean | null
+          sort_order?: number | null
+          tier_boost?: number | null
           title?: string
         }
         Relationships: []
       }
-      challenge_predictions: {
+      notifications: {
         Row: {
-          challenge_id: string
+          created_at: string
+          from_user_id: string | null
           id: string
-          prediction_id: string
-          step_number: number
+          is_read: boolean | null
+          is_sent: boolean | null
+          message: string
+          prediction_id: string | null
+          read_at: string | null
+          telegram_message_id: number | null
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
         }
         Insert: {
-          challenge_id: string
+          created_at?: string
+          from_user_id?: string | null
           id?: string
-          prediction_id: string
-          step_number: number
+          is_read?: boolean | null
+          is_sent?: boolean | null
+          message: string
+          prediction_id?: string | null
+          read_at?: string | null
+          telegram_message_id?: number | null
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
         }
         Update: {
-          challenge_id?: string
+          created_at?: string
+          from_user_id?: string | null
           id?: string
-          prediction_id?: string
-          step_number?: number
+          is_read?: boolean | null
+          is_sent?: boolean | null
+          message?: string
+          prediction_id?: string | null
+          read_at?: string | null
+          telegram_message_id?: number | null
+          title?: string
+          type?: Database["public"]["Enums"]["notification_type"]
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "challenge_predictions_challenge_id_fkey"
-            columns: ["challenge_id"]
-            isOneToOne: false
-            referencedRelation: "challenges"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "challenge_predictions_prediction_id_fkey"
+            foreignKeyName: "notifications_prediction_id_fkey"
             columns: ["prediction_id"]
             isOneToOne: false
             referencedRelation: "predictions"
@@ -77,206 +109,361 @@ export type Database = {
           },
         ]
       }
-      challenges: {
+      prediction_comments: {
         Row: {
+          content: string
           created_at: string
-          creator_id: string
-          creator_name: string
-          current_bank: number
-          current_step: number | null
-          end_date: string | null
           id: string
-          start_bank: number
-          start_date: string
-          status: Database["public"]["Enums"]["challenge_status"] | null
-          title: string
-          total_steps: number | null
-          type: Database["public"]["Enums"]["challenge_type"]
+          is_deleted: boolean | null
+          is_edited: boolean | null
+          likes_count: number | null
+          parent_comment_id: string | null
+          prediction_id: string
           updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          creator_id: string
-          creator_name: string
-          current_bank: number
-          current_step?: number | null
-          end_date?: string | null
-          id?: string
-          start_bank: number
-          start_date?: string
-          status?: Database["public"]["Enums"]["challenge_status"] | null
-          title: string
-          total_steps?: number | null
-          type: Database["public"]["Enums"]["challenge_type"]
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          creator_id?: string
-          creator_name?: string
-          current_bank?: number
-          current_step?: number | null
-          end_date?: string | null
-          id?: string
-          start_bank?: number
-          start_date?: string
-          status?: Database["public"]["Enums"]["challenge_status"] | null
-          title?: string
-          total_steps?: number | null
-          type?: Database["public"]["Enums"]["challenge_type"]
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      messages: {
-        Row: {
-          content: string
-          created_at: string
-          id: string
-          read_at: string | null
-          recipient_id: string
-          sender_id: string
+          user_id: string
         }
         Insert: {
           content: string
           created_at?: string
           id?: string
-          read_at?: string | null
-          recipient_id: string
-          sender_id: string
+          is_deleted?: boolean | null
+          is_edited?: boolean | null
+          likes_count?: number | null
+          parent_comment_id?: string | null
+          prediction_id: string
+          updated_at?: string
+          user_id: string
         }
         Update: {
           content?: string
           created_at?: string
           id?: string
-          read_at?: string | null
-          recipient_id?: string
-          sender_id?: string
+          is_deleted?: boolean | null
+          is_edited?: boolean | null
+          likes_count?: number | null
+          parent_comment_id?: string | null
+          prediction_id?: string
+          updated_at?: string
+          user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "prediction_comments_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "prediction_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prediction_comments_prediction_id_fkey"
+            columns: ["prediction_id"]
+            isOneToOne: false
+            referencedRelation: "predictions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
-      predictions: {
+      prediction_likes: {
         Row: {
-          analyst: string | null
-          category: string
-          coefficient: number
           created_at: string
-          description: string | null
-          end_date: string | null
-          event: string
           id: string
-          is_public: boolean | null
-          prediction: string
-          profit: number | null
-          stake: number | null
-          start_date: string
-          status: Database["public"]["Enums"]["prediction_status"] | null
-          time_left: string | null
-          type: Database["public"]["Enums"]["prediction_type"]
-          updated_at: string
+          prediction_id: string
           user_id: string
         }
         Insert: {
-          analyst?: string | null
-          category: string
-          coefficient: number
           created_at?: string
-          description?: string | null
-          end_date?: string | null
-          event: string
           id?: string
-          is_public?: boolean | null
-          prediction: string
-          profit?: number | null
-          stake?: number | null
-          start_date: string
-          status?: Database["public"]["Enums"]["prediction_status"] | null
-          time_left?: string | null
-          type: Database["public"]["Enums"]["prediction_type"]
-          updated_at?: string
+          prediction_id: string
           user_id: string
         }
         Update: {
-          analyst?: string | null
-          category?: string
-          coefficient?: number
+          created_at?: string
+          id?: string
+          prediction_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prediction_likes_prediction_id_fkey"
+            columns: ["prediction_id"]
+            isOneToOne: false
+            referencedRelation: "predictions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      predictions: {
+        Row: {
+          category: Database["public"]["Enums"]["prediction_category"]
+          coefficient: number
+          comments_count: number | null
+          competition_name: string | null
+          created_at: string
+          description: string | null
+          event_name: string
+          event_start_time: string
+          id: string
+          is_featured: boolean | null
+          is_premium: boolean | null
+          is_public: boolean | null
+          league_name: string | null
+          likes_count: number | null
+          prediction_deadline: string | null
+          profit: number | null
+          result_note: string | null
+          result_time: string | null
+          shares_count: number | null
+          stake: number | null
+          status: Database["public"]["Enums"]["prediction_status"] | null
+          tags: string[] | null
+          title: string
+          type: Database["public"]["Enums"]["prediction_type"]
+          updated_at: string
+          user_id: string
+          views_count: number | null
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["prediction_category"]
+          coefficient: number
+          comments_count?: number | null
+          competition_name?: string | null
           created_at?: string
           description?: string | null
-          end_date?: string | null
-          event?: string
+          event_name: string
+          event_start_time: string
           id?: string
+          is_featured?: boolean | null
+          is_premium?: boolean | null
           is_public?: boolean | null
-          prediction?: string
+          league_name?: string | null
+          likes_count?: number | null
+          prediction_deadline?: string | null
           profit?: number | null
+          result_note?: string | null
+          result_time?: string | null
+          shares_count?: number | null
           stake?: number | null
-          start_date?: string
           status?: Database["public"]["Enums"]["prediction_status"] | null
-          time_left?: string | null
+          tags?: string[] | null
+          title: string
+          type?: Database["public"]["Enums"]["prediction_type"]
+          updated_at?: string
+          user_id: string
+          views_count?: number | null
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["prediction_category"]
+          coefficient?: number
+          comments_count?: number | null
+          competition_name?: string | null
+          created_at?: string
+          description?: string | null
+          event_name?: string
+          event_start_time?: string
+          id?: string
+          is_featured?: boolean | null
+          is_premium?: boolean | null
+          is_public?: boolean | null
+          league_name?: string | null
+          likes_count?: number | null
+          prediction_deadline?: string | null
+          profit?: number | null
+          result_note?: string | null
+          result_time?: string | null
+          shares_count?: number | null
+          stake?: number | null
+          status?: Database["public"]["Enums"]["prediction_status"] | null
+          tags?: string[] | null
+          title?: string
           type?: Database["public"]["Enums"]["prediction_type"]
           updated_at?: string
           user_id?: string
+          views_count?: number | null
         }
         Relationships: []
       }
       profiles: {
         Row: {
+          auto_subscribe_enabled: boolean | null
           avatar_url: string | null
+          bio: string | null
           created_at: string
+          display_name: string | null
           first_name: string
           id: string
+          language_code: string | null
+          last_active_at: string | null
           last_name: string | null
-          rank: Database["public"]["Enums"]["user_rank"] | null
+          notifications_enabled: boolean | null
+          public_profile: boolean | null
           role: Database["public"]["Enums"]["user_role"] | null
-          telegram_id: string
+          telegram_id: number
+          telegram_username: string | null
+          tier: Database["public"]["Enums"]["user_tier"] | null
+          timezone: string | null
           updated_at: string
           user_id: string
-          username: string | null
         }
         Insert: {
+          auto_subscribe_enabled?: boolean | null
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
+          display_name?: string | null
           first_name: string
           id?: string
+          language_code?: string | null
+          last_active_at?: string | null
           last_name?: string | null
-          rank?: Database["public"]["Enums"]["user_rank"] | null
+          notifications_enabled?: boolean | null
+          public_profile?: boolean | null
           role?: Database["public"]["Enums"]["user_role"] | null
-          telegram_id: string
+          telegram_id: number
+          telegram_username?: string | null
+          tier?: Database["public"]["Enums"]["user_tier"] | null
+          timezone?: string | null
           updated_at?: string
           user_id: string
-          username?: string | null
         }
         Update: {
+          auto_subscribe_enabled?: boolean | null
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
+          display_name?: string | null
           first_name?: string
           id?: string
+          language_code?: string | null
+          last_active_at?: string | null
           last_name?: string | null
-          rank?: Database["public"]["Enums"]["user_rank"] | null
+          notifications_enabled?: boolean | null
+          public_profile?: boolean | null
           role?: Database["public"]["Enums"]["user_role"] | null
-          telegram_id?: string
+          telegram_id?: number
+          telegram_username?: string | null
+          tier?: Database["public"]["Enums"]["user_tier"] | null
+          timezone?: string | null
           updated_at?: string
           user_id?: string
-          username?: string | null
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          analyst_id: string
+          auto_bet_enabled: boolean | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          is_trial: boolean | null
+          max_auto_bet_amount: number | null
+          notifications_enabled: boolean | null
+          started_at: string
+          subscriber_id: string
+          type: Database["public"]["Enums"]["subscription_type"]
+          updated_at: string
+        }
+        Insert: {
+          analyst_id: string
+          auto_bet_enabled?: boolean | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_trial?: boolean | null
+          max_auto_bet_amount?: number | null
+          notifications_enabled?: boolean | null
+          started_at?: string
+          subscriber_id: string
+          type?: Database["public"]["Enums"]["subscription_type"]
+          updated_at?: string
+        }
+        Update: {
+          analyst_id?: string
+          auto_bet_enabled?: boolean | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_trial?: boolean | null
+          max_auto_bet_amount?: number | null
+          notifications_enabled?: boolean | null
+          started_at?: string
+          subscriber_id?: string
+          type?: Database["public"]["Enums"]["subscription_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      telegram_sessions: {
+        Row: {
+          auth_date: string
+          created_at: string
+          expires_at: string
+          id: string
+          init_data_hash: string
+          ip_address: unknown | null
+          is_active: boolean | null
+          last_activity_at: string | null
+          telegram_id: number
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth_date: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          init_data_hash: string
+          ip_address?: unknown | null
+          is_active?: boolean | null
+          last_activity_at?: string | null
+          telegram_id: number
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth_date?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          init_data_hash?: string
+          ip_address?: unknown | null
+          is_active?: boolean | null
+          last_activity_at?: string | null
+          telegram_id?: number
+          user_agent?: string | null
+          user_id?: string
         }
         Relationships: []
       }
       user_achievements: {
         Row: {
           achievement_id: string
+          completed_at: string | null
+          created_at: string
+          current_progress: number | null
           id: string
-          unlocked_at: string
+          is_completed: boolean | null
           user_id: string
         }
         Insert: {
           achievement_id: string
+          completed_at?: string | null
+          created_at?: string
+          current_progress?: number | null
           id?: string
-          unlocked_at?: string
+          is_completed?: boolean | null
           user_id: string
         }
         Update: {
           achievement_id?: string
+          completed_at?: string | null
+          created_at?: string
+          current_progress?: number | null
           id?: string
-          unlocked_at?: string
+          is_completed?: boolean | null
           user_id?: string
         }
         Relationships: [
@@ -292,59 +479,132 @@ export type Database = {
       user_stats: {
         Row: {
           average_coefficient: number | null
-          best_streak: number | null
-          current_streak: number | null
+          best_loss_streak: number | null
+          best_win_streak: number | null
+          current_loss_streak: number | null
+          current_win_streak: number | null
+          experience_points: number | null
+          failed_predictions: number | null
+          highest_coefficient: number | null
           id: string
-          profit: number | null
+          last_calculated_at: string | null
+          level: number | null
+          pending_predictions: number | null
+          rating: number | null
           roi: number | null
+          successful_predictions: number | null
+          total_likes_given: number | null
+          total_likes_received: number | null
+          total_loss: number | null
           total_predictions: number | null
+          total_profit: number | null
           total_stake: number | null
+          total_subscribers: number | null
+          total_subscriptions: number | null
           updated_at: string
           user_id: string
-          win_rate: number | null
         }
         Insert: {
           average_coefficient?: number | null
-          best_streak?: number | null
-          current_streak?: number | null
+          best_loss_streak?: number | null
+          best_win_streak?: number | null
+          current_loss_streak?: number | null
+          current_win_streak?: number | null
+          experience_points?: number | null
+          failed_predictions?: number | null
+          highest_coefficient?: number | null
           id?: string
-          profit?: number | null
+          last_calculated_at?: string | null
+          level?: number | null
+          pending_predictions?: number | null
+          rating?: number | null
           roi?: number | null
+          successful_predictions?: number | null
+          total_likes_given?: number | null
+          total_likes_received?: number | null
+          total_loss?: number | null
           total_predictions?: number | null
+          total_profit?: number | null
           total_stake?: number | null
+          total_subscribers?: number | null
+          total_subscriptions?: number | null
           updated_at?: string
           user_id: string
-          win_rate?: number | null
         }
         Update: {
           average_coefficient?: number | null
-          best_streak?: number | null
-          current_streak?: number | null
+          best_loss_streak?: number | null
+          best_win_streak?: number | null
+          current_loss_streak?: number | null
+          current_win_streak?: number | null
+          experience_points?: number | null
+          failed_predictions?: number | null
+          highest_coefficient?: number | null
           id?: string
-          profit?: number | null
+          last_calculated_at?: string | null
+          level?: number | null
+          pending_predictions?: number | null
+          rating?: number | null
           roi?: number | null
+          successful_predictions?: number | null
+          total_likes_given?: number | null
+          total_likes_received?: number | null
+          total_loss?: number | null
           total_predictions?: number | null
+          total_profit?: number | null
           total_stake?: number | null
+          total_subscribers?: number | null
+          total_subscriptions?: number | null
           updated_at?: string
           user_id?: string
-          win_rate?: number | null
         }
         Relationships: []
       }
     }
     Views: {
-      [_ in never]: never
+      top_analysts: {
+        Row: {
+          avatar_url: string | null
+          display_name: string | null
+          first_name: string | null
+          last_name: string | null
+          rating: number | null
+          roi: number | null
+          successful_predictions: number | null
+          tier: Database["public"]["Enums"]["user_tier"] | null
+          total_predictions: number | null
+          total_subscribers: number | null
+          user_id: string | null
+          win_rate: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      cleanup_expired_telegram_sessions: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
-      challenge_status: "active" | "completed" | "failed"
-      challenge_type: "ladder" | "marathon"
-      prediction_status: "pending" | "win" | "loss" | "cancelled"
-      prediction_type: "single" | "express" | "system"
-      user_rank: "newbie" | "experienced" | "professional" | "expert" | "legend"
-      user_role: "user" | "analyst" | "moderator" | "admin" | "superadmin"
+      notification_type:
+        | "prediction"
+        | "result"
+        | "subscription"
+        | "achievement"
+        | "system"
+      prediction_category:
+        | "football"
+        | "basketball"
+        | "tennis"
+        | "hockey"
+        | "esports"
+        | "other"
+      prediction_status: "pending" | "win" | "loss" | "cancelled" | "returned"
+      prediction_type: "single" | "express" | "system" | "accumulator"
+      subscription_type: "daily" | "weekly" | "monthly" | "season"
+      user_role: "user" | "analyst" | "premium" | "vip" | "admin"
+      user_tier: "free" | "bronze" | "silver" | "gold" | "platinum" | "diamond"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -472,12 +732,26 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      challenge_status: ["active", "completed", "failed"],
-      challenge_type: ["ladder", "marathon"],
-      prediction_status: ["pending", "win", "loss", "cancelled"],
-      prediction_type: ["single", "express", "system"],
-      user_rank: ["newbie", "experienced", "professional", "expert", "legend"],
-      user_role: ["user", "analyst", "moderator", "admin", "superadmin"],
+      notification_type: [
+        "prediction",
+        "result",
+        "subscription",
+        "achievement",
+        "system",
+      ],
+      prediction_category: [
+        "football",
+        "basketball",
+        "tennis",
+        "hockey",
+        "esports",
+        "other",
+      ],
+      prediction_status: ["pending", "win", "loss", "cancelled", "returned"],
+      prediction_type: ["single", "express", "system", "accumulator"],
+      subscription_type: ["daily", "weekly", "monthly", "season"],
+      user_role: ["user", "analyst", "premium", "vip", "admin"],
+      user_tier: ["free", "bronze", "silver", "gold", "platinum", "diamond"],
     },
   },
 } as const

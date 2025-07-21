@@ -1,73 +1,87 @@
-# Welcome to your Lovable project
+# 🎯 Telegram Mini App - Прогнозы
+
+## 📋 Новая архитектура базы данных с Telegram авторизацией
+
+Была создана полностью новая архитектура базы данных, оптимизированная для Telegram Mini Apps с автоматической авторизацией.
+
+### 🏗 Основные таблицы:
+
+1. **profiles** - Профили пользователей Telegram
+2. **user_stats** - Детальная статистика пользователей  
+3. **predictions** - Расширенная система прогнозов
+4. **subscriptions** - Подписки на аналитиков
+5. **prediction_likes** - Система лайков
+6. **prediction_comments** - Комментарии к прогнозам
+7. **notifications** - Уведомления пользователей
+8. **achievements** - Система достижений
+9. **user_achievements** - Прогресс пользователей
+10. **telegram_sessions** - Сессии авторизации
+
+### 🔐 Telegram авторизация
+
+Реализована безопасная авторизация через Telegram Web Apps с:
+- HMAC-SHA256 валидацией init data
+- Автоматическим созданием профилей
+- Управлением сессиями
+- Поддержкой всех Telegram данных (username, photo_url, language_code)
+
+### 📊 Новые возможности:
+
+- **Система уровней**: Bronze, Silver, Gold, Platinum, Diamond
+- **Рейтинговая система**: Динамический рейтинг с опытом
+- **Расширенная аналитика**: ROI, серии побед/поражений
+- **Социальные функции**: Подписки, лайки, комментарии
+- **Уведомления**: Интеграция с Telegram Bot API
+- **Представления**: Оптимизированные запросы (top_analysts)
+
+### 🚀 Настройка Telegram бота:
+
+1. Создайте бота через [@BotFather](https://t.me/BotFather)
+2. Получите токен бота
+3. Добавьте токен в секреты проекта (кнопка ниже)
+4. Настройте Web App URL в настройках бота
+
+**Для работы авторизации необходимо добавить TELEGRAM_BOT_TOKEN:**
+
+### 🔧 Техническая реализация:
+
+- **Edge Function**: `telegram-auth` для валидации данных
+- **RLS политики**: Безопасный доступ к данным
+- **Триггеры**: Автоматическое обновление статистики
+- **Индексы**: Оптимизация производительности
+- **Функции**: Автоматические вычисления рейтинга и опыта
+
+### 📱 Совместимость:
+
+Архитектура полностью совместима с:
+- Telegram Mini Apps
+- Telegram Web Apps  
+- Telegram Bot API
+- Telegram SDK
 
 ## Project info
 
 **URL**: https://lovable.dev/projects/9f6a3830-e488-44ef-836b-3d02c27038bc
 
-## How can I edit this code?
+## Установка зависимостей
 
-There are several ways of editing your application.
+```bash
+npm install
+```
 
-**Use Lovable**
+## Запуск в режиме разработки
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/9f6a3830-e488-44ef-836b-3d02c27038bc) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Технологии проекта
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- Vite + React + TypeScript
+- Supabase (Database + Auth + Edge Functions)
+- Telegram Mini Apps SDK
+- shadcn-ui + Tailwind CSS
 
-**Use GitHub Codespaces**
+## Развертывание
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/9f6a3830-e488-44ef-836b-3d02c27038bc) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Откройте [Lovable](https://lovable.dev/projects/9f6a3830-e488-44ef-836b-3d02c27038bc) и нажмите Share -> Publish.
