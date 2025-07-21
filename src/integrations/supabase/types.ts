@@ -17,7 +17,7 @@ export type Database = {
       achievements: {
         Row: {
           condition: string
-          created_at: string
+          created_at: string | null
           description: string
           icon: string
           id: string
@@ -25,7 +25,7 @@ export type Database = {
         }
         Insert: {
           condition: string
-          created_at?: string
+          created_at?: string | null
           description: string
           icon: string
           id?: string
@@ -33,7 +33,7 @@ export type Database = {
         }
         Update: {
           condition?: string
-          created_at?: string
+          created_at?: string | null
           description?: string
           icon?: string
           id?: string
@@ -79,7 +79,7 @@ export type Database = {
       }
       challenges: {
         Row: {
-          created_at: string
+          created_at: string | null
           creator_id: string
           creator_name: string
           current_bank: number
@@ -87,15 +87,15 @@ export type Database = {
           end_date: string | null
           id: string
           start_bank: number
-          start_date: string
+          start_date: string | null
           status: Database["public"]["Enums"]["challenge_status"] | null
           title: string
           total_steps: number | null
           type: Database["public"]["Enums"]["challenge_type"]
-          updated_at: string
+          updated_at: string | null
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
           creator_id: string
           creator_name: string
           current_bank: number
@@ -103,15 +103,15 @@ export type Database = {
           end_date?: string | null
           id?: string
           start_bank: number
-          start_date?: string
+          start_date?: string | null
           status?: Database["public"]["Enums"]["challenge_status"] | null
           title: string
           total_steps?: number | null
           type: Database["public"]["Enums"]["challenge_type"]
-          updated_at?: string
+          updated_at?: string | null
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
           creator_id?: string
           creator_name?: string
           current_bank?: number
@@ -119,21 +119,29 @@ export type Database = {
           end_date?: string | null
           id?: string
           start_bank?: number
-          start_date?: string
+          start_date?: string | null
           status?: Database["public"]["Enums"]["challenge_status"] | null
           title?: string
           total_steps?: number | null
           type?: Database["public"]["Enums"]["challenge_type"]
-          updated_at?: string
+          updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "challenges_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       predictions: {
         Row: {
           analyst: string | null
           category: string
           coefficient: number
-          created_at: string
+          created_at: string | null
           description: string | null
           end_date: string | null
           event: string
@@ -146,14 +154,14 @@ export type Database = {
           status: Database["public"]["Enums"]["prediction_status"] | null
           time_left: string | null
           type: Database["public"]["Enums"]["prediction_type"]
-          updated_at: string
+          updated_at: string | null
           user_id: string
         }
         Insert: {
           analyst?: string | null
           category: string
           coefficient: number
-          created_at?: string
+          created_at?: string | null
           description?: string | null
           end_date?: string | null
           event: string
@@ -166,14 +174,14 @@ export type Database = {
           status?: Database["public"]["Enums"]["prediction_status"] | null
           time_left?: string | null
           type: Database["public"]["Enums"]["prediction_type"]
-          updated_at?: string
+          updated_at?: string | null
           user_id: string
         }
         Update: {
           analyst?: string | null
           category?: string
           coefficient?: number
-          created_at?: string
+          created_at?: string | null
           description?: string | null
           end_date?: string | null
           event?: string
@@ -186,48 +194,56 @@ export type Database = {
           status?: Database["public"]["Enums"]["prediction_status"] | null
           time_left?: string | null
           type?: Database["public"]["Enums"]["prediction_type"]
-          updated_at?: string
+          updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "predictions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       profiles: {
         Row: {
           avatar_url: string | null
-          created_at: string
+          created_at: string | null
           first_name: string
           id: string
           is_premium: boolean | null
           language_code: string | null
           last_name: string | null
           telegram_id: string
-          updated_at: string
+          updated_at: string | null
           user_id: string
           username: string | null
         }
         Insert: {
           avatar_url?: string | null
-          created_at?: string
+          created_at?: string | null
           first_name: string
           id?: string
           is_premium?: boolean | null
           language_code?: string | null
           last_name?: string | null
           telegram_id: string
-          updated_at?: string
+          updated_at?: string | null
           user_id: string
           username?: string | null
         }
         Update: {
           avatar_url?: string | null
-          created_at?: string
+          created_at?: string | null
           first_name?: string
           id?: string
           is_premium?: boolean | null
           language_code?: string | null
           last_name?: string | null
           telegram_id?: string
-          updated_at?: string
+          updated_at?: string | null
           user_id?: string
           username?: string | null
         }
@@ -237,19 +253,19 @@ export type Database = {
         Row: {
           achievement_id: string
           id: string
-          unlocked_at: string
+          unlocked_at: string | null
           user_id: string
         }
         Insert: {
           achievement_id: string
           id?: string
-          unlocked_at?: string
+          unlocked_at?: string | null
           user_id: string
         }
         Update: {
           achievement_id?: string
           id?: string
-          unlocked_at?: string
+          unlocked_at?: string | null
           user_id?: string
         }
         Relationships: [
@@ -260,49 +276,67 @@ export type Database = {
             referencedRelation: "achievements"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "user_achievements_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       user_stats: {
         Row: {
           average_coefficient: number | null
           best_streak: number | null
+          created_at: string | null
           current_streak: number | null
           id: string
           profit: number | null
           roi: number | null
           total_predictions: number | null
           total_stake: number | null
-          updated_at: string
+          updated_at: string | null
           user_id: string
           win_rate: number | null
         }
         Insert: {
           average_coefficient?: number | null
           best_streak?: number | null
+          created_at?: string | null
           current_streak?: number | null
           id?: string
           profit?: number | null
           roi?: number | null
           total_predictions?: number | null
           total_stake?: number | null
-          updated_at?: string
+          updated_at?: string | null
           user_id: string
           win_rate?: number | null
         }
         Update: {
           average_coefficient?: number | null
           best_streak?: number | null
+          created_at?: string | null
           current_streak?: number | null
           id?: string
           profit?: number | null
           roi?: number | null
           total_predictions?: number | null
           total_stake?: number | null
-          updated_at?: string
+          updated_at?: string | null
           user_id?: string
           win_rate?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_stats_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
     }
     Views: {
@@ -313,9 +347,9 @@ export type Database = {
     }
     Enums: {
       challenge_status: "active" | "completed" | "failed"
-      challenge_type: "ladder" | "marathon"
-      prediction_status: "pending" | "win" | "loss" | "returned"
-      prediction_type: "single" | "express" | "system"
+      challenge_type: "bank_growth" | "win_streak" | "roi_challenge"
+      prediction_status: "pending" | "win" | "loss" | "cancelled"
+      prediction_type: "sport" | "crypto" | "stock" | "other"
       user_rank: "newbie" | "experienced" | "professional" | "expert" | "legend"
       user_role: "user" | "analyst" | "moderator" | "admin" | "superadmin"
     }
@@ -446,9 +480,9 @@ export const Constants = {
   public: {
     Enums: {
       challenge_status: ["active", "completed", "failed"],
-      challenge_type: ["ladder", "marathon"],
-      prediction_status: ["pending", "win", "loss", "returned"],
-      prediction_type: ["single", "express", "system"],
+      challenge_type: ["bank_growth", "win_streak", "roi_challenge"],
+      prediction_status: ["pending", "win", "loss", "cancelled"],
+      prediction_type: ["sport", "crypto", "stock", "other"],
       user_rank: ["newbie", "experienced", "professional", "expert", "legend"],
       user_role: ["user", "analyst", "moderator", "admin", "superadmin"],
     },
