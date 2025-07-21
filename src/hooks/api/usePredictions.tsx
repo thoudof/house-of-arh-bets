@@ -7,27 +7,39 @@ import { useToast } from '@/hooks/use-toast';
 const transformPrediction = (prediction: any) => ({
   ...prediction,
   userId: prediction.user_id,
-  startDate: prediction.start_date,
+  eventStartTime: prediction.event_start_time,
+  eventName: prediction.event_name,
+  predictionDeadline: prediction.prediction_deadline,
   isPublic: prediction.is_public,
-  timeLeft: prediction.time_left,
+  isPremium: prediction.is_premium,
+  isFeatured: prediction.is_featured,
+  resultTime: prediction.result_time,
+  resultNote: prediction.result_note,
   createdAt: prediction.created_at,
   updatedAt: prediction.updated_at,
-  analyst: prediction.profile?.first_name && prediction.profile?.last_name 
-    ? `${prediction.profile.first_name} ${prediction.profile.last_name}`
+  viewsCount: prediction.views_count,
+  likesCount: prediction.likes_count,
+  commentsCount: prediction.comments_count,
+  sharesCount: prediction.shares_count,
+  competitionName: prediction.competition_name,
+  leagueName: prediction.league_name,
+  analyst: prediction.profiles?.first_name && prediction.profiles?.last_name 
+    ? `${prediction.profiles.first_name} ${prediction.profiles.last_name}`
     : 'Аналитик'
 });
 
+// Интерфейс для создания прогноза
 export interface PredictionData {
-  event: string;
-  type: 'single' | 'express' | 'system';
+  title: string;
+  event_name: string;
+  type: 'single' | 'express' | 'system' | 'accumulator';
   coefficient: number;
-  prediction: string;
+  description: string;
   stake?: number;
   category: 'football' | 'basketball' | 'tennis' | 'hockey' | 'esports' | 'other';
-  description?: string;
-  start_date: string;
-  end_date?: string;
-  is_public?: boolean;
+  event_start_time: string;
+  prediction_deadline?: string;
+  is_public: boolean;
 }
 
 export const usePredictions = () => {
@@ -50,14 +62,14 @@ export const usePredictions = () => {
         `)
         .eq('is_public', true)
         .order('created_at', { ascending: false })
-        .limit(10); // Limit initial load
+        .limit(10);
 
       if (error) throw error;
       
       return (data || []).map(prediction => transformPrediction(prediction));
     },
     enabled: !!user,
-    staleTime: 30000, // Cache for 30 seconds
+    staleTime: 30000,
   });
 };
 
@@ -122,76 +134,73 @@ export const useCreatePrediction = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  // Mapping functions for enum values
-  const mapCategoryToEnum = (category: string): string => {
-    const categoryMap: { [key: string]: string } = {
-      'Футбол': 'football',
-      'Баскетбол': 'basketball', 
-      'Теннис': 'tennis',
-      'Хоккей': 'hockey',
-      'Киберспорт': 'esports',
-      'Прочее': 'other'
-    };
-    return categoryMap[category] || 'other';
-  };
-
-  const mapTypeToEnum = (type: string): string => {
-    const typeMap: { [key: string]: string } = {
-      'single': 'single',
-      'express': 'express', 
-      'system': 'system'
-    };
-    return typeMap[type] || 'single';
-  };
-
   return useMutation({
-    mutationFn: async (data: PredictionData) => {
-      if (!user) throw new Error('User not authenticated');
+    mutationFn: async (predictionData: PredictionData) => {
+      if (!user) {
+        throw new Error('Пользователь не авторизован');
+      }
 
-      console.log('Creating prediction with data:', data); // Debug log
+      // Проверяем права пользователя для публичных прогнозов
+      if (predictionData.is_public) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('user_id', user.id)
+          .maybeSingle();
 
-      // @ts-ignore - Temporary fix until types regenerate
-      const { data: prediction, error } = await supabase
+        if (!profile || (profile.role !== 'analyst' && profile.role !== 'admin')) {
+          throw new Error('Только аналитики и администраторы могут создавать публичные прогнозы');
+        }
+      }
+
+      console.log('Создание прогноза:', predictionData);
+      console.log('Пользователь:', user);
+
+      const insertData = {
+        user_id: user.id,
+        title: predictionData.title,
+        event_name: predictionData.event_name,
+        type: predictionData.type,
+        coefficient: predictionData.coefficient,
+        description: predictionData.description,
+        stake: predictionData.stake,
+        category: predictionData.category,
+        event_start_time: predictionData.event_start_time,
+        prediction_deadline: predictionData.prediction_deadline,
+        is_public: predictionData.is_public
+      };
+
+      console.log('Данные для вставки:', insertData);
+
+      const { data, error } = await supabase
         .from('predictions')
-        .insert({
-          // @ts-ignore - Field exists but not in generated types
-          user_id: user.id,
-          event_name: data.event,
-          type: data.type as any,
-          coefficient: data.coefficient,
-          title: data.prediction,
-          stake: data.stake,
-          category: data.category as any,
-          description: data.description,
-          event_start_time: data.start_date,
-          prediction_deadline: data.end_date,
-          is_public: data.is_public
-        })
+        .insert([insertData])
         .select()
         .single();
 
       if (error) {
-        console.error('Supabase error:', error); // Debug log
+        console.error('Ошибка создания прогноза:', error);
         throw error;
       }
-      return prediction;
+
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['predictions'] });
-      queryClient.invalidateQueries({ queryKey: ['user-predictions'] });
+      queryClient.invalidateQueries({ queryKey: ['userPredictions'] });
       toast({
-        title: 'Успешно!',
-        description: 'Прогноз создан',
+        title: "Успешно",
+        description: "Прогноз добавлен",
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      console.error('Ошибка при создании прогноза:', error);
       toast({
-        title: 'Ошибка',
-        description: 'Не удалось создать прогноз',
-        variant: 'destructive',
+        title: "Ошибка",
+        description: error.message || "Не удалось добавить прогноз",
+        variant: "destructive"
       });
-      console.error('Error creating prediction:', error);
-    },
+    }
   });
 };
 

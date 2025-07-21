@@ -19,12 +19,13 @@ const AddPredictionForm = () => {
   const { user } = useAuth();
   
   const [formData, setFormData] = useState({
-    event: "",
+    title: "",
+    eventName: "",
     prediction: "",
     coefficient: "",
     stake: "",
-    category: "",
-    type: "single" as const,
+    category: "football" as const,
+    type: "single" as "single" | "express" | "system" | "accumulator",
     description: "",
     startDate: "",
     startTime: "",
@@ -43,7 +44,7 @@ const AddPredictionForm = () => {
 
     try {
       // Валидация
-      if (!formData.event || !formData.prediction || !formData.coefficient) {
+      if (!formData.title || !formData.eventName || !formData.prediction || !formData.coefficient) {
         toast({
           title: "Ошибка",
           description: "Заполните все обязательные поля",
@@ -62,19 +63,22 @@ const AddPredictionForm = () => {
         return;
       }
 
+      // Формируем описание из прогноза и дополнительного описания
+      const fullDescription = formData.prediction + (formData.description ? `\n\n${formData.description}` : "");
+
       // Создание прогноза через API
       await createPrediction.mutateAsync({
-        event: formData.event,
-        type: formData.type,
+        title: formData.title,
+        event_name: formData.eventName,
+        type: formData.type as "single" | "express" | "system" | "accumulator",
         coefficient: coef,
-        prediction: formData.prediction,
+        description: fullDescription,
         stake: formData.stake ? parseFloat(formData.stake) : undefined,
-        category: (formData.category || "other") as "football" | "basketball" | "tennis" | "hockey" | "esports" | "other",
-        description: formData.description || undefined,
-        start_date: formData.startDate && formData.startTime 
+        category: formData.category as "football" | "basketball" | "tennis" | "hockey" | "esports" | "other",
+        event_start_time: formData.startDate && formData.startTime 
           ? `${formData.startDate}T${formData.startTime}:00Z` 
-          : new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // Default to tomorrow
-        end_date: formData.startDate && formData.startTime 
+          : new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        prediction_deadline: formData.startDate && formData.startTime 
           ? `${formData.startDate}T${formData.startTime}:00Z` 
           : undefined,
         is_public: formData.isPublic
@@ -119,12 +123,23 @@ const AddPredictionForm = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="event">Событие *</Label>
+                <Label htmlFor="title">Название прогноза *</Label>
                 <Input
-                  id="event"
+                  id="title"
+                  placeholder="Например: Победа Реал Мадрид"
+                  value={formData.title}
+                  onChange={(e) => handleInputChange('title', e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="eventName">Событие *</Label>
+                <Input
+                  id="eventName"
                   placeholder="Например: Реал Мадрид vs Барселона"
-                  value={formData.event}
-                  onChange={(e) => handleInputChange('event', e.target.value)}
+                  value={formData.eventName}
+                  onChange={(e) => handleInputChange('eventName', e.target.value)}
                   required
                 />
               </div>
@@ -179,6 +194,7 @@ const AddPredictionForm = () => {
                       <SelectItem value="single">Ординар</SelectItem>
                       <SelectItem value="express">Экспресс</SelectItem>
                       <SelectItem value="system">Система</SelectItem>
+                      <SelectItem value="accumulator">Аккумулятор</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -243,10 +259,10 @@ const AddPredictionForm = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="description">Описание и обоснование</Label>
+                <Label htmlFor="description">Дополнительное описание</Label>
                 <Textarea
                   id="description"
-                  placeholder="Опишите почему этот прогноз может сыграть..."
+                  placeholder="Дополнительные детали и обоснование..."
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
                   rows={4}
@@ -257,7 +273,7 @@ const AddPredictionForm = () => {
                 <div className="space-y-1">
                   <Label htmlFor="isPublic">Публичный прогноз</Label>
                   <p className="text-sm text-muted-foreground">
-                    Сделать прогноз видимым для других пользователей
+                    Сделать прогноз видимым для других пользователей (только аналитики и администраторы)
                   </p>
                 </div>
                 <Switch
