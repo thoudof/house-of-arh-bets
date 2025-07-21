@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 
 export type UserRole = 'user' | 'analyst' | 'premium' | 'vip' | 'admin';
-export type UserTier = 'free' | 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
+export type UserTier = 'free' | 'telegram_premium' | 'premium' | 'platinum';
 
 export const useUserRole = (userId?: string) => {
   const { user } = useAuth();
@@ -101,12 +101,10 @@ export const getUserRoleDisplay = (role: UserRole): { name: string; color: strin
 
 export const getUserTierDisplay = (tier: UserTier): { name: string; color: string } => {
   const tierMap = {
-    free: { name: 'Бесплатный', color: 'text-muted-foreground' },
-    bronze: { name: 'Бронза', color: 'text-orange-600' },
-    silver: { name: 'Серебро', color: 'text-gray-400' },
-    gold: { name: 'Золото', color: 'text-yellow-500' },
-    platinum: { name: 'Платина', color: 'text-blue-400' },
-    diamond: { name: 'Алмаз', color: 'text-purple-400' }
+    free: { name: 'Новичок', color: 'text-muted-foreground' },
+    telegram_premium: { name: 'Telegram Premium', color: 'text-blue-500' },
+    premium: { name: 'Premium', color: 'text-purple-500' },
+    platinum: { name: 'Platinum', color: 'text-yellow-500' }
   };
   return tierMap[tier] || tierMap.free;
 };

@@ -13,6 +13,7 @@ import { useProfile } from "@/hooks/api/useProfiles";
 import { useUserPredictions } from "@/hooks/api/usePredictions";
 import { useUserAchievements } from "@/hooks/api/useAchievements";
 import UserRoleDisplay from "@/components/UserRoleDisplay";
+import VerificationBadge from "@/components/VerificationBadge";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -165,12 +166,20 @@ const Profile = () => {
                 </Avatar>
                 
                 <div className="text-center sm:text-left">
-                  <h2 className="text-xl sm:text-2xl font-bold mb-1">
-                    {profile.first_name} {profile.last_name}
-                  </h2>
+                  <div className="flex items-center justify-center sm:justify-start space-x-2 mb-1">
+                    <h2 className="text-xl sm:text-2xl font-bold">
+                      {profile.first_name} {profile.last_name}
+                    </h2>
+                    <VerificationBadge isVerified={profile.is_verified} size="sm" />
+                  </div>
                   <p className="text-sm text-muted-foreground mb-2">
                     @{profile.telegram_username || 'Пользователь'}
                   </p>
+                  
+                  {/* Role and Tier Display */}
+                  <div className="flex justify-center sm:justify-start gap-2 mb-2">
+                    <UserRoleDisplay userId={profile.user_id} showTier={true} showRole={true} size="sm" />
+                  </div>
                   
                   {/* Rank Badge */}
                   <Badge className={`${rankInfo.color} border-0 font-medium px-3 py-1`}>

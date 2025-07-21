@@ -723,7 +723,15 @@ export type Database = {
       prediction_type: "single" | "express" | "system" | "accumulator"
       subscription_type: "daily" | "weekly" | "monthly" | "season"
       user_role: "user" | "analyst" | "premium" | "vip" | "admin"
-      user_tier: "free" | "bronze" | "silver" | "gold" | "platinum" | "diamond"
+      user_tier:
+        | "free"
+        | "bronze"
+        | "silver"
+        | "gold"
+        | "platinum"
+        | "diamond"
+        | "telegram_premium"
+        | "premium"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -870,7 +878,16 @@ export const Constants = {
       prediction_type: ["single", "express", "system", "accumulator"],
       subscription_type: ["daily", "weekly", "monthly", "season"],
       user_role: ["user", "analyst", "premium", "vip", "admin"],
-      user_tier: ["free", "bronze", "silver", "gold", "platinum", "diamond"],
+      user_tier: [
+        "free",
+        "bronze",
+        "silver",
+        "gold",
+        "platinum",
+        "diamond",
+        "telegram_premium",
+        "premium",
+      ],
     },
   },
 } as const
