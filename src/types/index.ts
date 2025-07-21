@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   telegramId: string;
@@ -5,8 +6,8 @@ export interface User {
   firstName: string;
   lastName?: string;
   avatar?: string;
-  role: 'user' | 'analyst' | 'moderator' | 'admin' | 'superadmin';
-  rank: 'newbie' | 'experienced' | 'professional' | 'expert' | 'legend';
+  role: 'user' | 'admin' | 'moderator';
+  rank: 'newbie' | 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
   stats: UserStats;
   createdAt: string;
 }
@@ -27,10 +28,10 @@ export interface Prediction {
   userId: string;
   analyst?: string;
   event: string;
-  type: 'single' | 'express' | 'system';
+  type: 'single' | 'multiple' | 'system';
   coefficient: number;
   prediction: string;
-  status: 'pending' | 'win' | 'loss' | 'returned';
+  status: 'pending' | 'win' | 'loss' | 'void';
   stake?: number;
   profit?: number;
   timeLeft: string;
@@ -55,13 +56,13 @@ export interface Achievement {
 
 export interface Challenge {
   id: string;
-  type: 'ladder' | 'marathon';
+  type: 'streak' | 'profit' | 'roi';
   title: string;
   creatorId: string;
   creator: string;
   startBank: number;
   currentBank: number;
-  status: 'active' | 'completed' | 'failed';
+  status: 'active' | 'completed' | 'failed' | 'cancelled';
   currentStep: number;
   totalSteps?: number;
   predictions: Prediction[];

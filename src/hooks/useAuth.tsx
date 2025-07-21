@@ -50,13 +50,14 @@ export const useAuth = () => {
         if (signInError.message.includes('Invalid login credentials')) {
           console.log('🔄 User not found, creating new account');
           
-          // Создаем нового пользователя
+          // Создаем нового пользователя с правильными данными
           const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
             email,
             password,
             options: {
               data: {
                 telegram_id: telegramUser.id.toString(),
+                id: telegramUser.id.toString(),
                 first_name: telegramUser.first_name,
                 last_name: telegramUser.last_name || '',
                 username: telegramUser.username || '',
@@ -66,14 +67,19 @@ export const useAuth = () => {
           });
 
           if (signUpError) {
-            console.error('❌ Sign up failed:', signUpError);
+            console.error('❌ Sign up failed:', signUpError.message);
+            console.error('❌ Full error:', signUpError);
             return { user: null, error: signUpError.message };
           }
 
           console.log('✅ New user created successfully:', signUpData.user?.id);
+          
+          // Ждем немного для завершения триггера
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
           return { user: signUpData.user, error: null };
         } else {
-          console.error('❌ Sign in failed:', signInError);
+          console.error('❌ Sign in failed:', signInError.message);
           return { user: null, error: signInError.message };
         }
       }
