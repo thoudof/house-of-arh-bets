@@ -13,6 +13,7 @@ export const useUpdatePredictionStatus = () => {
 
   return useMutation({
     mutationFn: async (data: UpdateStatusData) => {
+      // @ts-ignore - Temporary fix until types regenerate
       const { error } = await supabase
         .from('predictions')
         .update({

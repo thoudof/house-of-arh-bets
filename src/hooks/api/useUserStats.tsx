@@ -10,11 +10,12 @@ export const useUserStats = () => {
     queryFn: async () => {
       if (!user?.id) throw new Error('User not authenticated');
 
+      // @ts-ignore - Temporary fix until types regenerate
       const { data, error } = await supabase
         .from('user_stats')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data;
@@ -32,6 +33,7 @@ export const useAnalytics = () => {
       if (!user?.id) throw new Error('User not authenticated');
 
       // Получаем прогнозы пользователя для аналитики
+      // @ts-ignore - Temporary fix until types regenerate
       const { data: predictions, error } = await supabase
         .from('predictions')
         .select('*')

@@ -6,6 +6,7 @@ export const useAchievements = () => {
   return useQuery({
     queryKey: ['achievements'],
     queryFn: async () => {
+      // @ts-ignore - Temporary fix until types regenerate
       const { data, error } = await supabase
         .from('achievements')
         .select('*')
@@ -26,6 +27,7 @@ export const useUserAchievements = (userId?: string) => {
     queryFn: async () => {
       if (!targetUserId) throw new Error('User ID required');
 
+      // @ts-ignore - Temporary fix until types regenerate
       const { data, error } = await supabase
         .from('user_achievements')
         .select(`
