@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { retrieveLaunchParams } from '@telegram-apps/sdk-react';
 import { supabase } from '@/integrations/supabase/client';
+import { extractTelegramInitData } from '@/utils/telegramUtils';
 
 interface TelegramUser {
   id: string;
@@ -31,12 +32,25 @@ export const useTelegramAuth = () => {
     try {
       setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
 
-      // Get launch parameters from Telegram
-      const launchParams = retrieveLaunchParams();
-      const initData = launchParams.initDataRaw;
+      // Try to get initData from multiple sources
+      let initData = extractTelegramInitData();
+      
+      // Fallback: Try SDK method
+      if (!initData) {
+        try {
+          const launchParams = retrieveLaunchParams();
+          const sdkInitData = launchParams.initDataRaw;
+          if (sdkInitData && typeof sdkInitData === 'string') {
+            initData = sdkInitData;
+            console.log('🔍 SDK initData fallback:', initData.substring(0, 50) + '...');
+          }
+        } catch (error) {
+          console.log('🔍 SDK method also failed:', error);
+        }
+      }
 
       if (!initData) {
-        throw new Error('No initData available from Telegram');
+        throw new Error('No initData available from any source. Please open this app from Telegram.');
       }
 
       console.log('🚀 Starting Telegram authentication with initData');
@@ -82,11 +96,24 @@ export const useTelegramAuth = () => {
       return authData.user;
     } catch (error) {
       console.error('❌ Telegram authentication failed:', error);
+      
+      // More helpful error messages
+      let errorMessage = 'Authentication failed';
+      if (error instanceof Error) {
+        if (error.message.includes('No initData')) {
+          errorMessage = 'Please open this app from Telegram';
+        } else if (error.message.includes('Authentication failed')) {
+          errorMessage = 'Invalid Telegram data';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       setAuthState({
         user: null,
         isAuthenticated: false,
         isLoading: false,
-        error: error instanceof Error ? error.message : 'Authentication failed',
+        error: errorMessage,
       });
       throw error;
     }
