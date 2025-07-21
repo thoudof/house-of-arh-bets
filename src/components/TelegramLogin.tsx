@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, MessageCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { isTelegramEnvironment } from '@/lib/telegram';
 
 const TelegramLogin = () => {
   const { authenticateWithTelegram, isLoading, error } = useAuth();
@@ -42,18 +43,18 @@ const TelegramLogin = () => {
             </Alert>
           )}
           
-          {hasAttempted && !error && (
+          {!isTelegramEnvironment() && (
             <Alert className="border-blue-200 bg-blue-50 text-blue-900">
               <AlertDescription>
-                Проверьте консоль браузера для отладочной информации. 
-                Убедитесь, что приложение запущено внутри Telegram.
+                Это приложение должно быть запущено из Telegram Mini App.
+                Откройте приложение через Telegram бота или веб-приложение.
               </AlertDescription>
             </Alert>
           )}
           
           <Button
             onClick={handleTelegramAuth}
-            disabled={isLoading}
+            disabled={isLoading || !isTelegramEnvironment()}
             className="w-full bg-[#0088cc] hover:bg-[#006aa3] text-white h-12 text-base font-medium"
           >
             {isLoading ? (

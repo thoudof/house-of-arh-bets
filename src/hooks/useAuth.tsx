@@ -1,7 +1,13 @@
 // Переносим настоящую Telegram авторизацию сюда
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { retrieveRawInitData } from '@telegram-apps/sdk';
+import { 
+  initTelegramSDK, 
+  isTelegramEnvironment, 
+  getTelegramUser, 
+  getTelegramInitData,
+  setupTelegramTheme 
+} from '@/lib/telegram';
 
 interface TelegramUser {
   id: string;
@@ -27,36 +33,70 @@ export const useAuth = () => {
 
   // Проверяем текущую сессию при загрузке
   useEffect(() => {
-    checkCurrentSession();
+    initializeTelegramAuth();
   }, []);
 
-  const checkCurrentSession = async () => {
+  const initializeTelegramAuth = async () => {
     try {
-      const { data: session } = await supabase.auth.getSession();
+      // Инициализируем Telegram SDK
+      initTelegramSDK();
+      setupTelegramTheme();
       
-      if (session?.session) {
-        // @ts-ignore - Temporary fix until types regenerate
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('user_id', session.session.user.id)
-          .maybeSingle();
+      // Проверяем, находимся ли мы в Telegram
+      if (!isTelegramEnvironment()) {
+        setError('Приложение должно быть запущено из Telegram Mini App');
+        setIsLoading(false);
+        return;
+      }
 
-        if (profile) {
-          setUser({
-            id: profile.user_id,
-            telegram_id: profile.telegram_id,
-            first_name: profile.first_name,
-            last_name: profile.last_name,
-            username: profile.telegram_username,
-            avatar_url: profile.avatar_url
-          });
-          setIsAuthenticated(true);
+      // Пробуем получить пользователя из Telegram
+      const telegramUser = getTelegramUser();
+      if (telegramUser) {
+        console.log('Найден пользователь Telegram:', telegramUser);
+        
+        // Проверяем, есть ли уже сессия в Supabase
+        const { data: session } = await supabase.auth.getSession();
+        
+        if (session?.session) {
+          // Загружаем профиль из базы данных
+          await loadUserProfile(session.session.user.id);
+        } else {
+          // Автоматически авторизуемся через Telegram
+          await authenticateWithTelegram();
         }
+      } else {
+        setError('Не удалось получить данные пользователя из Telegram');
+        setIsLoading(false);
       }
     } catch (err) {
-      console.error('Ошибка проверки сессии:', err);
-      setError('Ошибка проверки сессии');
+      console.error('Ошибка инициализации:', err);
+      setError('Ошибка инициализации приложения');
+      setIsLoading(false);
+    }
+  };
+
+  const loadUserProfile = async (userId: string) => {
+    try {
+      // @ts-ignore - Temporary fix until types regenerate
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (profile) {
+        setUser({
+          id: profile.user_id,
+          telegram_id: profile.telegram_id,
+          first_name: profile.first_name,
+          last_name: profile.last_name,
+          username: profile.telegram_username,
+          avatar_url: profile.avatar_url
+        });
+        setIsAuthenticated(true);
+      }
+    } catch (err) {
+      console.error('Ошибка загрузки профиля:', err);
     } finally {
       setIsLoading(false);
     }
@@ -68,10 +108,10 @@ export const useAuth = () => {
 
     try {
       // Получаем init data от Telegram
-      const initData = retrieveRawInitData();
+      const initData = getTelegramInitData();
       
       if (!initData) {
-        throw new Error('Telegram init data не найдены. Убедитесь, что приложение запущено в Telegram.');
+        throw new Error('Не удалось получить данные авторизации от Telegram');
       }
 
       console.log('Отправляем Telegram данные для авторизации...');
@@ -134,7 +174,7 @@ export const useAuth = () => {
     error,
     authenticateWithTelegram,
     logout,
-    checkCurrentSession
+    initializeTelegramAuth
   };
 };
 
