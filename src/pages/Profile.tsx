@@ -127,7 +127,7 @@ const Profile = () => {
     return ranks[rank as keyof typeof ranks] || ranks.newbie;
   };
 
-  const rankInfo = getRankInfo(profile.rank || 'newbie');
+  const rankInfo = getRankInfo('newbie');
   const stats = Array.isArray(profile.user_stats) ? profile.user_stats[0] : profile.user_stats;
 
   return (
@@ -170,8 +170,7 @@ const Profile = () => {
                     <span>С {new Date(profile.created_at).toLocaleDateString('ru-RU')}</span>
                   </div>
                   <Badge className="bg-primary text-primary-foreground">
-                    {profile.role === 'admin' ? 'Администратор' : 
-                     profile.role === 'moderator' ? 'Модератор' : 'Пользователь'}
+                    Пользователь
                   </Badge>
                 </div>
 

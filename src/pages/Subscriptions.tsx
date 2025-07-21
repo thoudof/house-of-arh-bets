@@ -167,7 +167,7 @@ const Subscriptions = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center space-x-2">
                         <p className="font-semibold truncate">{analyst.first_name} {analyst.last_name}</p>
-                        {getTierBadge(analyst.role === 'analyst' ? 'premium' : 'standard')}
+                        {getTierBadge('standard')}
                       </div>
                       <div className="flex items-center space-x-3 text-sm text-muted-foreground">
                         <span>{analyst.user_stats?.win_rate || 0}% побед</span>

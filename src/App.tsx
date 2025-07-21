@@ -1,12 +1,9 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useTelegram } from "@/hooks/useTelegram";
-import { useAuth } from "@/hooks/useAuth";
-import { useEffect } from "react";
+import { TelegramProvider } from "@/components/TelegramProvider";
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import AddPrediction from "./pages/AddPrediction";
@@ -36,43 +33,7 @@ const queryClient = new QueryClient({
   },
 });
 
-const AppContent = () => {
-  const { isReady, webApp } = useTelegram();
-  const { loading } = useAuth();
-
-  useEffect(() => {
-    if (webApp?.themeParams) {
-      const root = document.documentElement;
-      const theme = webApp.themeParams;
-      
-      if (theme.bg_color) {
-        root.style.setProperty('--tg-bg-color', theme.bg_color);
-      }
-      if (theme.text_color) {
-        root.style.setProperty('--tg-text-color', theme.text_color);
-      }
-      if (theme.button_color) {
-        root.style.setProperty('--tg-button-color', theme.button_color);
-      }
-      if (theme.button_text_color) {
-        root.style.setProperty('--tg-button-text-color', theme.button_text_color);
-      }
-    }
-  }, [webApp]);
-
-  if (!isReady || loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">
-            {!isReady ? 'Инициализация Telegram...' : 'Авторизация...'}
-          </p>
-        </div>
-      </div>
-    );
-  }
-
+const AppRoutes = () => {
   return (
     <BrowserRouter>
       <Routes>
@@ -101,11 +62,13 @@ const AppContent = () => {
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <AppContent />
-      </TooltipProvider>
+      <TelegramProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <AppRoutes />
+        </TooltipProvider>
+      </TelegramProvider>
     </QueryClientProvider>
   );
 };

@@ -197,9 +197,9 @@ export type Database = {
           created_at: string
           first_name: string
           id: string
+          is_premium: boolean | null
+          language_code: string | null
           last_name: string | null
-          rank: Database["public"]["Enums"]["user_rank"] | null
-          role: Database["public"]["Enums"]["user_role"] | null
           telegram_id: string
           updated_at: string
           user_id: string
@@ -210,9 +210,9 @@ export type Database = {
           created_at?: string
           first_name: string
           id?: string
+          is_premium?: boolean | null
+          language_code?: string | null
           last_name?: string | null
-          rank?: Database["public"]["Enums"]["user_rank"] | null
-          role?: Database["public"]["Enums"]["user_role"] | null
           telegram_id: string
           updated_at?: string
           user_id: string
@@ -223,9 +223,9 @@ export type Database = {
           created_at?: string
           first_name?: string
           id?: string
+          is_premium?: boolean | null
+          language_code?: string | null
           last_name?: string | null
-          rank?: Database["public"]["Enums"]["user_rank"] | null
-          role?: Database["public"]["Enums"]["user_role"] | null
           telegram_id?: string
           updated_at?: string
           user_id?: string

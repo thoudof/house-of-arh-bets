@@ -42,10 +42,13 @@ export const useTelegramAuth = () => {
       console.log('🚀 Starting Telegram authentication with initData');
 
       // Call our Edge Function to validate initData and get JWT
-      const response = await fetch('/functions/v1/telegram-auth', {
+      const functionUrl = `https://enualwijtpsaurhcdorj.supabase.co/functions/v1/telegram-auth`;
+      
+      const response = await fetch(functionUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudWFsd2lqdHBzYXVyaGNkb3JqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI5Mjg4MjIsImV4cCI6MjA2ODUwNDgyMn0.MCyFyRTkQmS2yGhjo3XUt-uoW42X73wp05QDKd_R0KQ',
         },
         body: JSON.stringify({ initData }),
       });

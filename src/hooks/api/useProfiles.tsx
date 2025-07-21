@@ -67,11 +67,13 @@ export const useTopAnalysts = () => {
   return useQuery({
     queryKey: ['top-analysts'],
     queryFn: async () => {
-      // Fetch analysts
+      // Fetch all profiles for now since we removed role column
       const { data: profiles, error } = await supabase
         .from('profiles')
-        .select('*')
-        .eq('role', 'analyst')
+        .select(`
+          *,
+          user_stats!inner(*)
+        `)
         .order('created_at', { ascending: false })
         .limit(10);
 
