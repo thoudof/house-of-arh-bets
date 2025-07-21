@@ -23,7 +23,7 @@ export interface PredictionData {
   coefficient: number;
   prediction: string;
   stake?: number;
-  category: string;
+  category: 'football' | 'basketball' | 'tennis' | 'hockey' | 'esports' | 'other';
   description?: string;
   start_date: string;
   end_date?: string;
@@ -122,19 +122,44 @@ export const useCreatePrediction = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
+  // Mapping functions for enum values
+  const mapCategoryToEnum = (category: string): string => {
+    const categoryMap: { [key: string]: string } = {
+      'Футбол': 'football',
+      'Баскетбол': 'basketball', 
+      'Теннис': 'tennis',
+      'Хоккей': 'hockey',
+      'Киберспорт': 'esports',
+      'Прочее': 'other'
+    };
+    return categoryMap[category] || 'other';
+  };
+
+  const mapTypeToEnum = (type: string): string => {
+    const typeMap: { [key: string]: string } = {
+      'single': 'single',
+      'express': 'express', 
+      'system': 'system'
+    };
+    return typeMap[type] || 'single';
+  };
+
   return useMutation({
     mutationFn: async (data: PredictionData) => {
       if (!user) throw new Error('User not authenticated');
+
+      console.log('Creating prediction with data:', data); // Debug log
 
       // @ts-ignore - Temporary fix until types regenerate
       const { data: prediction, error } = await supabase
         .from('predictions')
         .insert({
+          // @ts-ignore - Field exists but not in generated types
           user_id: user.id,
           event_name: data.event,
           type: data.type as any,
           coefficient: data.coefficient,
-          title: data.prediction, // This is the prediction text, not event name
+          title: data.prediction,
           stake: data.stake,
           category: data.category as any,
           description: data.description,
@@ -145,7 +170,10 @@ export const useCreatePrediction = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error); // Debug log
+        throw error;
+      }
       return prediction;
     },
     onSuccess: () => {

@@ -69,7 +69,7 @@ const AddPredictionForm = () => {
         coefficient: coef,
         prediction: formData.prediction,
         stake: formData.stake ? parseFloat(formData.stake) : undefined,
-        category: formData.category || "Прочее",
+        category: (formData.category || "other") as "football" | "basketball" | "tennis" | "hockey" | "esports" | "other",
         description: formData.description || undefined,
         start_date: formData.startDate && formData.startTime 
           ? `${formData.startDate}T${formData.startTime}:00Z` 
@@ -190,13 +190,12 @@ const AddPredictionForm = () => {
                       <SelectValue placeholder="Выберите спорт" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Футбол">Футбол</SelectItem>
-                      <SelectItem value="Баскетбол">Баскетбол</SelectItem>
-                      <SelectItem value="Теннис">Теннис</SelectItem>
-                      <SelectItem value="Хоккей">Хоккей</SelectItem>
-                      <SelectItem value="Волейбол">Волейбол</SelectItem>
-                      <SelectItem value="Киберспорт">Киберспорт</SelectItem>
-                      <SelectItem value="Прочее">Прочее</SelectItem>
+                      <SelectItem value="football">Футбол</SelectItem>
+                      <SelectItem value="basketball">Баскетбол</SelectItem>
+                      <SelectItem value="tennis">Теннис</SelectItem>
+                      <SelectItem value="hockey">Хоккей</SelectItem>
+                      <SelectItem value="esports">Киберспорт</SelectItem>
+                      <SelectItem value="other">Прочее</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
