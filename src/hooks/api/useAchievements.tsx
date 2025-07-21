@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useTelegramAuth } from '@/hooks/useTelegramAuth';
+import { useAuth } from '@/hooks/useAuth';
 
 export const useAchievements = () => {
   return useQuery({
@@ -18,7 +18,7 @@ export const useAchievements = () => {
 };
 
 export const useUserAchievements = (userId?: string) => {
-  const { user } = useTelegramAuth();
+  const { user } = useAuth();
   const targetUserId = userId || user?.id;
 
   return useQuery({

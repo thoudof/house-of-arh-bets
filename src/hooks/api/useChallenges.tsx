@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useTelegramAuth } from '@/hooks/useTelegramAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 
 export interface ChallengeData {
@@ -75,7 +75,7 @@ export const useChallenge = (id: string) => {
 
 export const useCreateChallenge = () => {
   const queryClient = useQueryClient();
-  const { user } = useTelegramAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
 
   return useMutation({

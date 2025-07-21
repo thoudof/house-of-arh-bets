@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useTelegramAuth } from '@/hooks/useTelegramAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 
 // Функция для трансформации данных из snake_case в camelCase
@@ -31,7 +31,7 @@ export interface PredictionData {
 }
 
 export const usePredictions = () => {
-  const { user } = useTelegramAuth();
+  const { user } = useAuth();
 
   return useQuery({
     queryKey: ['predictions'],
@@ -61,7 +61,7 @@ export const usePredictions = () => {
 };
 
 export const useUserPredictions = (userId?: string) => {
-  const { user } = useTelegramAuth();
+  const { user } = useAuth();
   const targetUserId = userId || user?.id;
 
   return useQuery({
@@ -112,7 +112,7 @@ export const usePrediction = (id: string) => {
 
 export const useCreatePrediction = () => {
   const queryClient = useQueryClient();
-  const { user } = useTelegramAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
 
   return useMutation({
