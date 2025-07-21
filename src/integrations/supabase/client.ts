@@ -2,15 +2,15 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = "https://enualwijtpsaurhcdorj.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudWFsd2lqdHBzYXVyaGNkb3JqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI5Mjg4MjIsImV4cCI6MjA2ODUwNDgyMn0.MCyFyRTkQmS2yGhjo3XUt-uoW42X73wp05QDKd_R0KQ";
+const SUPABASE_URL = "https://gahtggchbnrliczsfaqf.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdhaHRnZ2NoYm5ybGljenNmYXFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwOTIzNzMsImV4cCI6MjA2ODY2ODM3M30.-2LgNgniHV5Do8_gdoXLswjZ8P8u-4fRQzZxv3qs3kQ";
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    storage: sessionStorage, // Изменено на sessionStorage для хранения только в рамках сессии
+    storage: localStorage,
     persistSession: true,
     autoRefreshToken: true,
   }
