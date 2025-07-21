@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 
 export const useProfile = (userId?: string) => {
-  const { user } = useTelegramAuth();
+  const { user } = useAuth();
   const targetUserId = userId || user?.id;
 
   return useQuery({
@@ -141,7 +141,7 @@ export const useRankings = () => {
 
 export const useUpdateProfile = () => {
   const queryClient = useQueryClient();
-  const { user } = useTelegramAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
 
   return useMutation({

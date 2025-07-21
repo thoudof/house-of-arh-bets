@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
 export const useUserStats = () => {
-  const { user } = useTelegramAuth();
+  const { user } = useAuth();
 
   return useQuery({
     queryKey: ['userStats', user?.id],
@@ -24,7 +24,7 @@ export const useUserStats = () => {
 };
 
 export const useAnalytics = () => {
-  const { user } = useTelegramAuth();
+  const { user } = useAuth();
 
   return useQuery({
     queryKey: ['analytics', user?.id],
