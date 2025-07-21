@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { User, ArrowLeft, Trophy, Target, TrendingUp, Activity, Calendar, Star, Award } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,12 +13,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/api/useProfiles";
 import { useUserPredictions } from "@/hooks/api/usePredictions";
 import { useUserAchievements } from "@/hooks/api/useAchievements";
-import type { User as UserType, Prediction, Achievement } from "@/types";
+import { ProfileErrorHandler } from "@/components/ProfileErrorHandler";
+import { useTelegram } from "@/hooks/useTelegram";
 
 const Profile = () => {
   const navigate = useNavigate();
   const { userId } = useParams();
-  const { user, loading: authLoading, profile: authProfile } = useAuth();
+  const { user, loading: authLoading, profile: authProfile, isAuthenticated } = useAuth();
+  const { user: telegramUser } = useTelegram();
   const [activeTab, setActiveTab] = useState("overview");
 
   const targetUserId = userId || user?.id;
@@ -28,66 +31,98 @@ const Profile = () => {
     userFromAuth: user?.id,
     targetUserId: targetUserId,
     authLoading: authLoading,
-    authProfile: authProfile
+    authProfile: authProfile,
+    isAuthenticated: isAuthenticated,
+    telegramUser: telegramUser
   });
-  
+
+  // Show loading while auth is still loading
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background telegram-safe-area flex items-center justify-center">
+        <div className="text-center">
+          <div>Загрузка профиля...</div>
+          <div className="text-xs text-muted-foreground mt-2">Аутентификация...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error handling component if not authenticated
+  if (!isAuthenticated || !user) {
+    return (
+      <div className="min-h-screen bg-background telegram-safe-area">
+        <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center space-x-3">
+              <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+              <h1 className="text-xl font-bold">Профиль</h1>
+            </div>
+          </div>
+        </header>
+        <div className="container mx-auto px-4 py-6">
+          <ProfileErrorHandler />
+        </div>
+      </div>
+    );
+  }
+
   const { data: profile, isLoading: profileLoading, error: profileError } = useProfile(targetUserId);
   const { data: predictions, isLoading: predictionsLoading } = useUserPredictions(targetUserId);
   const { data: userAchievements, isLoading: achievementsLoading } = useUserAchievements(targetUserId);
 
-  // Show loading while auth is still loading
-  if (authLoading || profileLoading) {
-    return <div className="min-h-screen bg-background telegram-safe-area flex items-center justify-center">
-      <div className="text-center">
-        <div>Загрузка профиля...</div>
-        {authLoading && <div className="text-xs text-muted-foreground mt-2">Аутентификация...</div>}
-        {profileLoading && <div className="text-xs text-muted-foreground mt-2">Загрузка данных...</div>}
-      </div>
-    </div>;
-  }
-
-  // Show error information for debugging
-  if (!targetUserId) {
-    return <div className="min-h-screen bg-background telegram-safe-area flex items-center justify-center">
-      <div className="text-center">
-        <div className="text-lg mb-2">Не удалось определить пользователя</div>
-        <div className="text-sm text-muted-foreground">
-          Debug: user={user?.id}, userId={userId}
+  if (profileLoading) {
+    return (
+      <div className="min-h-screen bg-background telegram-safe-area flex items-center justify-center">
+        <div className="text-center">
+          <div>Загрузка данных профиля...</div>
         </div>
       </div>
-    </div>;
+    );
   }
 
   if (profileError) {
-    return <div className="min-h-screen bg-background telegram-safe-area flex items-center justify-center">
-      <div className="text-center">
-        <div className="text-lg mb-2">Ошибка загрузки профиля</div>
-        <div className="text-sm text-muted-foreground">
-          {profileError.message || 'Неизвестная ошибка'}
+    return (
+      <div className="min-h-screen bg-background telegram-safe-area flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-lg mb-2">Ошибка загрузки профиля</div>
+          <div className="text-sm text-muted-foreground">
+            {profileError.message || 'Неизвестная ошибка'}
+          </div>
+          <Button onClick={() => navigate('/')} className="mt-4">
+            На главную
+          </Button>
         </div>
       </div>
-    </div>;
+    );
   }
 
   if (!profile) {
-    return <div className="min-h-screen bg-background telegram-safe-area flex items-center justify-center">
-      <div className="text-center">
-        <div className="text-lg mb-2">Профиль не найден</div>
-        <div className="text-sm text-muted-foreground">
-          Пользователь ID: {targetUserId}
+    return (
+      <div className="min-h-screen bg-background telegram-safe-area flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-lg mb-2">Профиль не найден</div>
+          <div className="text-sm text-muted-foreground">
+            Пользователь ID: {targetUserId}
+          </div>
+          <Button onClick={() => navigate('/')} className="mt-4">
+            На главную
+          </Button>
         </div>
       </div>
-    </div>;
+    );
   }
-
 
   const getRankInfo = (rank: string) => {
     const ranks = {
       newbie: { name: "Новичок", color: "text-muted-foreground", progress: 20 },
-      experienced: { name: "Опытный", color: "text-blue-400", progress: 40 },
-      professional: { name: "Профессионал", color: "text-purple-400", progress: 60 },
-      expert: { name: "Эксперт", color: "text-orange-400", progress: 80 },
-      legend: { name: "Легенда", color: "text-primary", progress: 100 }
+      bronze: { name: "Бронза", color: "text-orange-600", progress: 40 },
+      silver: { name: "Серебро", color: "text-gray-400", progress: 60 },
+      gold: { name: "Золото", color: "text-yellow-500", progress: 80 },
+      platinum: { name: "Платина", color: "text-blue-400", progress: 90 },
+      diamond: { name: "Алмаз", color: "text-purple-400", progress: 100 }
     };
     return ranks[rank as keyof typeof ranks] || ranks.newbie;
   };
@@ -136,7 +171,6 @@ const Profile = () => {
                   </div>
                   <Badge className="bg-primary text-primary-foreground">
                     {profile.role === 'admin' ? 'Администратор' : 
-                     profile.role === 'analyst' ? 'Аналитик' : 
                      profile.role === 'moderator' ? 'Модератор' : 'Пользователь'}
                   </Badge>
                 </div>
@@ -199,94 +233,94 @@ const Profile = () => {
                 <TabsTrigger value="achievements" className="text-xs data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">Награды</TabsTrigger>
               </TabsList>
 
-          <TabsContent value="overview" className="space-y-4">
-            <Card className="card-gradient">
-              <CardHeader>
-                <CardTitle className="text-base">Детальная статистика</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Прибыль</p>
-                    <p className="text-lg font-semibold text-success">+{stats?.profit || 0} ₽</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Средний коэф.</p>
-                    <p className="text-lg font-semibold">{stats?.average_coefficient || 0}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Лучшая серия</p>
-                    <p className="text-lg font-semibold">{stats?.best_streak || 0}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Всего поставлено</p>
-                    <p className="text-lg font-semibold">{stats?.total_stake || 0} ₽</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="predictions" className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold">Мои ставки</h3>
-              <Button variant="premium" size="sm" onClick={() => navigate('/add-prediction')}>
-                Добавить ставку
-              </Button>
-            </div>
-            
-            <div className="space-y-4">
-              {predictionsLoading ? (
-                <div>Загрузка прогнозов...</div>
-              ) : predictions?.length ? (
-                predictions.map((prediction) => (
-                  <PredictionCard 
-                    key={prediction.id} 
-                    prediction={prediction}
-                    onClick={() => navigate(`/prediction/${prediction.id}`)}
-                  />
-                ))
-              ) : (
-                <div className="text-center text-muted-foreground py-8">
-                  Прогнозов пока нет
-                </div>
-              )}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="achievements" className="space-y-4">
-            <h3 className="text-lg font-semibold">Достижения</h3>
-            <div className="grid grid-cols-1 gap-3">
-              {achievementsLoading ? (
-                <div>Загрузка достижений...</div>
-              ) : userAchievements?.length ? (
-                userAchievements.map((userAchievement) => (
-                  <Card 
-                    key={userAchievement.id} 
-                    className="card-gradient border-primary/50"
-                  >
-                    <CardContent className="p-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="text-2xl">{userAchievement.achievement.icon}</div>
-                        <div className="flex-1">
-                          <h4 className="font-semibold">{userAchievement.achievement.title}</h4>
-                          <p className="text-sm text-muted-foreground">{userAchievement.achievement.description}</p>
-                          <p className="text-xs text-primary">
-                            Получено: {new Date(userAchievement.unlocked_at).toLocaleDateString('ru-RU')}
-                          </p>
-                        </div>
-                        <Award className="w-5 h-5 text-primary" />
+              <TabsContent value="overview" className="space-y-4">
+                <Card className="card-gradient">
+                  <CardHeader>
+                    <CardTitle className="text-base">Детальная статистика</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Прибыль</p>
+                        <p className="text-lg font-semibold text-success">+{stats?.profit || 0} ₽</p>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))
-              ) : (
-                <div className="text-center text-muted-foreground py-8">
-                  Достижений пока нет
+                      <div>
+                        <p className="text-sm text-muted-foreground">Средний коэф.</p>
+                        <p className="text-lg font-semibold">{stats?.average_coefficient || 0}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Лучшая серия</p>
+                        <p className="text-lg font-semibold">{stats?.best_streak || 0}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Всего поставлено</p>
+                        <p className="text-lg font-semibold">{stats?.total_stake || 0} ₽</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="predictions" className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold">Мои ставки</h3>
+                  <Button variant="default" size="sm" onClick={() => navigate('/add-prediction')}>
+                    Добавить ставку
+                  </Button>
                 </div>
-              )}
-            </div>
-          </TabsContent>
+                
+                <div className="space-y-4">
+                  {predictionsLoading ? (
+                    <div>Загрузка прогнозов...</div>
+                  ) : predictions?.length ? (
+                    predictions.map((prediction) => (
+                      <PredictionCard 
+                        key={prediction.id} 
+                        prediction={prediction}
+                        onClick={() => navigate(`/prediction/${prediction.id}`)}
+                      />
+                    ))
+                  ) : (
+                    <div className="text-center text-muted-foreground py-8">
+                      Прогнозов пока нет
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="achievements" className="space-y-4">
+                <h3 className="text-lg font-semibold">Достижения</h3>
+                <div className="grid grid-cols-1 gap-3">
+                  {achievementsLoading ? (
+                    <div>Загрузка достижений...</div>
+                  ) : userAchievements?.length ? (
+                    userAchievements.map((userAchievement) => (
+                      <Card 
+                        key={userAchievement.id} 
+                        className="card-gradient border-primary/50"
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-center space-x-3">
+                            <div className="text-2xl">{userAchievement.achievement.icon}</div>
+                            <div className="flex-1">
+                              <h4 className="font-semibold">{userAchievement.achievement.title}</h4>
+                              <p className="text-sm text-muted-foreground">{userAchievement.achievement.description}</p>
+                              <p className="text-xs text-primary">
+                                Получено: {new Date(userAchievement.unlocked_at).toLocaleDateString('ru-RU')}
+                              </p>
+                            </div>
+                            <Award className="w-5 h-5 text-primary" />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  ) : (
+                    <div className="text-center text-muted-foreground py-8">
+                      Достижений пока нет
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
             </Tabs>
           </CardContent>
         </Card>
