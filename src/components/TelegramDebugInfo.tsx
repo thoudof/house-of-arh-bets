@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 export const TelegramDebugInfo = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [lastAuthLog, setLastAuthLog] = useState<string>('');
+  const [authLogs, setAuthLogs] = useState<string[]>([]);
   const { user: telegramUser, isReady, platform, webApp } = useTelegram();
   const { user: authUser, loading: authLoading, profile, isAuthenticated, signOut, signInWithTelegram } = useAuth();
   const queryClient = useQueryClient();
@@ -21,16 +22,18 @@ export const TelegramDebugInfo = () => {
     
     console.log = (...args) => {
       const message = args.join(' ');
-      if (message.includes('🔐') || message.includes('✅') || message.includes('❌') || message.includes('🔍')) {
+      if (message.includes('🔐') || message.includes('✅') || message.includes('❌') || message.includes('🔍') || message.includes('📋') || message.includes('🔄')) {
         setLastAuthLog(message);
+        setAuthLogs(prev => [...prev.slice(-4), message]); // Храним последние 5 логов
       }
       originalLog(...args);
     };
     
     console.error = (...args) => {
       const message = args.join(' ');
-      if (message.includes('❌') || message.includes('Auto-signin failed')) {
+      if (message.includes('❌') || message.includes('Authentication') || message.includes('Sign')) {
         setLastAuthLog(`ERROR: ${message}`);
+        setAuthLogs(prev => [...prev.slice(-4), `ERROR: ${message}`]);
       }
       originalError(...args);
     };
@@ -43,17 +46,11 @@ export const TelegramDebugInfo = () => {
 
   const clearAllData = async () => {
     try {
-      // Очистка React Query кэша
+      console.log('🗑️ Clearing all data...');
       queryClient.clear();
-      
-      // Выход из Supabase
       await signOut();
-      
-      // Очистка всех данных из sessionStorage и localStorage
       sessionStorage.clear();
       localStorage.clear();
-      
-      // Перезагрузка страницы
       window.location.reload();
     } catch (error) {
       console.error('Error clearing data:', error);
@@ -63,9 +60,14 @@ export const TelegramDebugInfo = () => {
   const forceSignIn = async () => {
     try {
       console.log('🔄 Force sign in triggered...');
-      await signInWithTelegram();
+      const result = await signInWithTelegram();
+      if (result.error) {
+        console.error('❌ Force sign in failed:', result.error);
+      } else {
+        console.log('✅ Force sign in successful');
+      }
     } catch (error) {
-      console.error('Force sign in failed:', error);
+      console.error('❌ Force sign in error:', error);
     }
   };
 
@@ -73,7 +75,6 @@ export const TelegramDebugInfo = () => {
     try {
       console.log('🔄 Refreshing profile...');
       queryClient.invalidateQueries({ queryKey: ['profile'] });
-      // Принудительно обновляем профиль в useAuth
       if (authUser?.id) {
         window.location.reload();
       }
@@ -98,7 +99,7 @@ export const TelegramDebugInfo = () => {
   }
 
   return (
-    <div className="fixed top-4 right-4 z-50 w-80 max-h-96 overflow-y-auto">
+    <div className="fixed top-4 right-4 z-50 w-96 max-h-96 overflow-y-auto">
       <Card>
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
@@ -124,7 +125,8 @@ export const TelegramDebugInfo = () => {
               <div>WebApp: {webApp ? "Available" : "Not Available"}</div>
               <div>User ID: {telegramUser?.id || "None"}</div>
               <div>Username: {telegramUser?.username || "None"}</div>
-              <div>Name: {telegramUser?.first_name} {telegramUser?.last_name}</div>
+              <div>Name: {telegramUser?.first_name} {telegramUser?.last_name || ''}</div>
+              <div>Premium: {telegramUser?.is_premium ? "Yes" : "No"}</div>
             </div>
           </div>
 
@@ -136,24 +138,30 @@ export const TelegramDebugInfo = () => {
               </Badge>
               <div>Loading: {authLoading ? "Yes" : "No"}</div>
               <div>Auth User ID: {authUser?.id || "None"}</div>
+              <div>Auth Email: {authUser?.email || "None"}</div>
               <div>Profile Role: {profile?.role || "None"}</div>
-              <div>Profile Name: {profile?.first_name} {profile?.last_name}</div>
+              <div>Profile Name: {profile?.first_name} {profile?.last_name || ''}</div>
             </div>
           </div>
 
           <div>
-            <div className="font-medium mb-1">Environment</div>
+            <div className="font-medium mb-1">URL Data</div>
             <div className="space-y-1">
-              <div>User Agent: {navigator.userAgent.slice(0, 50)}...</div>
-              <div>URL: {window.location.href}</div>
+              <div>Has tgWebAppData: {window.location.href.includes('tgWebAppData') ? "Yes" : "No"}</div>
+              <div>URL Length: {window.location.href.length}</div>
+              <div className="text-[10px] break-all">
+                {window.location.href.substring(0, 100)}...
+              </div>
             </div>
           </div>
 
-          {lastAuthLog && (
+          {authLogs.length > 0 && (
             <div>
-              <div className="font-medium mb-1">Last Auth Log</div>
-              <div className="text-[10px] bg-muted/50 p-2 rounded max-h-16 overflow-y-auto">
-                {lastAuthLog}
+              <div className="font-medium mb-1">Auth Logs</div>
+              <div className="text-[10px] bg-muted/50 p-2 rounded max-h-20 overflow-y-auto space-y-1">
+                {authLogs.map((log, index) => (
+                  <div key={index} className="break-all">{log}</div>
+                ))}
               </div>
             </div>
           )}
@@ -189,9 +197,6 @@ export const TelegramDebugInfo = () => {
             >
               🗑️ Очистить все данные
             </Button>
-            <div className="text-[10px] text-muted-foreground mt-1 text-center">
-              Удалит кэш и перезагрузит приложение
-            </div>
           </div>
         </CardContent>
       </Card>

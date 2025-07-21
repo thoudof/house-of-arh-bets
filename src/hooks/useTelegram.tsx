@@ -1,85 +1,85 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import type { TelegramWebApp } from '@/types/telegram';
-
-interface TelegramUser {
-  id: number;
-  first_name: string;
-  last_name?: string;
-  username?: string;
-  language_code?: string;
-  is_premium?: boolean;
-  photo_url?: string;
-}
+import { parseTelegramInitData, getTelegramThemeParams, type TelegramUserData } from '@/utils/telegramParser';
 
 export const useTelegram = () => {
   const [webApp, setWebApp] = useState<TelegramWebApp | null>(null);
-  const [user, setUser] = useState<TelegramUser | null>(null);
+  const [user, setUser] = useState<TelegramUserData | null>(null);
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
     
-    // Debug logging for mobile issues
-    console.log('Telegram WebApp Debug:', {
+    console.log('🔍 Telegram WebApp initialization:', {
       hasTelegram: !!window.Telegram,
       hasWebApp: !!tg,
       platform: tg?.platform,
       version: tg?.version,
-      initDataUnsafe: tg?.initDataUnsafe,
-      user: tg?.initDataUnsafe?.user
+      currentUrl: window.location.href
     });
-    
+
+    // Сначала пытаемся получить данные из URL
+    const urlInitData = parseTelegramInitData(window.location.href);
+    console.log('📋 URL init data:', urlInitData);
+
+    let telegramUser: TelegramUserData | null = null;
+
+    if (urlInitData?.user) {
+      // Данные из URL имеют приоритет
+      telegramUser = urlInitData.user;
+      console.log('✅ Using user data from URL:', telegramUser);
+    } else if (tg?.initDataUnsafe?.user) {
+      // Fallback на данные из WebApp
+      telegramUser = tg.initDataUnsafe.user;
+      console.log('✅ Using user data from WebApp:', telegramUser);
+    }
+
     if (tg) {
       tg.ready();
       setWebApp(tg);
-      const telegramUser = tg.initDataUnsafe?.user;
       
-      // Если Telegram WebApp есть, но пользователь undefined - используем mock
-      if (!telegramUser) {
-        console.warn('Telegram WebApp found but no user data. Using mock data.');
-        // Генерируем уникальный ID для каждого сеанса
-        const uniqueId = Math.floor(Math.random() * 1000000) + 100000;
-        const mockUser = {
-          id: uniqueId,
-          first_name: 'Admin',
-          last_name: 'User',
-          username: 'admin',
-          language_code: 'ru',
-          is_premium: false
-        };
-        setUser(mockUser);
-      } else {
-        setUser(telegramUser);
-        console.log('Telegram User Set:', telegramUser);
+      // Применяем тему из URL если доступна
+      const themeParams = getTelegramThemeParams(window.location.href);
+      if (themeParams) {
+        console.log('🎨 Applying theme from URL:', themeParams);
+        const root = document.documentElement;
+        Object.entries(themeParams).forEach(([key, value]) => {
+          if (typeof value === 'string') {
+            root.style.setProperty(`--tg-${key.replace(/_/g, '-')}`, value);
+          }
+        });
       }
       
-      setIsReady(true);
-      
-      // Применяем тему Telegram
+      // Применяем тему из WebApp как fallback
       if (tg.colorScheme === 'dark') {
         document.documentElement.classList.add('dark');
       }
       
       // Расширяем приложение на весь экран
       tg.expand();
+    }
+
+    if (telegramUser) {
+      setUser(telegramUser);
+      console.log('🔐 Telegram user set:', telegramUser);
     } else {
-      // Если не в Telegram, используем mock данные для разработки
-      console.warn('Telegram WebApp not found. Using mock data for development.');
-      // Генерируем уникальный ID для каждого сеанса
+      // Если не в Telegram и нет данных в URL, используем mock данные
+      console.warn('⚠️ No Telegram user data found. Using mock data for development.');
       const uniqueId = Math.floor(Math.random() * 1000000) + 100000;
-      const mockUser = {
+      const mockUser: TelegramUserData = {
         id: uniqueId,
-        first_name: 'Admin',
+        first_name: 'Dev',
         last_name: 'User',
-        username: 'admin',
+        username: 'devuser',
         language_code: 'ru',
         is_premium: false
       };
       setUser(mockUser);
-      setIsReady(true);
-      console.log('Mock User Set:', mockUser);
+      console.log('🔧 Mock user set:', mockUser);
     }
+
+    setIsReady(true);
   }, []);
 
   const showMainButton = useCallback((text: string, onClick: () => void) => {

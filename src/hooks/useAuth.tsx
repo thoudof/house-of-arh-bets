@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -24,7 +25,7 @@ export const useAuth = () => {
 
   const signInWithTelegram = async () => {
     if (!telegramUser) {
-      console.error('No Telegram user data');
+      console.error('❌ No Telegram user data available for sign in');
       return { user: null, error: 'No Telegram user data' };
     }
 
@@ -32,9 +33,14 @@ export const useAuth = () => {
       const email = `tg_${telegramUser.id}@local.app`;
       const password = `pass_${telegramUser.id}`;
 
-      console.log('Trying to sign in user:', email);
+      console.log('🔐 Starting Telegram sign in process:', {
+        telegramId: telegramUser.id,
+        email,
+        telegramUsername: telegramUser.username,
+        telegramName: `${telegramUser.first_name} ${telegramUser.last_name || ''}`.trim()
+      });
 
-      // Сначала пробуем войти
+      // Пробуем войти
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -42,7 +48,7 @@ export const useAuth = () => {
 
       if (signInError) {
         if (signInError.message.includes('Invalid login credentials')) {
-          console.log('User not found, creating new account');
+          console.log('🔄 User not found, creating new account');
           
           // Создаем нового пользователя
           const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
@@ -52,47 +58,51 @@ export const useAuth = () => {
               data: {
                 telegram_id: telegramUser.id.toString(),
                 first_name: telegramUser.first_name,
-                last_name: telegramUser.last_name,
-                username: telegramUser.username,
-                photo_url: telegramUser.photo_url
+                last_name: telegramUser.last_name || '',
+                username: telegramUser.username || '',
+                photo_url: telegramUser.photo_url || ''
               }
             }
           });
 
           if (signUpError) {
-            console.error('Sign up failed:', signUpError);
+            console.error('❌ Sign up failed:', signUpError);
             return { user: null, error: signUpError.message };
           }
 
-          console.log('New user created successfully');
+          console.log('✅ New user created successfully:', signUpData.user?.id);
           return { user: signUpData.user, error: null };
         } else {
-          console.error('Sign in failed:', signInError);
+          console.error('❌ Sign in failed:', signInError);
           return { user: null, error: signInError.message };
         }
       }
 
-      console.log('User signed in successfully');
+      console.log('✅ User signed in successfully:', signInData.user?.id);
       return { user: signInData.user, error: null };
     } catch (error) {
-      console.error('Authentication error:', error);
+      console.error('❌ Authentication error:', error);
       return { user: null, error: 'Authentication failed' };
     }
   };
 
   const signOut = async () => {
     try {
+      console.log('🚪 Signing out user');
       const { error } = await supabase.auth.signOut();
       if (error) {
-        console.error('Sign out error:', error);
+        console.error('❌ Sign out error:', error);
+      } else {
+        console.log('✅ User signed out successfully');
       }
     } catch (error) {
-      console.error('Sign out error:', error);
+      console.error('❌ Sign out error:', error);
     }
   };
 
   const loadProfile = async (userId: string) => {
     try {
+      console.log('📋 Loading profile for user:', userId);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -100,26 +110,37 @@ export const useAuth = () => {
         .single();
 
       if (error) {
-        console.error('Failed to load profile:', error);
+        console.error('❌ Failed to load profile:', error);
         return null;
       }
 
-      console.log('Profile loaded:', data);
+      console.log('✅ Profile loaded:', data);
       return data;
     } catch (error) {
-      console.error('Profile load error:', error);
+      console.error('❌ Profile load error:', error);
       return null;
     }
   };
 
   useEffect(() => {
+    if (!isReady) {
+      console.log('⏳ Waiting for Telegram to be ready...');
+      return;
+    }
+
+    console.log('🚀 Initializing auth with Telegram user:', telegramUser);
+
     let mounted = true;
 
     const initAuth = async () => {
-      // Слушаем изменения авторизации
+      // Настраиваем слушатель изменений авторизации
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
         async (event, session) => {
-          console.log('Auth state change:', event, session?.user?.email);
+          console.log('🔄 Auth state change:', event, {
+            hasSession: !!session,
+            userId: session?.user?.id,
+            userEmail: session?.user?.email
+          });
           
           if (!mounted) return;
 
@@ -143,6 +164,7 @@ export const useAuth = () => {
       
       if (mounted) {
         if (session?.user) {
+          console.log('✅ Found existing session for user:', session.user.id);
           const profile = await loadProfile(session.user.id);
           setAuthState({
             user: session.user,
@@ -151,25 +173,23 @@ export const useAuth = () => {
             profile,
             isAuthenticated: true
           });
-        } else if (isReady && telegramUser) {
-          // Автоматический вход через Telegram
-          console.log('No active session, trying Telegram auth');
-          await signInWithTelegram();
         } else {
-          setAuthState(prev => ({ ...prev, loading: false }));
+          console.log('🔐 No active session, attempting Telegram auth');
+          const result = await signInWithTelegram();
+          if (!result.user) {
+            console.log('❌ Auto-signin failed, user must authenticate manually');
+            setAuthState(prev => ({ ...prev, loading: false }));
+          }
         }
       }
 
-      return () => subscription.unsubscribe();
+      return () => {
+        subscription.unsubscribe();
+        mounted = false;
+      };
     };
 
-    if (isReady) {
-      initAuth();
-    }
-
-    return () => {
-      mounted = false;
-    };
+    initAuth();
   }, [isReady, telegramUser]);
 
   return {

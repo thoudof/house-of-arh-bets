@@ -10,6 +10,7 @@ export interface TelegramWebApp {
       username?: string;
       language_code?: string;
       is_premium?: boolean;
+      allows_write_to_pm?: boolean;
       photo_url?: string;
     };
     auth_date: number;
@@ -26,6 +27,14 @@ export interface TelegramWebApp {
     button_color?: string;
     button_text_color?: string;
     secondary_bg_color?: string;
+    bottom_bar_bg_color?: string;
+    accent_text_color?: string;
+    header_bg_color?: string;
+    section_separator_color?: string;
+    subtitle_text_color?: string;
+    section_header_text_color?: string;
+    destructive_text_color?: string;
+    section_bg_color?: string;
   };
   isExpanded: boolean;
   viewportHeight: number;
