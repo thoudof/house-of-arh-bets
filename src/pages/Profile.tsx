@@ -16,7 +16,7 @@ import { useUserAchievements } from "@/hooks/api/useAchievements";
 const Profile = () => {
   const navigate = useNavigate();
   const { userId } = useParams();
-  const { user, isAuthenticated } = useTelegramAuth();
+  const { user, isAuthenticated } = useAuth();
   const { data: profile, isLoading: profileLoading, error: profileError } = useProfile();
   const { data: predictions, isLoading: predictionsLoading } = useUserPredictions();
   const { data: userAchievements, isLoading: achievementsLoading } = useUserAchievements();

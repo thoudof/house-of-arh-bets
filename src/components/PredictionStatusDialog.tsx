@@ -21,7 +21,7 @@ interface PredictionStatusDialogProps {
 }
 
 export const PredictionStatusDialog = ({ prediction, open, onOpenChange }: PredictionStatusDialogProps) => {
-  const [status, setStatus] = useState<'win' | 'loss' | 'returned'>('win');
+  const [status, setStatus] = useState<'win' | 'loss' | 'cancelled'>('win');
   const [profit, setProfit] = useState<string>('');
   const updateStatus = useUpdatePredictionStatus();
 
@@ -67,7 +67,7 @@ export const PredictionStatusDialog = ({ prediction, open, onOpenChange }: Predi
         <div className="grid gap-4 py-4">
           <div className="space-y-3">
             <Label>Результат</Label>
-            <RadioGroup value={status} onValueChange={(value: 'win' | 'loss' | 'returned') => setStatus(value)}>
+            <RadioGroup value={status} onValueChange={(value: 'win' | 'loss' | 'cancelled') => setStatus(value)}>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="win" id="win" />
                 <Label htmlFor="win" className="text-success">Выигрыш</Label>
@@ -77,8 +77,8 @@ export const PredictionStatusDialog = ({ prediction, open, onOpenChange }: Predi
                 <Label htmlFor="loss" className="text-destructive">Проигрыш</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="returned" id="returned" />
-                <Label htmlFor="returned" className="text-muted-foreground">Возврат</Label>
+                <RadioGroupItem value="cancelled" id="cancelled" />
+                <Label htmlFor="cancelled" className="text-muted-foreground">Возврат</Label>
               </div>
             </RadioGroup>
           </div>
@@ -99,7 +99,7 @@ export const PredictionStatusDialog = ({ prediction, open, onOpenChange }: Predi
             </div>
           )}
 
-          {status !== 'returned' && (
+          {status !== 'cancelled' && (
             <div className="bg-muted/30 rounded-lg p-3">
               <p className="text-sm">
                 <span className="text-muted-foreground">Изменение баланса: </span>

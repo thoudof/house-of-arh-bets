@@ -202,7 +202,7 @@ const Rankings = () => {
                 </div>
                 
                 <Avatar className="w-12 h-12 border-2 border-primary/30">
-                  <AvatarImage src={user.photo_url} />
+                  <AvatarImage src={user.first_name ? `https://ui-avatars.com/api/?name=${user.first_name}&background=0D8ABC&color=fff` : '/placeholder.svg'} />
                   <AvatarFallback className="font-semibold bg-primary/10">{user.first_name?.[0] || 'U'}</AvatarFallback>
                 </Avatar>
                 

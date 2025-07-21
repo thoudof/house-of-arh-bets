@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 
 interface UpdateStatusData {
   id: string;
-  status: 'win' | 'loss' | 'returned';
+  status: 'win' | 'loss' | 'cancelled';
   profit?: number;
 }
 

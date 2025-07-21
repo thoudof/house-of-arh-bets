@@ -7,14 +7,13 @@ import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import PredictionCard from "@/components/PredictionCard";
 import TopAnalysts from "@/components/TopAnalysts";
-import { TelegramDebugInfo } from "@/components/TelegramDebugInfo";
 import { usePredictions } from "@/hooks/api/usePredictions";
 import { useAuth } from "@/hooks/useAuth";
 import { useChallenges } from "@/hooks/api/useChallenges";
 
 const Index = () => {
   const navigate = useNavigate();
-  const { user, isLoading } = useTelegramAuth();
+  const { user, isLoading } = useAuth();
   const { data: predictions, isLoading: predictionsLoading } = usePredictions();
   const { data: challenges, isLoading: challengesLoading } = useChallenges();
 
@@ -273,9 +272,6 @@ const Index = () => {
 
       {/* Bottom Navigation */}
       <Navigation />
-      
-      {/* Debug Info (only shows in development/debug mode) */}
-      <TelegramDebugInfo />
     </div>
   );
 };
