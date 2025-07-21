@@ -1,6 +1,6 @@
 import { parse, validate } from '@telegram-apps/init-data-node';
 import { createClient } from '@supabase/supabase-js';
-import { SignJWT } from 'jose';
+import { SignJWT } from 'https://deno.land/x/jose@v5.2.0/index.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
