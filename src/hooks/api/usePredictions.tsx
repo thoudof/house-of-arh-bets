@@ -41,10 +41,10 @@ export const usePredictions = () => {
         .from('predictions')
         .select(`
           *,
-          profiles:user_id (
+          profiles!predictions_user_id_fkey (
             first_name,
             last_name,
-            username,
+            telegram_username,
             avatar_url
           )
         `)
@@ -101,7 +101,10 @@ export const usePrediction = (id: string) => {
       // @ts-ignore - Temporary fix until types regenerate
       const { data: profile } = await supabase
         .from('profiles')
-        .select('first_name, last_name, username, avatar_url, role')
+        .select(`
+          *,
+          user_stats!user_stats_user_id_fkey(*)
+        `)
         .eq('user_id', data.user_id)
         .maybeSingle();
 

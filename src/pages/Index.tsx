@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState } from "react";
 import { TrendingUp, Trophy, Target, Users, Star, Activity } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,26 +8,26 @@ import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import PredictionCard from "@/components/PredictionCard";
 import TopAnalysts from "@/components/TopAnalysts";
+import LoadingScreen from '@/components/LoadingScreen';
+import TelegramLogin from '@/components/TelegramLogin';
 import { usePredictions } from "@/hooks/api/usePredictions";
 import { useAuth } from "@/hooks/useAuth";
 import { useChallenges } from "@/hooks/api/useChallenges";
 
 const Index = () => {
   const navigate = useNavigate();
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, isAuthenticated } = useAuth();
   const { data: predictions, isLoading: predictionsLoading } = usePredictions();
   const { data: challenges, isLoading: challengesLoading } = useChallenges();
 
   // Show loading screen while auth is being checked
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background telegram-safe-area flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-muted-foreground">Инициализация...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen />;
+  }
+
+  // Если пользователь не авторизован
+  if (!isAuthenticated || !user) {
+    return <TelegramLogin />;
   }
 
   // Get the first active challenge for "Challenge of the Day"

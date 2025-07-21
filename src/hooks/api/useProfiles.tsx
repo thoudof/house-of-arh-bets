@@ -75,7 +75,7 @@ export const useTopAnalysts = () => {
         .from('profiles')
         .select(`
           *,
-          user_stats!inner(*)
+          user_stats!user_stats_user_id_fkey(*)
         `)
         .order('created_at', { ascending: false })
         .limit(10);
