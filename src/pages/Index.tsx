@@ -143,23 +143,27 @@ const Index = () => {
                       key={prediction.id} 
                       prediction={{
                         id: prediction.id,
-                        userId: prediction.user_id,
-                        analyst: prediction.profile?.first_name || 'Аноним',
-                        event: prediction.event,
+                        user_id: prediction.user_id,
+                        event_name: prediction.event_name || prediction.title,
                         type: prediction.type,
                         coefficient: Number(prediction.coefficient),
-                        prediction: prediction.prediction,
+                        title: prediction.title,
                         status: prediction.status,
-                        timeLeft: prediction.end_date ? new Date(prediction.end_date).toLocaleString() : 'TBD',
+                        event_start_time: prediction.event_start_time,
                         category: prediction.category,
-                        startDate: prediction.start_date,
-                        isPublic: prediction.is_public,
-                        createdAt: prediction.created_at,
-                        updatedAt: prediction.updated_at,
+                        is_public: prediction.is_public,
+                        created_at: prediction.created_at,
+                        updated_at: prediction.updated_at,
                         stake: prediction.stake ? Number(prediction.stake) : undefined,
                         profit: prediction.profit ? Number(prediction.profit) : undefined,
                         description: prediction.description,
-                        endDate: prediction.end_date
+                        prediction_deadline: prediction.prediction_deadline,
+                        is_featured: prediction.is_featured || false,
+                        is_premium: prediction.is_premium || false,
+                        views_count: prediction.views_count || 0,
+                        likes_count: prediction.likes_count || 0,
+                        comments_count: prediction.comments_count || 0,
+                        shares_count: prediction.shares_count || 0
                       }} 
                       className="animate-slide-up"
                       style={{ animationDelay: `${index * 150}ms` }}

@@ -23,7 +23,7 @@ const PredictionCard = ({ prediction, className = "", style, onClick }: Predicti
   const canEditPrediction = () => {
     if (!user) return false;
     // User owns this prediction
-    if (user.id === prediction.userId) return true;
+    if (user.id === prediction.user_id) return true;
     return false;
   };
   const getStatusStyles = (status: string) => {
@@ -74,10 +74,10 @@ const PredictionCard = ({ prediction, className = "", style, onClick }: Predicti
           {/* Event */}
           <div>
             <h3 className="font-semibold text-foreground mb-1 text-sm sm:text-base leading-tight">
-              {prediction.event}
+              {prediction.event_name}
             </h3>
             <p className="text-xs sm:text-sm text-muted-foreground">
-              от <span className="text-primary font-medium">{prediction.analyst}</span>
+              от <span className="text-primary font-medium">Аналитик</span>
             </p>
           </div>
 
@@ -86,7 +86,7 @@ const PredictionCard = ({ prediction, className = "", style, onClick }: Predicti
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0 flex-1">
                 <p className="text-xs text-muted-foreground">Прогноз</p>
-                <p className="font-medium text-foreground text-sm sm:text-base truncate">{prediction.prediction}</p>
+                <p className="font-medium text-foreground text-sm sm:text-base truncate">{prediction.title}</p>
               </div>
               <div className="text-right flex-shrink-0">
                 <p className="text-xs text-muted-foreground">Коэффициент</p>
@@ -102,7 +102,9 @@ const PredictionCard = ({ prediction, className = "", style, onClick }: Predicti
             <div className="flex items-center gap-2 sm:gap-4 text-[10px] sm:text-xs text-muted-foreground flex-wrap">
               <div className="flex items-center space-x-1">
                 <Clock className="w-3 h-3" />
-                <span className="whitespace-nowrap">{prediction.timeLeft}</span>
+                <span className="whitespace-nowrap">
+                  {new Date(prediction.event_start_time).toLocaleDateString()}
+                </span>
               </div>
               <div className="flex items-center space-x-1">
                 <Users className="w-3 h-3" />

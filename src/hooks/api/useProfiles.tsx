@@ -133,10 +133,10 @@ export const useRankings = () => {
         })
       );
 
-      // Sort by profit
+      // Sort by total profit
       profilesWithStats.sort((a, b) => {
-        const aProfit = a.user_stats[0]?.profit || 0;
-        const bProfit = b.user_stats[0]?.profit || 0;
+        const aProfit = a.user_stats[0]?.total_profit || 0;
+        const bProfit = b.user_stats[0]?.total_profit || 0;
         return bProfit - aProfit;
       });
 

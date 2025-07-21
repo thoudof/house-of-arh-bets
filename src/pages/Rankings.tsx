@@ -172,7 +172,10 @@ const Rankings = () => {
                     </span>
                     <span className="flex items-center space-x-1">
                       <Trophy className="w-3 h-3" />
-                      <span>{analyst.user_stats?.[0]?.win_rate || 0}% побед</span>
+                      <span>
+                        {analyst.user_stats?.[0]?.total_predictions > 0 ? 
+                          Math.round((analyst.user_stats[0].successful_predictions / analyst.user_stats[0].total_predictions) * 100) : 0}% побед
+                      </span>
                     </span>
                   </div>
                 </div>

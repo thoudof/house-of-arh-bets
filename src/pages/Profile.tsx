@@ -110,7 +110,7 @@ const Profile = () => {
                   </Badge>
                 </div>
                 
-                <p className="text-muted-foreground">@{profile.username}</p>
+                <p className="text-muted-foreground">@{profile.telegram_username || 'Пользователь'}</p>
                 
                 <div className="flex items-center space-x-4 text-sm">
                   <div className="flex items-center space-x-1">
@@ -148,7 +148,10 @@ const Profile = () => {
           <Card className="card-gradient">
             <CardContent className="p-3 text-center">
               <Target className="w-5 h-5 mx-auto mb-1 text-success" />
-              <p className="text-lg font-bold">{stats?.win_rate || 0}%</p>
+              <p className="text-lg font-bold">
+                {stats?.total_predictions > 0 ? 
+                  Math.round((stats.successful_predictions / stats.total_predictions) * 100) : 0}%
+              </p>
               <p className="text-xs text-muted-foreground">Процент побед</p>
             </CardContent>
           </Card>
@@ -164,7 +167,7 @@ const Profile = () => {
           <Card className="card-gradient">
             <CardContent className="p-3 text-center">
               <Trophy className="w-5 h-5 mx-auto mb-1 text-primary-glow" />
-              <p className="text-lg font-bold">{stats?.current_streak || 0}</p>
+              <p className="text-lg font-bold">{stats?.current_win_streak || 0}</p>
               <p className="text-xs text-muted-foreground">Текущая серия</p>
             </CardContent>
           </Card>
@@ -189,7 +192,7 @@ const Profile = () => {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <p className="text-sm text-muted-foreground">Прибыль</p>
-                        <p className="text-lg font-semibold text-success">+{stats?.profit || 0} ₽</p>
+                        <p className="text-lg font-semibold text-success">+{stats?.total_profit || 0} ₽</p>
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Средний коэф.</p>
@@ -197,7 +200,7 @@ const Profile = () => {
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Лучшая серия</p>
-                        <p className="text-lg font-semibold">{stats?.best_streak || 0}</p>
+                        <p className="text-lg font-semibold">{stats?.best_win_streak || 0}</p>
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Всего поставлено</p>
@@ -248,12 +251,12 @@ const Profile = () => {
                       >
                         <CardContent className="p-4">
                           <div className="flex items-center space-x-3">
-                            <div className="text-2xl">{userAchievement.achievement.icon}</div>
+                            <div className="text-2xl">{userAchievement.achievement.icon_emoji}</div>
                             <div className="flex-1">
                               <h4 className="font-semibold">{userAchievement.achievement.title}</h4>
                               <p className="text-sm text-muted-foreground">{userAchievement.achievement.description}</p>
                               <p className="text-xs text-primary">
-                                Получено: {new Date(userAchievement.unlocked_at).toLocaleDateString('ru-RU')}
+                                Получено: {new Date(userAchievement.completed_at).toLocaleDateString('ru-RU')}
                               </p>
                             </div>
                             <Award className="w-5 h-5 text-primary" />

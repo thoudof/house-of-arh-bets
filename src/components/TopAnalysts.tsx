@@ -77,7 +77,8 @@ const TopAnalysts = () => {
               </div>
               <div className="text-center">
                 <p className="text-foreground font-medium">
-                  {Math.round(analyst.user_stats?.win_rate || 0)}%
+                  {analyst.user_stats?.total_predictions > 0 ? 
+                    Math.round((analyst.user_stats.successful_predictions / analyst.user_stats.total_predictions) * 100) : 0}%
                 </p>
                 <p className="text-muted-foreground">Побед</p>
               </div>

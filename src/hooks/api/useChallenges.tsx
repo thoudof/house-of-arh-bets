@@ -15,24 +15,8 @@ export const useChallenges = () => {
   return useQuery({
     queryKey: ['challenges'],
     queryFn: async () => {
-      // @ts-ignore - Temporary fix until types regenerate
-      const { data, error } = await supabase
-        .from('challenges')
-        .select(`
-          *,
-          profiles:creator_id (
-            first_name,
-            last_name,
-            username,
-            avatar_url
-          )
-        `)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false })
-        .limit(5); // Limit initial load
-
-      if (error) throw error;
-      return data;
+      // Challenges not implemented in new schema
+      return [];
     },
     staleTime: 60000, // Cache for 1 minute
   });
@@ -42,34 +26,8 @@ export const useChallenge = (id: string) => {
   return useQuery({
     queryKey: ['challenge', id],
     queryFn: async () => {
-      // @ts-ignore - Temporary fix until types regenerate
-      const { data, error } = await supabase
-        .from('challenges')
-        .select(`
-          *,
-          profiles!challenges_creator_id_fkey(
-            first_name,
-            last_name,
-            username,
-            avatar_url
-          ),
-          challenge_predictions(
-            *,
-            predictions(
-              *,
-              profiles!predictions_user_id_fkey(
-                first_name,
-                last_name,
-                username
-              )
-            )
-          )
-        `)
-        .eq('id', id)
-        .maybeSingle();
-
-      if (error) throw error;
-      return data;
+      // Challenge details not implemented in new schema
+      return null;
     },
     enabled: !!id,
   });
@@ -84,20 +42,8 @@ export const useCreateChallenge = () => {
     mutationFn: async (data: ChallengeData) => {
       if (!user) throw new Error('User not authenticated');
 
-      // @ts-ignore - Temporary fix until types regenerate
-      const { data: challenge, error } = await supabase
-        .from('challenges')
-        .insert({
-          ...data,
-          creator_id: user.id,
-          creator_name: user.first_name || 'Unknown',
-          current_bank: data.start_bank,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return challenge;
+      // Challenge creation not implemented in new schema
+      throw new Error('Challenges not yet implemented');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['challenges'] });

@@ -127,8 +127,17 @@ export const useCreatePrediction = () => {
       const { data: prediction, error } = await supabase
         .from('predictions')
         .insert({
-          ...data,
           user_id: user.id,
+          event_name: data.event,
+          type: data.type as any,
+          coefficient: data.coefficient,
+          title: data.prediction,
+          stake: data.stake,
+          category: data.category as any,
+          description: data.description,
+          event_start_time: data.start_date,
+          prediction_deadline: data.end_date,
+          is_public: data.is_public
         })
         .select()
         .single();
@@ -164,7 +173,7 @@ export const useUpdatePrediction = () => {
       // @ts-ignore - Temporary fix until types regenerate
       const { data: prediction, error } = await supabase
         .from('predictions')
-        .update(data)
+        .update(data as any)
         .eq('id', id)
         .select()
         .single();

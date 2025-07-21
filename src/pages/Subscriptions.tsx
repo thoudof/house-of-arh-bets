@@ -170,7 +170,10 @@ const Subscriptions = () => {
                         {getTierBadge('standard')}
                       </div>
                       <div className="flex items-center space-x-3 text-sm text-muted-foreground">
-                        <span>{analyst.user_stats?.win_rate || 0}% побед</span>
+                        <span>
+                          {analyst.user_stats?.total_predictions > 0 ? 
+                            Math.round((analyst.user_stats.successful_predictions / analyst.user_stats.total_predictions) * 100) : 0}% побед
+                        </span>
                         <span>+{analyst.user_stats?.roi || 0}% ROI</span>
                       </div>
                       <p className="text-xs text-muted-foreground">

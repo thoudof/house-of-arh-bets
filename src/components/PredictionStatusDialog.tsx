@@ -60,7 +60,7 @@ export const PredictionStatusDialog = ({ prediction, open, onOpenChange }: Predi
         <DialogHeader>
           <DialogTitle>Проставить результат</DialogTitle>
           <DialogDescription>
-            Установите результат для прогноза "{prediction.event}"
+            Установите результат для прогноза "{prediction.event_name}"
           </DialogDescription>
         </DialogHeader>
         
