@@ -200,7 +200,7 @@ const PredictionDetails = () => {
               </Avatar>
               <div className="flex-1">
                 <h4 className="font-semibold">{prediction.profiles?.first_name} {prediction.profiles?.last_name}</h4>
-                <p className="text-sm text-muted-foreground">{prediction.profiles?.role === 'analyst' ? 'Аналитик' : 'Пользователь'}</p>
+                <p className="text-sm text-muted-foreground">Пользователь</p>
               </div>
               <Button variant="outline" size="sm" onClick={() => navigate(`/profile/${prediction.user_id}`)}>
                 Профиль

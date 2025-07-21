@@ -19,7 +19,7 @@ export const useChallenges = () => {
         .from('challenges')
         .select(`
           *,
-          profiles!challenges_creator_id_fkey(
+          profiles:creator_id (
             first_name,
             last_name,
             username,
@@ -27,11 +27,13 @@ export const useChallenges = () => {
           )
         `)
         .eq('status', 'active')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(5); // Limit initial load
 
       if (error) throw error;
       return data;
     },
+    staleTime: 60000, // Cache for 1 minute
   });
 };
 

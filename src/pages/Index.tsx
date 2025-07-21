@@ -14,9 +14,21 @@ import { useChallenges } from "@/hooks/api/useChallenges";
 
 const Index = () => {
   const navigate = useNavigate();
-  const { user } = useTelegramAuth();
+  const { user, isLoading } = useTelegramAuth();
   const { data: predictions, isLoading: predictionsLoading } = usePredictions();
   const { data: challenges, isLoading: challengesLoading } = useChallenges();
+
+  // Show loading screen while auth is being checked
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background telegram-safe-area flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-muted-foreground">Инициализация...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Get the first active challenge for "Challenge of the Day"
   const todayChallenge = challenges?.[0];

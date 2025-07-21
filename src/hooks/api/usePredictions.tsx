@@ -38,31 +38,25 @@ export const usePredictions = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('predictions')
-        .select('*')
+        .select(`
+          *,
+          profiles:user_id (
+            first_name,
+            last_name,
+            username,
+            avatar_url
+          )
+        `)
         .eq('is_public', true)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(10); // Limit initial load
 
       if (error) throw error;
       
-      // Fetch profiles separately for each prediction
-      const predictionsWithProfiles = await Promise.all(
-        (data || []).map(async (prediction) => {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('first_name, last_name, username, avatar_url')
-            .eq('user_id', prediction.user_id)
-            .single();
-          
-          return transformPrediction({
-            ...prediction,
-            profile
-          });
-        })
-      );
-
-      return predictionsWithProfiles;
+      return (data || []).map(prediction => transformPrediction(prediction));
     },
     enabled: !!user,
+    staleTime: 30000, // Cache for 30 seconds
   });
 };
 

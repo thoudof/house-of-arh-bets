@@ -134,17 +134,26 @@ export const useTelegramAuth = () => {
               error: null,
             });
           } else {
-            // No session, try to authenticate with Telegram
-            await authenticate();
+            // No session, try to authenticate with Telegram if available
+            try {
+              await authenticate();
+            } catch (error) {
+              console.log('🔐 Auto authentication not available');
+              setAuthState(prev => ({ 
+                ...prev, 
+                isLoading: false,
+                error: null // Don't treat this as an error
+              }));
+            }
           }
         }
       } catch (error) {
         if (mounted) {
-          console.log('🔐 No existing session, manual authentication required');
+          console.log('🔐 No existing session');
           setAuthState(prev => ({ 
             ...prev, 
             isLoading: false,
-            error: 'Authentication required'
+            error: null // Don't treat this as an error
           }));
         }
       }
