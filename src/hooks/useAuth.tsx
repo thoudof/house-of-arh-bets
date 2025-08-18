@@ -8,6 +8,8 @@ import {
   getTelegramInitData,
   setupTelegramTheme 
 } from '@/lib/telegram';
+import { isDemoMode, isTelegramEnvironment as checkTelegramEnv } from '@/lib/utils';
+import { DEMO_USER, DEMO_PROFILE } from '@/lib/demo-data';
 
 interface TelegramUser {
   id: string;
@@ -38,6 +40,15 @@ export const useAuth = () => {
 
   const initializeTelegramAuth = async () => {
     try {
+      // Проверяем, находимся ли мы в demo режиме
+      if (isDemoMode()) {
+        console.log('Demo mode detected, using mock data');
+        setUser(DEMO_USER);
+        setIsAuthenticated(true);
+        setIsLoading(false);
+        return;
+      }
+
       // Инициализируем Telegram SDK
       initTelegramSDK();
       setupTelegramTheme();

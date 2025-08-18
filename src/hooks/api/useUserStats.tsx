@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { isDemoMode } from '@/lib/utils';
+import { useDemoUserStats } from './useDemoProfiles';
 
 export const useUserStats = () => {
   const { user } = useAuth();

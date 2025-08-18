@@ -2,10 +2,18 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { isDemoMode } from '@/lib/utils';
+import { useDemoProfile, useDemoTopAnalysts } from './useDemoProfiles';
 
 export const useProfile = (userId?: string) => {
   const { user } = useAuth();
   const targetUserId = userId || user?.id;
+  const demoProfile = useDemoProfile(targetUserId);
+
+  // Если в demo режиме, возвращаем demo данные
+  if (isDemoMode()) {
+    return demoProfile;
+  }
 
   return useQuery({
     queryKey: ['profile', targetUserId],
@@ -54,7 +62,7 @@ export const useProfile = (userId?: string) => {
       console.log('useProfile: Successfully fetched profile:', result);
       return result;
     },
-    enabled: !!targetUserId,
+    enabled: !!targetUserId && !isDemoMode(),
     retry: (failureCount, error) => {
       // Retry up to 3 times, but not for "not found" errors
       if (error?.message?.includes('not found') || (error as any)?.code === 'PGRST116') {
@@ -66,6 +74,13 @@ export const useProfile = (userId?: string) => {
 };
 
 export const useTopAnalysts = () => {
+  const demoTopAnalysts = useDemoTopAnalysts();
+
+  // Если в demo режиме, возвращаем demo данные
+  if (isDemoMode()) {
+    return demoTopAnalysts;
+  }
+
   return useQuery({
     queryKey: ['top-analysts'],
     queryFn: async () => {
@@ -101,6 +116,7 @@ export const useTopAnalysts = () => {
 
       return analystsWithStats;
     },
+    enabled: !isDemoMode(),
   });
 };
 

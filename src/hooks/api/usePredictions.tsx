@@ -2,6 +2,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { isDemoMode } from '@/lib/utils';
+import { DEMO_PREDICTIONS } from '@/lib/demo-data';
 
 // Функция для трансформации данных из snake_case в camelCase
 const transformPrediction = (prediction: any) => ({
@@ -48,6 +50,23 @@ export const usePredictions = () => {
   return useQuery({
     queryKey: ['predictions'],
     queryFn: async () => {
+      // Если в demo режиме, возвращаем тестовые данные
+      if (isDemoMode()) {
+        return DEMO_PREDICTIONS.map(prediction => transformPrediction({
+          ...prediction,
+          profiles: {
+            first_name: 'Дмитрий',
+            last_name: 'Демонстрационный',
+            display_name: 'Дмитрий Демонстрационный',
+            telegram_username: 'demo_user',
+            avatar_url: null,
+            role: 'analyst',
+            tier: 'premium',
+            is_verified: true
+          }
+        }));
+      }
+
       // @ts-ignore - Temporary fix until types regenerate
       const { data, error } = await supabase
         .from('predictions')
@@ -82,6 +101,30 @@ export const useHotPredictions = () => {
   return useQuery({
     queryKey: ['hot-predictions'],
     queryFn: async () => {
+      // Если в demo режиме, возвращаем тестовые данные
+      if (isDemoMode()) {
+        return DEMO_PREDICTIONS
+          .filter(p => p.status === 'pending' || p.status === 'win')
+          .sort((a, b) => {
+            const scoreA = (a.likes_count || 0) * 3 + (a.comments_count || 0) * 2 + (a.views_count || 0) * 0.1;
+            const scoreB = (b.likes_count || 0) * 3 + (b.comments_count || 0) * 2 + (b.views_count || 0) * 0.1;
+            return scoreB - scoreA;
+          })
+          .map(prediction => transformPrediction({
+            ...prediction,
+            profiles: {
+              first_name: 'Дмитрий',
+              last_name: 'Демонстрационный',
+              display_name: 'Дмитрий Демонстрационный',
+              telegram_username: 'demo_user',
+              avatar_url: null,
+              role: 'analyst',
+              tier: 'premium',
+              is_verified: true
+            }
+          }));
+      }
+
       // @ts-ignore - Temporary fix until types regenerate
       const { data, error } = await supabase
         .from('predictions')
