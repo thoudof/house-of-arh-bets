@@ -681,6 +681,45 @@ export type Database = {
       }
     }
     Views: {
+      public_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          display_name: string | null
+          first_name: string | null
+          is_verified: boolean | null
+          last_active_at: string | null
+          tier: Database["public"]["Enums"]["user_tier"] | null
+          user_id: string | null
+          verification_date: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          first_name?: string | null
+          is_verified?: boolean | null
+          last_active_at?: string | null
+          tier?: Database["public"]["Enums"]["user_tier"] | null
+          user_id?: string | null
+          verification_date?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          first_name?: string | null
+          is_verified?: boolean | null
+          last_active_at?: string | null
+          tier?: Database["public"]["Enums"]["user_tier"] | null
+          user_id?: string | null
+          verification_date?: string | null
+        }
+        Relationships: []
+      }
       top_analysts: {
         Row: {
           avatar_url: string | null
@@ -703,6 +742,21 @@ export type Database = {
       cleanup_expired_telegram_sessions: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      get_public_profile: {
+        Args: { profile_user_id: string }
+        Returns: {
+          avatar_url: string
+          bio: string
+          created_at: string
+          display_name: string
+          first_name: string
+          is_verified: boolean
+          last_active_at: string
+          tier: Database["public"]["Enums"]["user_tier"]
+          user_id: string
+          verification_date: string
+        }[]
       }
     }
     Enums: {
