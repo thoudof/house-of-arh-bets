@@ -273,22 +273,26 @@ serve(async (req) => {
       sessionToken = sessionData.properties?.hashed_token || '';
     }
 
-    // Сохраняем Telegram сессию
+    // Сохраняем Telegram сессию используя безопасную функцию
     const authDate = params.get('auth_date');
     const authTimestamp = authDate ? new Date(parseInt(authDate) * 1000) : new Date();
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 дней
 
-    await supabase
-      .from('telegram_sessions')
-      .insert({
-        user_id: userId,
-        telegram_id: userData.id,
-        init_data_hash: params.get('hash') || '',
-        auth_date: authTimestamp.toISOString(),
-        expires_at: expiresAt.toISOString(),
-        user_agent: req.headers.get('user-agent') || '',
-        is_active: true
-      });
+    // Используем безопасную RPC функцию вместо прямой вставки
+    const { error: sessionError } = await supabase.rpc('create_telegram_session', {
+      p_user_id: userId,
+      p_telegram_id: userData.id,
+      p_init_data_hash: params.get('hash') || '',
+      p_auth_date: authTimestamp.toISOString(),
+      p_expires_at: expiresAt.toISOString(),
+      p_ip_address: null, // Можно добавить real IP если нужно
+      p_user_agent: req.headers.get('user-agent') || null
+    });
+
+    if (sessionError) {
+      console.error('Ошибка создания сессии:', sessionError);
+      throw sessionError;
+    }
 
     // Обновляем время последней активности профиля
     await supabase

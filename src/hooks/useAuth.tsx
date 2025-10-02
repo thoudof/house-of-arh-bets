@@ -179,6 +179,24 @@ export const useAuth = () => {
 
   const logout = async () => {
     try {
+      // Деактивируем Telegram сессию если пользователь аутентифицирован
+      if (user?.id) {
+        // Получаем текущую сессию
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (sessionData?.session) {
+          // Деактивируем сессию через безопасную функцию
+          // (функция автоматически проверит, что сессия принадлежит пользователю)
+          try {
+            await supabase.rpc('deactivate_telegram_session', {
+              p_session_id: sessionData.session.user.id,
+              p_user_id: user.id
+            });
+          } catch (err) {
+            console.warn('Не удалось деактивировать Telegram сессию:', err);
+          }
+        }
+      }
+      
       await supabase.auth.signOut();
       setUser(null);
       setIsAuthenticated(false);

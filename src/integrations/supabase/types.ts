@@ -743,6 +743,22 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      create_telegram_session: {
+        Args: {
+          p_auth_date: string
+          p_expires_at: string
+          p_init_data_hash: string
+          p_ip_address?: unknown
+          p_telegram_id: number
+          p_user_agent?: string
+          p_user_id: string
+        }
+        Returns: string
+      }
+      deactivate_telegram_session: {
+        Args: { p_session_id: string; p_user_id: string }
+        Returns: boolean
+      }
       get_public_profile: {
         Args: { profile_user_id: string }
         Returns: {
@@ -757,6 +773,10 @@ export type Database = {
           user_id: string
           verification_date: string
         }[]
+      }
+      update_session_activity: {
+        Args: { p_session_id: string; p_user_id: string }
+        Returns: boolean
       }
     }
     Enums: {
