@@ -159,19 +159,19 @@ const Profile = () => {
                 <Avatar className="w-20 h-20 sm:w-24 sm:h-24 border-2 border-primary/20">
                   <AvatarImage src={profile.avatar_url || undefined} alt={profile.first_name} />
                   <AvatarFallback className="text-lg font-semibold bg-gradient-to-br from-primary to-primary-glow text-primary-foreground">
-                    {profile.first_name[0]}{profile.last_name?.[0]}
+                    {profile.first_name[0]}{'last_name' in profile ? profile.last_name?.[0] : ''}
                   </AvatarFallback>
                 </Avatar>
                 
                 <div className="text-center sm:text-left">
                   <div className="flex items-center justify-center sm:justify-start space-x-2 mb-1">
                     <h2 className="text-xl sm:text-2xl font-bold">
-                      {profile.first_name} {profile.last_name}
+                      {profile.display_name || profile.first_name}
                     </h2>
                     <VerificationBadge isVerified={profile.is_verified} size="sm" />
                   </div>
                   <p className="text-sm text-muted-foreground mb-2">
-                    @{profile.telegram_username || 'Пользователь'}
+                    {'telegram_username' in profile && profile.telegram_username ? `@${profile.telegram_username}` : ''}
                   </p>
                   
                    {/* Role and Tier Display */}

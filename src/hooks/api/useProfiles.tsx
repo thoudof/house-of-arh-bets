@@ -25,46 +25,79 @@ export const useProfile = (userId?: string) => {
 
       console.log('useProfile: Fetching profile for user ID:', targetUserId);
 
-      // @ts-ignore - Temporary fix until types regenerate
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', targetUserId)
-        .maybeSingle(); // Use maybeSingle instead of single to avoid error when no data
+      // Если это текущий пользователь, получаем полный профиль
+      if (user && targetUserId === user.id) {
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('user_id', targetUserId)
+          .maybeSingle();
 
-      if (error) {
-        console.error('useProfile: Error fetching profile:', error);
-        throw error;
+        if (error) {
+          console.error('useProfile: Error fetching profile:', error);
+          throw error;
+        }
+
+        if (!profile) {
+          console.warn('useProfile: No profile found for user ID:', targetUserId);
+          return null;
+        }
+
+        // Fetch user stats separately
+        const { data: userStats, error: statsError } = await supabase
+          .from('user_stats')
+          .select('*')
+          .eq('user_id', targetUserId)
+          .maybeSingle();
+
+        if (statsError) {
+          console.error('useProfile: Error fetching user stats:', statsError);
+        }
+
+        return {
+          ...profile,
+          user_stats: userStats ? [userStats] : []
+        };
+      } else {
+        // Для других пользователей используем безопасный public_profiles view
+        const { data: publicProfile, error } = await supabase
+          .from('public_profiles')
+          .select('*')
+          .eq('user_id', targetUserId)
+          .maybeSingle();
+
+        if (error) {
+          console.error('useProfile: Error fetching public profile:', error);
+          throw error;
+        }
+
+        if (!publicProfile) {
+          console.warn('useProfile: No public profile found for user ID:', targetUserId);
+          return null;
+        }
+
+        // Fetch user stats separately
+        const { data: userStats, error: statsError } = await supabase
+          .from('user_stats')
+          .select('*')
+          .eq('user_id', targetUserId)
+          .maybeSingle();
+
+        if (statsError) {
+          console.error('useProfile: Error fetching user stats:', statsError);
+        }
+
+        const result = {
+          ...publicProfile,
+          user_stats: userStats ? [userStats] : []
+        };
+
+        console.log('useProfile: Successfully fetched public profile:', result);
+        return result;
       }
-
-      if (!profile) {
-        console.warn('useProfile: No profile found for user ID:', targetUserId);
-        return null;
-      }
-
-      // Fetch user stats separately
-      // @ts-ignore - Temporary fix until types regenerate
-      const { data: userStats, error: statsError } = await supabase
-        .from('user_stats')
-        .select('*')
-        .eq('user_id', targetUserId)
-        .maybeSingle();
-
-      if (statsError) {
-        console.error('useProfile: Error fetching user stats:', statsError);
-      }
-
-      const result = {
-        ...profile,
-        user_stats: userStats ? [userStats] : []
-      };
-
-      console.log('useProfile: Successfully fetched profile:', result);
-      return result;
     },
     enabled: !!targetUserId && !isDemoMode(),
     retry: (failureCount, error) => {
-      // Retry up to 3 times, but not for "not found" errors
       if (error?.message?.includes('not found') || (error as any)?.code === 'PGRST116') {
         return false;
       }
@@ -84,37 +117,29 @@ export const useTopAnalysts = () => {
   return useQuery({
     queryKey: ['top-analysts'],
     queryFn: async () => {
-      // Fetch all profiles for now since we removed role column
-      // @ts-ignore - Temporary fix until types regenerate
-      const { data: profiles, error } = await supabase
-        .from('profiles')
-        .select(`
-          *,
-          user_stats!user_stats_user_id_fkey(*)
-        `)
-        .order('created_at', { ascending: false })
-        .limit(10);
+      // Используем безопасный view top_analysts
+      const { data: analysts, error } = await supabase
+        .from('top_analysts')
+        .select('*');
 
       if (error) throw error;
 
-      // Fetch user stats for each analyst
-      const analystsWithStats = await Promise.all(
-        (profiles || []).map(async (profile) => {
-          // @ts-ignore - Temporary fix until types regenerate
-          const { data: userStats } = await supabase
-            .from('user_stats')
-            .select('*')
-            .eq('user_id', profile.user_id)
-            .single();
-
-          return {
-            ...profile,
-            user_stats: userStats
-          };
-        })
-      );
-
-      return analystsWithStats;
+      // Преобразуем данные в нужный формат
+      return (analysts || []).map(analyst => ({
+        user_id: analyst.user_id,
+        first_name: analyst.first_name,
+        last_name: analyst.last_name,
+        display_name: analyst.display_name,
+        avatar_url: analyst.avatar_url,
+        tier: analyst.tier,
+        user_stats: {
+          total_predictions: analyst.total_predictions,
+          successful_predictions: analyst.successful_predictions,
+          roi: analyst.roi,
+          rating: analyst.rating,
+          total_subscribers: analyst.total_subscribers
+        }
+      }));
     },
     enabled: !isDemoMode(),
   });
