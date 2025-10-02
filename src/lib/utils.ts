@@ -7,11 +7,18 @@ export function cn(...inputs: ClassValue[]) {
 
 // Функция для определения, находимся ли мы в demo режиме
 export const isDemoMode = (): boolean => {
-  // Проверяем, запущено ли приложение в Lovable (не в Telegram)
-  return !window.Telegram?.WebApp?.initData;
+  if (typeof window === 'undefined') return true;
+  
+  // Проверяем наличие Telegram WebApp и initData
+  const hasTelegramWebApp = window.Telegram?.WebApp;
+  const hasInitData = window.Telegram?.WebApp?.initData;
+  
+  // Demo режим если нет Telegram окружения или нет initData
+  return !hasTelegramWebApp || !hasInitData;
 };
 
 // Функция для определения среды выполнения
 export const isTelegramEnvironment = (): boolean => {
-  return !!window.Telegram?.WebApp?.initData;
+  if (typeof window === 'undefined') return false;
+  return !!(window.Telegram?.WebApp?.initData);
 };

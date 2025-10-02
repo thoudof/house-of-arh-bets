@@ -35,7 +35,10 @@ export const useAuth = () => {
 
   // Проверяем текущую сессию при загрузке
   useEffect(() => {
-    initializeTelegramAuth();
+    const init = async () => {
+      await initializeTelegramAuth();
+    };
+    init();
   }, []);
 
   const initializeTelegramAuth = async () => {
@@ -65,12 +68,14 @@ export const useAuth = () => {
       if (telegramUser) {
         console.log('Найден пользователь Telegram:', telegramUser);
         
-        // Проверяем, есть ли уже сессия в Supabase
-        const { data: session } = await supabase.auth.getSession();
+      // Проверяем, есть ли уже сессия в Supabase
+        const { data: sessionData } = await supabase.auth.getSession();
         
-        if (session?.session) {
+        if (sessionData?.session) {
           // Загружаем профиль из базы данных
-          await loadUserProfile(session.session.user.id);
+          setTimeout(() => {
+            loadUserProfile(sessionData.session.user.id);
+          }, 0);
         } else {
           // Автоматически авторизуемся через Telegram
           await authenticateWithTelegram();
@@ -88,12 +93,17 @@ export const useAuth = () => {
 
   const loadUserProfile = async (userId: string) => {
     try {
-      // @ts-ignore - Temporary fix until types regenerate
-      const { data: profile } = await supabase
+      const { data: profile, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', userId)
         .maybeSingle();
+
+      if (error) {
+        console.error('Ошибка запроса профиля:', error);
+        setIsLoading(false);
+        return;
+      }
 
       if (profile) {
         setUser({
