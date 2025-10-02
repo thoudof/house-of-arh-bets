@@ -127,11 +127,10 @@ export const useTopAnalysts = () => {
       // Преобразуем данные в нужный формат
       return (analysts || []).map(analyst => ({
         user_id: analyst.user_id,
-        first_name: analyst.first_name,
-        last_name: analyst.last_name,
         display_name: analyst.display_name,
         avatar_url: analyst.avatar_url,
         tier: analyst.tier,
+        is_verified: analyst.is_verified,
         user_stats: {
           total_predictions: analyst.total_predictions,
           successful_predictions: analyst.successful_predictions,

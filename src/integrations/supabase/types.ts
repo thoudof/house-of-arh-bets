@@ -724,8 +724,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           display_name: string | null
-          first_name: string | null
-          last_name: string | null
+          is_verified: boolean | null
           rating: number | null
           roi: number | null
           successful_predictions: number | null
@@ -758,6 +757,20 @@ export type Database = {
       deactivate_telegram_session: {
         Args: { p_session_id: string; p_user_id: string }
         Returns: boolean
+      }
+      get_analyst_public_info: {
+        Args: { analyst_user_id: string }
+        Returns: {
+          avatar_url: string
+          display_name: string
+          is_verified: boolean
+          rating: number
+          roi: number
+          tier: Database["public"]["Enums"]["user_tier"]
+          total_predictions: number
+          user_id: string
+          win_rate: number
+        }[]
       }
       get_public_profile: {
         Args: { profile_user_id: string }
