@@ -787,6 +787,34 @@ export type Database = {
           verification_date: string
         }[]
       }
+      grant_user_achievement: {
+        Args: { p_achievement_id: string; p_user_id: string }
+        Returns: {
+          achievement_id: string
+          completed_at: string | null
+          created_at: string
+          current_progress: number | null
+          id: string
+          is_completed: boolean | null
+          user_id: string
+        }
+      }
+      update_achievement_progress: {
+        Args: {
+          p_achievement_id: string
+          p_progress_increment?: number
+          p_user_id: string
+        }
+        Returns: {
+          achievement_id: string
+          completed_at: string | null
+          created_at: string
+          current_progress: number | null
+          id: string
+          is_completed: boolean | null
+          user_id: string
+        }
+      }
       update_session_activity: {
         Args: { p_session_id: string; p_user_id: string }
         Returns: boolean
