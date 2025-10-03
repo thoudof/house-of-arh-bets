@@ -40,6 +40,45 @@ export const useProfile = (userId?: string) => {
 
         if (!profile) {
           console.warn('useProfile: No profile found for user ID:', targetUserId);
+          // Try to auto-create a profile from auth user metadata
+          try {
+            const { data: authUser } = await supabase.auth.getUser();
+            const meta: any = authUser?.user?.user_metadata ?? {};
+            if (authUser?.user?.id === targetUserId) {
+              const payload: any = {
+                user_id: targetUserId,
+                telegram_id: Number(meta.id ?? meta.telegram_id) || 0,
+                telegram_username: meta.username ?? meta.telegram_username ?? null,
+                first_name: meta.first_name ?? 'Пользователь',
+                last_name: meta.last_name ?? null,
+                language_code: meta.language_code ?? 'ru',
+                avatar_url: meta.photo_url ?? meta.avatar_url ?? null,
+              };
+              // @ts-ignore - types will regenerate from Supabase
+              const { data: created, error: createError } = await supabase
+                .from('profiles')
+                .insert(payload)
+                .select('*')
+                .maybeSingle();
+              if (!createError && created) {
+                // Ensure stats row exists
+                try {
+                  await supabase
+                    .from('user_stats')
+                    .insert({ user_id: targetUserId })
+                    .select('*')
+                    .maybeSingle();
+                } catch (_) { /* ignore if exists */ }
+
+                return {
+                  ...created,
+                  user_stats: []
+                };
+              }
+            }
+          } catch (e) {
+            console.warn('useProfile: Auto-create profile failed (may already exist):', e);
+          }
           return null;
         }
 

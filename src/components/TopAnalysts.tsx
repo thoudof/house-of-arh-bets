@@ -46,7 +46,7 @@ const TopAnalysts = () => {
       <CardContent className="space-y-3">
         {(analysts || []).slice(0, 3).map((analyst, index) => (
           <div 
-            key={analyst.id} 
+            key={analyst.user_id || index}
             className="p-3 rounded-lg bg-muted/20 hover:bg-muted/30 transition-all duration-200 animate-fade-in"
             style={{ animationDelay: `${index * 100}ms` }}
           >
@@ -56,7 +56,7 @@ const TopAnalysts = () => {
                 <div>
                    <div className="flex items-center space-x-1">
                      <h4 className="font-medium text-sm text-foreground">
-                       {analyst.first_name} {analyst.last_name}
+                       {analyst.display_name}
                      </h4>
                      <VerificationBadge isVerified={analyst.is_verified} size="sm" />
                    </div>
